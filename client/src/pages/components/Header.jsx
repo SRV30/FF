@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaSearch, FaShoppingCart, FaSun, FaMoon } from "react-icons/fa";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { NavLink } from "react-router-dom";
 
 const Header = () => {
   const [darkMode, setDarkMode] = useState(() => {
@@ -53,7 +54,7 @@ const Header = () => {
         </button>
 
         <div className="w-8 h-8 rounded-full bg-red-700 dark:bg-red-500 flex items-center justify-center text-white font-bold">
-          A
+          <NavLink to="/my-profile"> A</NavLink>
         </div>
       </div>
     </header>
