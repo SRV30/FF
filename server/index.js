@@ -1,5 +1,5 @@
 import express from "express";
-import mongoose from "mongoose";
+import connectDB from "./config/connectDB.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -15,16 +15,6 @@ process.on("uncaughtException", (err) => {
   console.error(`Shutting down the server due to Uncaught Exception`);
   process.exit(1);
 });
-
-mongoose
-  .connect(process.env.MONGODB_URL)
-  .then((data) =>
-    console.log(`Mongodb connected with server: ${data.connection.host}`)
-  )
-  .catch((error) => {
-    console.error("MongoDB connection failed:", error);
-    process.exit(1);
-  });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -74,7 +64,9 @@ app.get("/", (req, res) => {
 
 //routes
 
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+connectDB().then(() => {
+  app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+});
 
 process.on("unhandledRejection", (err) => {
   console.error(`Error: ${err.message}`);
