@@ -5,16 +5,19 @@ import { ToastContainer } from "react-toastify";
 import Footer from "./pages/components/Footer";
 
 import MyProfile from "./pages/my-profile/MyProfile";
-
-
 import Products from "./pages/products/Products";
+import About from "./pages/components/About"
 import SingleProduct from "./pages/products/SingleProduct";
 import Review from "./pages/products/Review";
 import Cart from "./pages/orders/Cart";
+
 import MyOrders from "./pages/my-profile/MyOrders";
 import UpdatePassword from "./pages/my-profile/UpdatePassword";
 import UpdateProfile from "./pages/my-profile/UpdateProfile";
 import SavedAddress from "./pages/my-profile/SavedAddress";
+
+import ContactUs from "./pages/components/ContactUs";
+
 
 const App = () => {
   return (
@@ -34,6 +37,8 @@ const App = () => {
         <Route path="/singleproduct" element={<SingleProduct />} />
         <Route path="/singleproduct" element={<Review />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/About" element={<About />} />
+        <Route path="/ContactUs" element={<ContactUs />} />
 
       </Routes>
 
