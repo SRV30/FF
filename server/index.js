@@ -56,6 +56,9 @@ app.get("/", (req, res) => {
 });
 
 //routes
+import discountRouter from "./route/discountRoutes.js";
+
+app.use('/api/discount', discountRouter);
 
 connectDB().then(() => {
   app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
