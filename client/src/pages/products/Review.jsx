@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { Heart, ShoppingCart } from 'lucide-react';
 
 const Review = () => {
   const [activeTab, setActiveTab] = useState('description');
+  const [wishlist, setWishlist] = useState(new Set());
   
   const products = [
     {
@@ -40,6 +42,18 @@ const Review = () => {
       color: 'Black/White'
     }
   ];
+
+  const toggleWishlist = (productId) => {
+    setWishlist(prev => {
+      const newWishlist = new Set(prev);
+      if (newWishlist.has(productId)) {
+        newWishlist.delete(productId);
+      } else {
+        newWishlist.add(productId);
+      }
+      return newWishlist;
+    });
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -100,6 +114,16 @@ const Review = () => {
             <div key={product.id} className="group border border-gray-200 rounded-lg overflow-hidden bg-white">
               {/* Card Container */}
               <div className="aspect-[4/4] relative">
+                {/* Wishlist Button */}
+                <button 
+                  onClick={() => toggleWishlist(product.id)}
+                  className="absolute top-2 right-2 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-300"
+                >
+                  <Heart 
+                    className={`w-5 h-5 ${wishlist.has(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+                  />
+                </button>
+                
                 {/* Image Container */}
                 <div className="w-full h-full relative overflow-hidden">
                   <img
@@ -125,8 +149,9 @@ const Review = () => {
                   <p className="text-lg font-semibold text-gray-800">
                     ${product.price}
                   </p>
-                  <button className="px-3 py-1 text-sm bg-gray-800 text-white rounded hover:bg-gray-700 transition-colors duration-300">
-                    Add to Cart
+                  <button className="px-3 py-1 text-sm bg-gray-800 text-white rounded hover:bg-gray-700 transition-colors duration-300 flex items-center gap-2">
+                    <ShoppingCart className="w-4 h-4" />
+                    Add
                   </button>
                 </div>
               </div>

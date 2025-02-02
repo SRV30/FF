@@ -11,6 +11,11 @@ import SingleProduct from "./pages/products/SingleProduct";
 import Review from "./pages/products/Review";
 import Cart from "./pages/orders/Cart";
 
+import Wishlist from "./pages/orders/Wishlist";
+import ProductPostForm from "./pages/admin/ProductPostForm";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+
+
 import MyOrders from "./pages/my-profile/MyOrders";
 import UpdatePassword from "./pages/my-profile/UpdatePassword";
 import UpdateProfile from "./pages/my-profile/UpdateProfile";
@@ -26,6 +31,8 @@ const App = () => {
       <Header />
 
       <Routes>
+        {/* Your other components go here */}
+
         <Route path="/" element={<Home />} />
 
         <Route path="/my-profile" element={<MyProfile/>} />
@@ -37,8 +44,12 @@ const App = () => {
         <Route path="/singleproduct" element={<SingleProduct />} />
         <Route path="/singleproduct" element={<Review />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/productpostform" element={<ProductPostForm />} />
+        <Route path="/AdminDashboard" element={<AdminDashboard/>} />
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />
+
 
       </Routes>
 
