@@ -64,31 +64,31 @@ const Products = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen  bg-white text-black dark:bg-gray-900 dark:text-white">
       {/* Header */}
     
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-row gap-8">
+      <div className="container mx-auto px-4 py-8  bg-white text-black dark:bg-gray-900 dark:text-white">
+        <div className="flex flex-row gap-8  bg-white text-black dark:bg-gray-900 dark:text-white">
           {/* Filters Sidebar */}
           <div className="w-64 shrink-0">
-            <div className="bg-white p-4 rounded-lg shadow sticky top-4">
-              <h2 className="font-bold text-lg mb-4">FILTERS</h2>
+            <div className="bg-white p-4 rounded-lg shadow sticky top-4   text-black dark:bg-gray-900 dark:text-white">
+              <h2 className="font-bold text-lg mb-4  bg-white text-black dark:bg-gray-900 dark:text-white">FILTERS</h2>
               
               {/* Price Range Filter */}
-              <div className="mb-6">
-                <h3 className="font-semibold mb-2">Price Range</h3>
-                <div className="space-y-2">
+              <div className="mb-6  bg-white text-black dark:bg-gray-900 dark:text-white">
+                <h3 className="font-semibold mb-2  bg-white text-black dark:bg-gray-900 dark:text-white">Price Range</h3>
+                <div className="space-y-2  bg-white text-black dark:bg-gray-900 dark:text-white">
                   <input
                     type="range"
                     min="0"
                     max="100"
                     value={priceRange[1]}
                     onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                    className="w-full"
+                    className="w-full  bg-white text-black dark:bg-gray-900 dark:text-white"
                   />
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-sm   bg-white text-black dark:bg-gray-900 dark:text-white">
                     <span>${priceRange[0]}</span>
                     <span>${priceRange[1]}</span>
                   </div>
@@ -96,36 +96,36 @@ const Products = () => {
               </div>
 
               {/* Categories */}
-              <div className="mb-6">
-                <h3 className="font-semibold mb-2">Categories</h3>
-                <div className="space-y-2">
+              <div className="mb-6  bg-white text-black dark:bg-gray-900 dark:text-white">
+                <h3 className="font-semibold mb-2  bg-white text-black dark:bg-gray-900 dark:text-white">Categories</h3>
+                <div className="space-y-2  bg-white text-black dark:bg-gray-900 dark:text-white">
                   {['men', 'women', 'kids'].map(category => (
-                    <label key={category} className="flex items-center space-x-2">
+                    <label key={category} className="flex items-center space-x-2  bg-white text-black dark:bg-gray-900 dark:text-white">
                       <input 
                         type="checkbox"
                         checked={selectedCategories.includes(category)}
                         onChange={() => handleCategoryChange(category)}
-                        className="rounded"
+                        className="rounded  bg-white text-black dark:bg-gray-900 dark:text-white"
                       />
-                      <span className="capitalize">{category}</span>
+                      <span className="capitalize  bg-white text-black dark:bg-gray-900 dark:text-white">{category}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               {/* Type */}
-              <div className="mb-6">
-                <h3 className="font-semibold mb-2">Type</h3>
-                <div className="space-y-2">
+              <div className="mb-6  bg-white text-black dark:bg-gray-900 dark:text-white">
+                <h3 className="font-semibold mb-2  bg-white text-black dark:bg-gray-900 dark:text-white">Type</h3>
+                <div className="space-y-2 bg bg-white text-black dark:bg-gray-900 dark:text-white">
                   {['topwear', 'bottomwear', 'winterwear'].map(type => (
-                    <label key={type} className="flex items-center space-x-2">
+                    <label key={type} className="flex items-center space-x-2  bg-white text-black dark:bg-gray-900 dark:text-white">
                       <input 
                         type="checkbox"
                         checked={selectedTypes.includes(type)}
                         onChange={() => handleTypeChange(type)}
-                        className="rounded"
+                        className="rounded  bg-white text-black dark:bg-gray-900 dark:text-white"
                       />
-                      <span className="capitalize">{type}</span>
+                      <span className="capitalize  bg-white text-black dark:bg-gray-900 dark:text-white">{type}</span>
                     </label>
                   ))}
                 </div>
@@ -134,38 +134,38 @@ const Products = () => {
           </div>
 
           {/* Products Section */}
-          <div className="flex-1 min-w-0">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">ALL COLLECTIONS</h2>
+          <div className="flex-1 min-w-0 bg-white text-black dark:bg-gray-900 dark:text-white">
+            <div className="flex justify-between items-center mb-6 bg-white text-black dark:bg-gray-900 dark:text-white">
+              <h2 className="text-xl font-semibold bg-white text-black dark:bg-gray-900 dark:text-white">ALL COLLECTIONS</h2>
               <select 
-                className="p-2 border rounded-lg bg-white"
+                className="p-2 border rounded-lg  bg-white text-black dark:bg-gray-900 dark:text-white"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
-                <option value="relevant">Sort by: Relevant</option>
-                <option value="price-low-high">Price: Low to High</option>
-                <option value="price-high-low">Price: High to Low</option>
+                <option value="relevant bg-white text-black dark:bg-gray-900 dark:text-white">Sort by: Relevant</option>
+                <option value="price-low-high bg-white text-black dark:bg-gray-900 dark:text-white">Price: Low to High</option>
+                <option value="price-high-low bg-white text-black dark:bg-gray-900 dark:text-white">Price: High to Low</option>
               </select>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-white text-black dark:bg-gray-900 dark:text-white">
               {filteredProducts.map(product => (
-                <div key={product.id} className="bg-white rounded-lg shadow overflow-hidden">
+                <div key={product.id} className="bg-white rounded-lg shadow overflow-hidden  text-black dark:bg-gray-900 dark:text-white">
                   <img 
                     src={product.image} 
                     alt={product.name}
-                    className="w-full h-64 object-cover"
+                    className="w-full h-64 object-cover bg-white text-black dark:bg-gray-900 dark:text-white"
                   />
                   <div className="p-4">
-                    <h3 className="font-semibold mb-2">{product.name}</h3>
-                    <p className="text-gray-600">${product.price}</p>
+                    <h3 className="font-semibold mb-2 bg-white text-black dark:bg-gray-900 dark:text-white">{product.name}</h3>
+                    <p className=" bg-white text-black dark:bg-gray-900 dark:text-white">${product.price}</p>
                   </div>
                 </div>
               ))}
             </div>
             
             {filteredProducts.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8  bg-white text-black dark:bg-gray-900 dark:text-white">
                 No products match your selected filters.
               </div>
             )}
