@@ -3,6 +3,9 @@ import Header from "./pages/components/Header";
 import Home from "./pages/components/Home";
 import { ToastContainer } from "react-toastify";
 import Footer from "./pages/components/Footer";
+import Login from "./pages/auth-page/Login";
+import ForgotPassword from "./pages/auth-page/ForgotPassword";
+import ResetPassword from "./pages/auth-page/ResetPassword";
 
 const App = () => {
   return (
@@ -12,6 +15,9 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login/>}/>
+        <Route path="/forgot-password" element={<ForgotPassword/>}/>
+        <Route path="/reset-password" element={<ResetPassword/>}/>  
       </Routes>
 
       <Footer />
