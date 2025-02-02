@@ -29,16 +29,12 @@ const Header = () => {
       </div>
 
       {/* Navigation */}
-<<<<<<< HEAD
-      <nav className="flex space-x-6 text-black dark:text-gray-300">
-        <a href="#" className="text-red-700 dark:text-red-400 font-bold border-b-2 border-red-700 dark:border-red-400">
-=======
+  
       <nav className="flex space-x-6 text-gray-700 dark:text-gray-300">
         <a
           href="/"
           className="text-red-700 dark:text-red-400 font-bold border-b-2 border-red-700 dark:border-red-400"
         >
->>>>>>> b67a2ee4ee9dca2b25b5a0a3a20884542986961b
           Home
         </a>
         <a href="/products" className="hover:text-red-700 dark:hover:text-red-400">
