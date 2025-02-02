@@ -26,7 +26,7 @@ const Header = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex space-x-6 text-gray-700 dark:text-gray-300">
+      <nav className="flex space-x-6 text-black dark:text-gray-300">
         <a href="#" className="text-red-700 dark:text-red-400 font-bold border-b-2 border-red-700 dark:border-red-400">
           Home
         </a>
