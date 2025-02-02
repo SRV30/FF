@@ -1,23 +1,31 @@
 import { v2 as cloudinary } from "cloudinary";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET_KEY,
-});
-
 const uploadImage = async (image) => {
-  const buffer = image?.buffer || Buffer.from(await image.arrayBuffer());
+  try {
+    const buffer = image?.buffer || Buffer.from(await image.arrayBuffer());
 
-  const uploadImage = await new Promise((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream({ folder: "ff" }, (error, uploadResult) => {
-        return resolve(uploadResult);
-      })
-      .end(buffer);
-  });
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream({ folder: "ff" }, (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      }).end(buffer);
+    });
 
-  return uploadImage;
+    return uploadResult;
+  } catch (error) {
+    throw new Error(`Image upload failed: ${error.message}`);
+  }
 };
 
-export default uploadImage;
+const deleteImage = async (public_id) => {
+  try {
+    const result = await cloudinary.uploader.destroy(public_id);
+    return result;
+  } catch (error) {
+    throw new Error(`Image delete failed: ${error.message}`);
+  }
+};
+
+export { uploadImage, deleteImage };
