@@ -29,6 +29,7 @@ const Header = () => {
       </div>
 
       {/* Navigation */}
+  
       <nav className="flex space-x-6 text-gray-700 dark:text-gray-300">
         <a
           href="/"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, ShoppingCart, X, Minus, Plus } from 'lucide-react';
+import { Star, ShoppingCart, X, Minus, Plus, Heart } from 'lucide-react';
 import Review from './Review';
 
 const SingleProduct = () => {
@@ -9,9 +9,11 @@ const SingleProduct = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [couponCode, setCouponCode] = useState('');
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
+  // Move product data inside component
   const product = {
-    id: 1, // Added product ID
+    id: 1,
     name: 'Men Slim Fit Relaxed Denim Jacket',
     price: 79,
     rating: 4,
@@ -30,6 +32,11 @@ const SingleProduct = () => {
       'Cash on delivery is available on this product.',
       'Easy return and exchange policy within 7 days.'
     ]
+  };
+
+  // Toggle wishlist
+  const toggleWishlist = () => {
+    setIsWishlisted(!isWishlisted);
   };
 
   // Cart Functions
@@ -61,9 +68,9 @@ const SingleProduct = () => {
         }
       ]);
     }
-   
   };
 
+  // Rest of the functions
   const updateQuantity = (itemId, size, newQuantity) => {
     if (newQuantity < 1) return;
     
@@ -86,7 +93,6 @@ const SingleProduct = () => {
   const total = subtotal - discount;
 
   const applyCoupon = () => {
-    // Add coupon logic here
     alert(`Applying coupon: ${couponCode}`);
   };
 
@@ -254,7 +260,7 @@ const SingleProduct = () => {
           </div>
 
           {/* Main Image */}
-          <div className="flex-1">
+          <div className="flex-1 relative">
             <button 
               onClick={() => setIsModalOpen(true)}
               className="w-full rounded-lg overflow-hidden hover:opacity-90 transition-opacity"
@@ -263,6 +269,17 @@ const SingleProduct = () => {
                 src={product.images[selectedImage]}
                 alt={product.name}
                 className="w-full h-auto"
+              />
+            </button>
+            {/* Wishlist button */}
+            <button
+              onClick={toggleWishlist}
+              className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors z-10"
+            >
+              <Heart
+                className={`w-6 h-6 ${
+                  isWishlisted ? 'fill-red-500 stroke-red-500' : 'stroke-gray-400'
+                }`}
               />
             </button>
           </div>
