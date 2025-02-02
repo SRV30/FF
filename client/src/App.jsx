@@ -9,17 +9,13 @@ import About from "./pages/components/About"
 import SingleProduct from "./pages/products/SingleProduct";
 import Review from "./pages/products/Review";
 import Cart from "./pages/orders/Cart";
-
 import Wishlist from "./pages/orders/Wishlist";
 import ProductPostForm from "./pages/admin/ProductPostForm";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-
-
 import MyOrders from "./pages/my-profile/MyOrders";
 import UpdatePassword from "./pages/my-profile/UpdatePassword";
 import UpdateProfile from "./pages/my-profile/UpdateProfile";
 import SavedAddress from "./pages/my-profile/SavedAddress";
-
 import ContactUs from "./pages/components/ContactUs";
 import Login from "./pages/auth-page/Login";
 import ForgotPassword from "./pages/auth-page/ForgotPassword";
