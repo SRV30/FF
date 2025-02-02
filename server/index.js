@@ -65,7 +65,9 @@ app.get("/", (req, res) => {
 //routes
 import discountRouter from "./route/discountRoutes.js";
 import productRouter from "./route/productRoute.js";
+import userRouter from "./route/userRoute.js";
 
+app.use('/api/user', userRouter);
 app.use('/api/discount', discountRouter);
 app.use('/api/product', productRouter);
 
