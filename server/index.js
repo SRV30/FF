@@ -1,11 +1,12 @@
-import express from "express";
-import connectDB from "./config/connectDB.js";
-import dotenv from "dotenv";
-import cors from "cors";
+import cloudinary from "cloudinary";
 import cookieParser from "cookie-parser";
-import helmet from "helmet";
+import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 import morgan from "morgan";
+import connectDB from "./config/connectDB.js";
 import errorMiddleware from "./middleware/error.js";
 dotenv.config();
 
@@ -13,6 +14,12 @@ process.on("uncaughtException", (err) => {
   console.error(`Error: ${err.message}`);
   console.error(`Shutting down the server due to Uncaught Exception`);
   process.exit(1);
+});
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const limiter = rateLimit({
@@ -57,8 +64,10 @@ app.get("/", (req, res) => {
 
 //routes
 import discountRouter from "./route/discountRoutes.js";
+import productRouter from "./route/productRoute.js";
 
 app.use('/api/discount', discountRouter);
+app.use('/api/product', productRouter);
 
 connectDB().then(() => {
   app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
