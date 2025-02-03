@@ -9,6 +9,8 @@ import SingleProduct from "./pages/products/SingleProduct";
 import Review from "./pages/products/Review";
 import Cart from "./pages/orders/Cart";
 import ContactUs from "./pages/components/ContactUs";
+import ReviewSection from "./pages/components/ReviewSection"
+import OrderSuccess from "./pages/orders/OrderSuccess"
 const App = () => {
   return (
     <div className="flex flex-col overflow-hidden bg-white dark:bg-black text-black dark:text-white">
@@ -23,6 +25,9 @@ const App = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />
+        <Route path="/Review" element={<Review />} />
+        <Route path="/ReviewSection" element={<ReviewSection />} />
+        <Route path="/OrderSuccess" element={<OrderSuccess />} />
       </Routes>
 
       <Footer />

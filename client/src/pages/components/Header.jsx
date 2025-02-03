@@ -1,64 +1,76 @@
-import { useEffect, useState } from "react";
-import { FaSearch, FaShoppingCart, FaSun, FaMoon } from "react-icons/fa";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { useState, useEffect } from "react";
+import { Search, Heart, ShoppingCart, ChevronDown, Menu, X, Sun, Moon } from "lucide-react";
 
-const Header = () => {
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("theme") === "dark";
-  });
+export default function Header() {
+  const [darkMode, setDarkMode] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
+  // Load theme from localStorage
   useEffect(() => {
-    if (darkMode) {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      setDarkMode(true);
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+
+  // Toggle Dark Mode
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+    if (!darkMode) {
       document.documentElement.classList.add("dark");
       localStorage.setItem("theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
-  }, [darkMode]);
+  };
 
   return (
-    <header className="bg-yellow-500 dark:bg-gray-900 p-4 shadow-md flex justify-between items-center transition-all duration-300">
-      {/* Logo */}
+    <header className="bg-[#e6b561] dark:bg-gray-900 flex items-center justify-between px-6 py-3">
+      {/* Left Section: Logo */}
       <div className="flex items-center space-x-2">
-        <div className="bg-red-600 w-6 h-6 rounded-full"></div>
-        <h1 className="text-xl font-bold text-black dark:text-white">Logo</h1>
+        <div className="text-red-600 text-2xl font-bold">🟠</div>
+        <span className="text-black dark:text-white text-lg font-semibold">Logo</span>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex space-x-6 text-gray-700 dark:text-gray-300">
-        <a href="#" className="text-red-700 dark:text-red-400 font-bold border-b-2 border-red-700 dark:border-red-400">
-          Home
-        </a>
-        <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Collection</a>
-        <a href="#" className="hover:text-red-700 dark:hover:text-red-400">About</a>
-        <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Contact Us</a>
+      {/* Center Section: Navigation */}
+      <nav className="hidden md:flex space-x-6 text-gray-700 dark:text-gray-300 text-sm">
+        <a href="#" className="text-red-600 dark:text-red-400 font-semibold border-b-2 border-red-600 dark:border-red-400">Home</a>
+        <a href="#" className="hover:text-black dark:hover:text-white">Collection</a>
+        <a href="#" className="hover:text-black dark:hover:text-white">About</a>
+        <a href="#" className="hover:text-black dark:hover:text-white">Contact Us</a>
       </nav>
 
-      {/* Right-side Icons & Dark Mode Toggle */}
-      <div className="flex items-center space-x-4 text-gray-800 dark:text-gray-300">
-        <FaSearch className="cursor-pointer hover:text-red-700 dark:hover:text-red-400" />
-        <div className="relative">
-          <FavoriteBorderIcon />
-          <span className="absolute -top-2 -right-2 bg-red-700 text-white dark:bg-red-500 text-xs rounded-full px-1">2</span>
-        </div>
-        <FaShoppingCart className="cursor-pointer hover:text-red-700 dark:hover:text-red-400" />
-
-        {/* Dark Mode Button */}
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 transition"
-        >
-          {darkMode ? <FaSun className="text-yellow-500" /> : <FaMoon className="text-gray-800" />}
+      {/* Right Section: Icons */}
+      <div className="flex items-center space-x-4 text-black dark:text-white">
+        <Search className="w-5 h-5 cursor-pointer" />
+        <Heart className="w-5 h-5 cursor-pointer" /> {/* Wishlist Icon */}
+        <ShoppingCart className="w-5 h-5 cursor-pointer" />
+        <button onClick={toggleDarkMode} className="w-6 h-6">
+          {darkMode ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5" />}
         </button>
-
-        <div className="w-8 h-8 rounded-full bg-red-700 dark:bg-red-500 flex items-center justify-center text-white font-bold">
-          A
+        <div className="relative">
+          <div className="w-8 h-8 bg-red-600 text-white flex items-center justify-center rounded-full cursor-pointer">
+            A
+          </div>
         </div>
+
+        {/* Mobile Menu Toggle */}
+        <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </div>
+
+      {/* Mobile Navigation Menu */}
+      {menuOpen && (
+        <nav className="absolute top-16 left-0 w-full bg-[#e6b561] dark:bg-gray-900 md:hidden flex flex-col items-center space-y-4 py-4 shadow-md">
+          <a href="#" className="text-red-600 dark:text-red-400 font-semibold">Home</a>
+          <a href="#" className="hover:text-black dark:hover:text-white">Collection</a>
+          <a href="#" className="hover:text-black dark:hover:text-white">About</a>
+          <a href="#" className="hover:text-black dark:hover:text-white">Contact Us</a>
+        </nav>
+      )}
     </header>
   );
-};
-
-export default Header;
-
+}
