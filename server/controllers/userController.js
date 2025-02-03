@@ -184,10 +184,8 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
 
     const cookiesOption = {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      // secure: process.env.NODE_ENV === "production", 
-      // sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     };
     res.cookie("accessToken", accessToken, cookiesOption);
     res.cookie("refreshToken", refreshToken, cookiesOption);
@@ -200,6 +198,51 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
         accessToken,
         refreshToken,
       },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const logoutUser = catchAsyncErrors(async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "User not authenticated",
+        error: true,
+        success: false,
+      });
+    }
+
+    const cookiesOption = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    };
+
+    res.clearCookie("accessToken", cookiesOption);
+    res.clearCookie("refreshToken", cookiesOption);
+
+    const user = await User.findByIdAndUpdate(userId, { refreshToken: "" });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found",
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.json({
+      message: "Logout successful",
+      error: false,
+      success: true,
     });
   } catch (error) {
     return res.status(500).json({
