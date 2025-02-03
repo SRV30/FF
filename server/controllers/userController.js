@@ -4,6 +4,8 @@ import sendEmail from "../config/sendEmail.js";
 import verifyEmailTemplate from "../utils/verifyEmailTemplate.js";
 import jwt from "jsonwebtoken";
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
+import generatedAccessToken from "../models/generatedAccessToken.js";
+import generatedRefreshToken from "../models/generatedRefreshToken.js";
 
 export const registerUser = catchAsyncErrors(async (req, res) => {
   try {
@@ -134,4 +136,76 @@ export const verifyEmailController = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const loginUser = catchAsyncErrors(async (req, res) => {});
+export const loginUser = catchAsyncErrors(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Please provide email and password",
+        error: true,
+        success: false,
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "User is not registered",
+        error: true,
+        success: false,
+      });
+    }
+
+    if (user.status !== "Active") {
+      return res.status(400).json({
+        message: "Your account is not active. Please contact the admin.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const checkPassword = await bcryptjs.compare(password, user.password);
+
+    if (!checkPassword) {
+      return res.status(400).json({
+        message: "Incorrect password",
+        error: true,
+        success: false,
+      });
+    }
+
+    const accessToken = await generatedAccessToken(user._id);
+    const refreshToken = await generatedRefreshToken(user._id);
+
+    user.lastLogin = new Date();
+    await user.save();
+
+    const cookiesOption = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      // secure: process.env.NODE_ENV === "production", 
+      // sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    };
+    res.cookie("accessToken", accessToken, cookiesOption);
+    res.cookie("refreshToken", refreshToken, cookiesOption);
+
+    return res.status(200).json({
+      message: "Login successful",
+      error: false,
+      success: true,
+      data: {
+        accessToken,
+        refreshToken,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+      error: true,
+      success: false,
+    });
+  }
+});
