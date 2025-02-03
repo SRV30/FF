@@ -7,6 +7,8 @@ import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
 import generatedAccessToken from "../models/generatedAccessToken.js";
 import generatedRefreshToken from "../models/generatedRefreshToken.js";
 import { deleteImage, uploadImage } from "../utils/cloudinary.js";
+import forgotPasswordTemplate from "../utils/forgotPasswordTemplate.js";
+import generatedOtp from "../utils/generatedOtp.js";
 
 export const registerUser = catchAsyncErrors(async (req, res) => {
   try {
@@ -171,7 +173,7 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
 
     if (!checkPassword) {
       return res.status(400).json({
-        message: "Incorrect password",
+        message: "Incorrect email or password",
         error: true,
         success: false,
       });
@@ -198,6 +200,7 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
       data: {
         accessToken,
         refreshToken,
+        user,
       },
     });
   } catch (error) {
@@ -341,6 +344,322 @@ export const deleteUser = catchAsyncErrors(async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: error.message || "Internal Server Error",
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const updateUserDetails = catchAsyncErrors(async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { name, email, mobile, password } = req.body;
+    const avatar = req.file;
+
+    let updateFields = {};
+
+    if (name) updateFields.name = name;
+    if (email) updateFields.email = email;
+    if (mobile) updateFields.mobile = mobile;
+
+    if (password) {
+      const salt = await bcryptjs.genSalt(10);
+      updateFields.password = await bcryptjs.hash(password, salt);
+    }
+
+    if (avatar) {
+      const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+      if (!validImageTypes.includes(avatar.mimetype)) {
+        return res.status(400).json({
+          message: "Invalid image type. Only JPEG, PNG, and GIF are allowed.",
+          error: true,
+          success: false,
+        });
+      }
+
+      const user = await User.findById(userId);
+
+      if (user.avatar) {
+        const publicId = user.avatar.split("/").pop().split(".")[0];
+        await deleteImage(`ff/${publicId}`);
+      }
+
+      const uploadResult = await uploadImage(avatar);
+
+      if (!uploadResult || !uploadResult.url) {
+        return res.status(500).json({
+          message: "Image upload failed",
+          error: true,
+          success: false,
+        });
+      }
+
+      updateFields.avatar = uploadResult.url;
+    }
+
+    const updateUser = await User.findByIdAndUpdate(userId, updateFields, {
+      new: true,
+    });
+
+    if (!updateUser) {
+      return res.status(404).json({
+        message: "User not found",
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.json({
+      message: "User details updated successfully",
+      error: false,
+      success: true,
+      data: updateUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const forgotPassword = catchAsyncErrors(async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Email not available",
+        error: true,
+        success: false,
+      });
+    }
+
+    const otp = generatedOtp();
+    const expireTime = new Date(new Date().getTime() + 10 * 60 * 1000);
+
+    const update = await User.findByIdAndUpdate(user._id, {
+      forgot_password_otp: otp,
+      forgot_password_expiry: new Date(expireTime).toISOString(),
+    });
+
+    if (!update) {
+      return res.status(500).json({
+        message: "Failed to update user with OTP",
+        error: true,
+        success: false,
+      });
+    }
+
+    await sendEmail({
+      sendTo: email,
+      subject: "Forgot password from Faith & Fast",
+      html: forgotPasswordTemplate({
+        name: user.name,
+        otp: otp,
+      }),
+    });
+
+    return res.json({
+      message:
+        "A password reset OTP has been sent to your email. Please check your inbox.",
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const verifyOtp = catchAsyncErrors(async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        message: "Please provide both email and otp.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Email not registered.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const currentTime = new Date().toISOString();
+
+    if (user.forgot_password_expiry < currentTime) {
+      return res.status(400).json({
+        message: "Otp has expired. Please req a new one.",
+        error: true,
+        success: false,
+      });
+    }
+
+    if (otp !== user.forgot_password_otp) {
+      return res.status(400).json({
+        message: "Invalid otp. Please try again.",
+        error: true,
+        success: false,
+      });
+    }
+
+    await User.findByIdAndUpdate(user._id, {
+      forgot_password_otp: "",
+      forgot_password_expiry: "",
+    });
+
+    return res.json({
+      message: "OTP verified successfully.",
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "An error occurred while verifying OTP.",
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const resetPassword = catchAsyncErrors(async (req, res) => {
+  try {
+    const { email, newPassword, confirmPassword } = req.body;
+
+    if (!email || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        message:
+          "Please provide required fields: email, newPassword, and confirmPassword.",
+        error: true,
+        success: false,
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        message: "New password and confirm password must be the same.",
+        error: true,
+        success: false,
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        message: "Password must be at least 6 characters long.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Email not found.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const salt = await bcryptjs.genSalt(10);
+    const hashPassword = await bcryptjs.hash(newPassword, salt);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        password: hashPassword,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(500).json({
+        message: "Failed to update password. Please try again.",
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.json({
+      message: "Password updated successfully.",
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message:
+        error.message || "An error occurred while updating the password.",
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const refreshToken = catchAsyncErrors(async (req, res) => {
+  try {
+    const refreshToken =
+      req.cookies.refreshToken || req?.headers?.authorization?.split(" ")[1];
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        message: "Refresh token is missing",
+        error: true,
+        success: false,
+      });
+    }
+
+    let verifyToken;
+    try {
+      verifyToken = jwt.verify(
+        refreshToken,
+        process.env.SECRET_KEY_REFRESH_TOKEN
+      );
+    } catch (error) {
+      return res.status(403).json({
+        message: "Invalid or expired refresh token",
+        error: true,
+        success: false,
+      });
+    }
+
+    const userId = verifyToken?.id;
+
+    const newAccessToken = await generatedAccessToken(userId);
+
+    const cookiesOption = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    };
+
+    res.cookie("accessToken", newAccessToken, cookiesOption);
+
+    return res.json({
+      message: "New Access token generated",
+      error: false,
+      success: true,
+      data: {
+        accessToken: newAccessToken,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Server error while refreshing token",
       error: true,
       success: false,
     });

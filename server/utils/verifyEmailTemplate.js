@@ -12,7 +12,7 @@ const verifyEmailTemplate = ({ name, url }) => {
       
       <!-- Welcome Message -->
       <p style="font-size: 16px; line-height: 1.6;">
-        Welcome to <strong>Faith & Fast</strong>! 🎉 We’re thrilled to have you join our community.
+        Welcome to <strong>Faith & Fast</strong>! 🎉 We're thrilled to have you join our community.
         To complete your registration, please verify your email address by clicking the button below.
       </p>
   
@@ -36,14 +36,14 @@ const verifyEmailTemplate = ({ name, url }) => {
   
       <!-- Additional Info -->
       <p style="font-size: 14px; color: #666; text-align: center;">
-        If the button doesn’t work, you can also verify your email using the following link:
+        If the button doesn't work, you can also verify your email using the following link:
         <br>
         <a href="${url}" style="color: #ff8c00; text-decoration: none;">${url}</a>
       </p>
   
       <!-- Security Notice -->
       <p style="font-size: 14px; color: #777;">
-        If you didn’t sign up for Faith & Fast, please ignore this email. This verification link is valid for **24 hours**.
+        If you didn't sign up for Faith & Fast, please ignore this email. This verification link is valid for **24 hours**.
       </p>
   
       <!-- Signature -->
