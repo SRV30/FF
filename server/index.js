@@ -1,12 +1,12 @@
-import express from "express";
-import connectDB from "./config/connectDB.js";
-import dotenv from "dotenv";
-import cors from "cors";
-import cookieParser from "cookie-parser";
 import cloudinary from "cloudinary";
-import helmet from "helmet";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 import morgan from "morgan";
+import connectDB from "./config/connectDB.js";
 import errorMiddleware from "./middleware/error.js";
 dotenv.config();
 
@@ -63,6 +63,13 @@ app.get("/", (req, res) => {
 });
 
 //routes
+import discountRouter from "./route/discountRoutes.js";
+import productRouter from "./route/productRoute.js";
+import userRouter from "./route/userRoute.js";
+
+app.use('/api/user', userRouter);
+app.use('/api/discount', discountRouter);
+app.use('/api/product', productRouter);
 
 connectDB().then(() => {
   app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
