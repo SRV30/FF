@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
 import generatedAccessToken from "../models/generatedAccessToken.js";
 import generatedRefreshToken from "../models/generatedRefreshToken.js";
+import { deleteImage, uploadImage } from "../utils/cloudinary.js";
 
 export const registerUser = catchAsyncErrors(async (req, res) => {
   try {
@@ -243,6 +244,99 @@ export const logoutUser = catchAsyncErrors(async (req, res) => {
       message: "Logout successful",
       error: false,
       success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const uploadAvatar = catchAsyncErrors(async (req, res) => {
+  try {
+    const userId = req.userId;
+    const image = req.file;
+
+    if (!image) {
+      return res.status(400).json({
+        message: "No image file provided",
+        success: false,
+        error: true,
+      });
+    }
+
+    const upload = await uploadImage(image);
+
+    if (!upload || !upload.url) {
+      return res.status(500).json({
+        message: "Image upload failed",
+        success: false,
+        error: true,
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        avatar: upload.url,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+        error: true,
+      });
+    }
+
+    return res.json({
+      message: "Profile picture uploaded successfully",
+      success: true,
+      error: false,
+      data: {
+        _id: userId,
+        avatar: upload.url,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const deleteUser = catchAsyncErrors(async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        error: true,
+        success: false,
+      });
+    }
+
+    if (user.avatar) {
+      const publicId = user.avatar.split("/").pop().split(".")[0];
+
+      await deleteImage(`ff/${publicId}`);
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    return res.json({
+      message: "User and avatar deleted successfully",
+      success: true,
+      error: false,
     });
   } catch (error) {
     return res.status(500).json({
