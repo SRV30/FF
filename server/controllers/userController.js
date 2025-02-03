@@ -4,8 +4,8 @@ import sendEmail from "../config/sendEmail.js";
 import verifyEmailTemplate from "../utils/verifyEmailTemplate.js";
 import jwt from "jsonwebtoken";
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
-import generatedAccessToken from "../models/generatedAccessToken.js";
-import generatedRefreshToken from "../models/generatedRefreshToken.js";
+import generatedAccessToken from "../utils/generatedAccessToken.js";
+import generatedRefreshToken from "../utils/generatedRefreshToken.js";
 import { deleteImage, uploadImage } from "../utils/cloudinary.js";
 import forgotPasswordTemplate from "../utils/forgotPasswordTemplate.js";
 import generatedOtp from "../utils/generatedOtp.js";
@@ -314,116 +314,6 @@ export const uploadAvatar = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const deleteUser = catchAsyncErrors(async (req, res) => {
-  try {
-    const userId = req.params.id;
-
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        error: true,
-        success: false,
-      });
-    }
-
-    if (user.avatar) {
-      const publicId = user.avatar.split("/").pop().split(".")[0];
-
-      await deleteImage(`ff/${publicId}`);
-    }
-
-    await User.findByIdAndDelete(userId);
-
-    return res.json({
-      message: "User and avatar deleted successfully",
-      success: true,
-      error: false,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || "Internal Server Error",
-      error: true,
-      success: false,
-    });
-  }
-});
-
-export const updateUserDetails = catchAsyncErrors(async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { name, email, mobile, password } = req.body;
-    const avatar = req.file;
-
-    let updateFields = {};
-
-    if (name) updateFields.name = name;
-    if (email) updateFields.email = email;
-    if (mobile) updateFields.mobile = mobile;
-
-    if (password) {
-      const salt = await bcryptjs.genSalt(10);
-      updateFields.password = await bcryptjs.hash(password, salt);
-    }
-
-    if (avatar) {
-      const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
-      if (!validImageTypes.includes(avatar.mimetype)) {
-        return res.status(400).json({
-          message: "Invalid image type. Only JPEG, PNG, and GIF are allowed.",
-          error: true,
-          success: false,
-        });
-      }
-
-      const user = await User.findById(userId);
-
-      if (user.avatar) {
-        const publicId = user.avatar.split("/").pop().split(".")[0];
-        await deleteImage(`ff/${publicId}`);
-      }
-
-      const uploadResult = await uploadImage(avatar);
-
-      if (!uploadResult || !uploadResult.url) {
-        return res.status(500).json({
-          message: "Image upload failed",
-          error: true,
-          success: false,
-        });
-      }
-
-      updateFields.avatar = uploadResult.url;
-    }
-
-    const updateUser = await User.findByIdAndUpdate(userId, updateFields, {
-      new: true,
-    });
-
-    if (!updateUser) {
-      return res.status(404).json({
-        message: "User not found",
-        error: true,
-        success: false,
-      });
-    }
-
-    return res.json({
-      message: "User details updated successfully",
-      error: false,
-      success: true,
-      data: updateUser,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || error,
-      error: true,
-      success: false,
-    });
-  }
-});
-
 export const forgotPassword = catchAsyncErrors(async (req, res) => {
   try {
     const { email } = req.body;
@@ -660,6 +550,295 @@ export const refreshToken = catchAsyncErrors(async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: error.message || "Server error while refreshing token",
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const getUserDetails = catchAsyncErrors(async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized access. Please log in.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: "User details fetched successfully",
+      error: false,
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Server error while fetching user details",
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const updateUserDetails = catchAsyncErrors(async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { name, email, mobile, password } = req.body;
+    const avatar = req.file;
+
+    let updateFields = {};
+
+    if (name) updateFields.name = name;
+    if (email) updateFields.email = email;
+    if (mobile) updateFields.mobile = mobile;
+
+    if (password) {
+      const salt = await bcryptjs.genSalt(10);
+      updateFields.password = await bcryptjs.hash(password, salt);
+    }
+
+    if (avatar) {
+      const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+      if (!validImageTypes.includes(avatar.mimetype)) {
+        return res.status(400).json({
+          message: "Invalid image type. Only JPEG, PNG, and GIF are allowed.",
+          error: true,
+          success: false,
+        });
+      }
+
+      const user = await User.findById(userId);
+
+      if (user.avatar) {
+        const publicId = user.avatar.split("/").pop().split(".")[0];
+        await deleteImage(`ff/${publicId}`);
+      }
+
+      const uploadResult = await uploadImage(avatar);
+
+      if (!uploadResult || !uploadResult.url) {
+        return res.status(500).json({
+          message: "Image upload failed",
+          error: true,
+          success: false,
+        });
+      }
+
+      updateFields.avatar = uploadResult.url;
+    }
+
+    const updateUser = await User.findByIdAndUpdate(userId, updateFields, {
+      new: true,
+    });
+
+    if (!updateUser) {
+      return res.status(404).json({
+        message: "User not found",
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.json({
+      message: "User details updated successfully",
+      error: false,
+      success: true,
+      data: updateUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+// Admin
+export const getAllUsers = catchAsyncErrors(async (req, res) => {
+  try {
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        message: "Access denied. Admins only.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const { page = 1, limit = 10, search = "" } = req.query;
+    const skip = (page - 1) * limit;
+
+    const query = {
+      $or: [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ],
+    };
+
+    const totalUsers = await User.countDocuments(query);
+
+    const users = await User.find(query)
+      .select("-password")
+      .skip(skip)
+      .limit(Number(limit));
+
+    return res.json({
+      message: "Users fetched successfully",
+      error: false,
+      success: true,
+      totalUsers,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalUsers / limit),
+      data: users,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+// Admin
+export const getSingleUser = catchAsyncErrors(async (req, res) => {
+  try {
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        message: "Permission denied. Admins only.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const userId = req.params.id;
+
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.json({
+      message: "User details fetched successfully",
+      error: false,
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+// Admin
+export const updateUserRole = catchAsyncErrors(async (req, res) => {
+  try {
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        message: "Permission denied. Admins only.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const { email, role } = req.body;
+
+    if (!role || !["USER", "ADMIN"].includes(role)) {
+      return res.status(400).json({
+        message: "Invalid role. Role must be either 'USER' or 'ADMIN'.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        error: true,
+        success: false,
+      });
+    }
+
+    user.role = role;
+    const updatedUser = await user.save();
+
+    return res.json({
+      message: "User role updated successfully",
+      error: false,
+      success: true,
+      data: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+// Admin
+export const deleteUser = catchAsyncErrors(async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        message: "Permission denied. Admins only.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        error: true,
+        success: false,
+      });
+    }
+
+    if (user.avatar) {
+      const publicId = user.avatar.split("/").pop().split(".")[0];
+
+      await deleteImage(`ff/${publicId}`);
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    return res.json({
+      message: "User and avatar deleted successfully",
+      success: true,
+      error: false,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
       error: true,
       success: false,
     });

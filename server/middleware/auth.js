@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import UserModel from "../models/userModel.js";
 
 const auth = async (req, res, next) => {
   try {
@@ -18,7 +19,18 @@ const auth = async (req, res, next) => {
 
     try {
       const decoded = jwt.verify(token, process.env.SECRET_KEY_ACCESS_TOKEN);
-      req.userId = decoded.id;
+
+      const user = await UserModel.findById(decoded.id).select("-password");
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+          error: true,
+          success: false,
+        });
+      }
+
+      req.user = user;
       next();
     } catch (error) {
       if (error.name === "TokenExpiredError") {
