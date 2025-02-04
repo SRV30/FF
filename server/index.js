@@ -66,14 +66,14 @@ app.get("/", (req, res) => {
 import userRouter from "./route/userRoute.js";
 import categoryRouter from "./route/categoryRoute.js";
 import discountRouter from "./route/discountRoutes.js";
-import productRouter from "./route/productRoute.js";
 import addressRouter from "./route/addressRoute.js";
+import productRouter from "./route/productRoute.js";
 
-app.use('/api/user', userRouter);
-app.use('/api/category', categoryRouter)
-app.use('/api/discount', discountRouter);
-app.use('/api/product', productRouter);
-app.use("/api/address",addressRouter)
+app.use("/api/user", userRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/product", productRouter);
+app.use("/api/discount", discountRouter);
+app.use("/api/address", addressRouter);
 
 connectDB().then(() => {
   app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
