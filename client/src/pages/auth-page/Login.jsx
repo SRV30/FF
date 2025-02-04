@@ -1,146 +1,77 @@
 import { useState } from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  InputAdornment,
-  Checkbox,
-  FormControlLabel,
-} from "@mui/material";
-import { Email, Lock, Visibility, VisibilityOff, Person } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [signupMode, setSignupMode] = useState(false);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <Box
-        sx={{
-          width: 400,
-          backgroundColor: "white",
-          padding: 4,
-          borderRadius: 3,
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-          textAlign: "center",
-        }}
+    <div className="flex justify-center items-center min-h-screen bg-white text-black dark:bg-gray-800 dark:text-white">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-sm p-6 rounded-lg shadow-xl text-center bg-white text-black dark:bg-gray-900 dark:text-white"
       >
-        <Typography variant="h5" fontWeight="bold" textAlign="center" mb={2}>
-          {signupMode ? "Create Account" : "Welcome back"}
-        </Typography>
+        <h2 className="text-2xl font-bold mb-4">Login</h2>
 
-        {signupMode && (
-          <TextField
-            fullWidth
-            variant="outlined"
-            label="Full Name"
-            placeholder="Enter your full name"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Person color="disabled" />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ mb: 2 }}
+        <div className="mb-3 flex items-center border rounded-lg px-3 bg-white text-black dark:bg-gray-900 dark:text-white">
+          <Email className="text-gray-400" />
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 focus:outline-none bg-transparent"
           />
-        )}
+        </div>
 
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Email"
-          placeholder="Enter your email"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Email color="disabled" />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ mb: 2, backgroundColor: "#f7f7f7", borderRadius: 1 }}
-        />
+        <div className="mb-3 flex items-center border rounded-lg px-3 bg-white text-black dark:bg-gray-900 dark:text-white">
+          <Lock className="text-gray-400" />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 focus:outline-none bg-transparent"
+          />
+          {showPassword ? (
+            <VisibilityOff
+              className="text-gray-400 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            />
+          ) : (
+            <Visibility
+              className="text-gray-400 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            />
+          )}
+        </div>
 
-        <TextField
-          fullWidth
-          variant="outlined"
-          type={showPassword ? "text" : "password"}
-          label="Password"
-          placeholder="Enter your password"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Lock color="disabled" />
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <InputAdornment position="end">
-                {showPassword ? (
-                  <VisibilityOff
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ cursor: "pointer" }}
-                  />
-                ) : (
-                  <Visibility
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ cursor: "pointer" }}
-                  />
-                )}
-              </InputAdornment>
-            ),
-          }}
-          sx={{ mb: 2, backgroundColor: "#f7f7f7", borderRadius: 1 }}
-        />
+        <div className="flex justify-between items-center mb-3">
+          <label className="flex items-center text-gray-600">
+            <input type="checkbox" className="mr-1" /> Keep me logged in
+          </label>
+          <Link to="/forgot-password" className="text-sm text-yellow-500 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
 
-        {!signupMode && (
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <FormControlLabel control={<Checkbox size="small" />} label="Keep me logged in" />
-            <Link to="/forgot-password"><Typography variant="body2" color="primary" sx={{ cursor: "pointer" }}>
-              Forgot password?
-            </Typography></Link>
-          </Box>
-        )}
+        <button className="w-full bg-yellow-500 text-white font-bold py-2 rounded-lg transition-transform transform hover:scale-105 hover:bg-yellow-600">
+          Sign In
+        </button>
 
-        <Button
-          fullWidth
-          variant="contained"
-          sx={{
-            backgroundColor: "#f7a71e",
-            color: "white",
-            fontSize: "16px",
-            fontWeight: "bold",
-            marginTop: 2,
-            padding: "12px",
-            borderRadius: "8px",
-            "&:hover": { backgroundColor: "#e69b18" },
-          }}
-        >
-          {signupMode ? "Sign Up" : "Sign In"}
-        </Button>
-
-        <Typography textAlign="center" mt={2} color="gray">
-          {signupMode ? "Already have an account?" : "Not a member yet?"} {" "}
-          <Typography
-            component="span"
-            color="primary"
-            sx={{ fontWeight: "bold", cursor: "pointer" }}
-            onClick={() => setSignupMode(!signupMode)}
-          >
-            {signupMode ? "Login" : "Register now"}
-          </Typography>
-        </Typography>
-      </Box>
-    </Box>
+        <p className="text-gray-600 mt-4">
+          Not a member yet?
+          <Link to="/signup" className="text-yellow-500 font-bold cursor-pointer ml-1">
+            Register now
+          </Link>
+        </p>
+      </motion.div>
+    </div>
   );
 };
 

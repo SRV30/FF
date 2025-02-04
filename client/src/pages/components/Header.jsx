@@ -68,7 +68,12 @@ export default function Header() {
   };
 
   return (
+
+    <header className="bg-[#e6b561] dark:bg-gray-900 flex items-center justify-between px-6 py-3 ">
+      {/* Left Section: Logo */}
+
     <header className="bg-yellow-500 dark:bg-gray-900 flex items-center justify-between px-6 py-3 sticky top-0 z-50">
+
       <div className="flex items-center space-x-2">
         <a href="/">
           {/* Use the imported logo images */}
