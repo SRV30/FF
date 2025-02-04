@@ -3,7 +3,6 @@ import {
   Search,
   Heart,
   ShoppingCart,
-  ChevronDown,
   Menu,
   X,
   Sun,
@@ -14,7 +13,6 @@ import { useLocation } from "react-router-dom"; // Import useLocation to check t
 
 // Import the logo images from the assets folder
 import logoLight from "../../assets/logo-light.png"; // Adjust the path as needed
-import logoDark from "../../assets/logo-dark.png"; // Adjust the path as needed
 
 export default function Header() {
   const [darkMode, setDarkMode] = useState(false);
@@ -125,7 +123,8 @@ export default function Header() {
 
       <div className="flex items-center space-x-4 text-black dark:text-white">
         <a href="/search">
-          <Search className="w-5 h-5 cursor-pointer" /> {/* Added Search Icon */}
+          <Search className="w-5 h-5 cursor-pointer" />{" "}
+          {/* Added Search Icon */}
         </a>
         <a href="/wishlist">
           <Heart className="w-5 h-5 cursor-pointer" />
@@ -133,7 +132,7 @@ export default function Header() {
         <a href="/Cart">
           <ShoppingCart className="w-5 h-5 cursor-pointer" />
         </a>
-        
+
         <button onClick={toggleDarkMode} className="w-6 h-6">
           {darkMode ? (
             <Sun className="w-5 h-5 text-yellow-400" />
