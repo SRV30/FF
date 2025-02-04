@@ -1,15 +1,23 @@
 import { FaTwitter, FaFacebook, FaLinkedin, FaYoutube } from "react-icons/fa";
+import logoLight from "../../assets/logo-light.png";
+import logoDark from "../../assets/logo-dark.png";
 
 const Footer = () => {
   return (
     <footer className="bg-yellow-500 dark:bg-gray-900 text-black dark:text-white p-8">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between space-y-6 md:space-y-0">
         {/* Left - Logo */}
-        <div className="flex flex-col space-y-2">
-          <div className="flex items-center space-x-2">
-            <div className="bg-red-600 w-6 h-6 rounded-full"></div>
-            <h1 className="text-xl font-bold">Logo</h1>
-          </div>
+        <div className="flex flex-col space-y-4">
+          <img 
+            src={logoLight}     //light mode ke liye
+            alt="Faith & Fast"
+            className="h-16 w-auto object-contain dark:hidden"
+          />
+          <img 
+            src={logoLight}  //dark mode ke liye
+            alt="Faith & Fast"
+            className="h-16 w-auto object-contain hidden dark:block"
+          />
         </div>
 
         {/* Sections */}
@@ -67,14 +75,14 @@ const Footer = () => {
 
       {/* Bottom Section */}
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm">
-        <p>© 2022 Brand, Inc. • <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Privacy</a> • <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Terms</a> • <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Sitemap</a></p>
+        <p>© 2024 Faith & Fast, Inc. • <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Privacy</a> • <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Terms</a> • <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Sitemap</a></p>
 
         {/* Social Icons */}
         <div className="flex space-x-4 text-gray-700 dark:text-gray-300 mt-4 md:mt-0">
-          <FaTwitter className="cursor-pointer hover:text-red-700 dark:hover:text-red-400" />
-          <FaFacebook className="cursor-pointer hover:text-red-700 dark:hover:text-red-400" />
-          <FaLinkedin className="cursor-pointer hover:text-red-700 dark:hover:text-red-400" />
-          <FaYoutube className="cursor-pointer hover:text-red-700 dark:hover:text-red-400" />
+          <FaTwitter className="w-5 h-5 cursor-pointer hover:text-red-700 dark:hover:text-red-400 transition-colors" />
+          <FaFacebook className="w-5 h-5 cursor-pointer hover:text-red-700 dark:hover:text-red-400 transition-colors" />
+          <FaLinkedin className="w-5 h-5 cursor-pointer hover:text-red-700 dark:hover:text-red-400 transition-colors" />
+          <FaYoutube className="w-5 h-5 cursor-pointer hover:text-red-700 dark:hover:text-red-400 transition-colors" />
         </div>
       </div>
     </footer>
