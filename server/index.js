@@ -63,11 +63,11 @@ app.get("/", (req, res) => {
 });
 
 //routes
-import userRouter from "./route/userRoute.js";
+import addressRouter from "./route/addressRoute.js";
 import categoryRouter from "./route/categoryRoute.js";
 import discountRouter from "./route/discountRoutes.js";
 import productRouter from "./route/productRoute.js";
-import addressRouter from "./route/addressRoute.js";
+import userRouter from "./route/userRoute.js";
 
 app.use('/api/user', userRouter);
 app.use('/api/category', categoryRouter)
