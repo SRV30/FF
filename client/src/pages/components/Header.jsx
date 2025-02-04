@@ -36,7 +36,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-[#e6b561] dark:bg-gray-900 flex items-center justify-between px-6 py-3">
+    <header className="bg-[#e6b561] dark:bg-gray-900 flex items-center justify-between px-6 py-3 ">
       {/* Left Section: Logo */}
       <div className="flex items-center space-x-2">
         <div className="text-red-600 text-2xl font-bold">🟠</div>

@@ -1,13 +1,6 @@
 import { useState } from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  InputAdornment,
-} from "@mui/material";
-import { Email, Lock } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { Email, Lock } from "@mui/icons-material";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -29,110 +22,56 @@ const ForgotPassword = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <Box
-        sx={{
-          width: 400,
-          backgroundColor: "white",
-          padding: 4,
-          borderRadius: 3,
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="h5" fontWeight="bold" textAlign="center" mb={2}>
-          Forgot Password
-        </Typography>
+    <div className="flex justify-center items-center h-screen bg-white text-black dark:bg-gray-800 dark:text-white">
+      <div className="w-96  p-6 rounded-lg shadow-md text-center bg-white text-black dark:bg-gray-900 dark:text-white">
+        <h2 className="text-2xl font-bold mb-4 bg-white text-black dark:bg-gray-900 dark:text-white">Forgot Password</h2>
         {!emailSubmitted ? (
           <>
-            <Typography variant="body2" color="gray" mb={2}>
-              Enter your registered email to receive a temporary password.
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Email color="disabled" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ mb: 2, backgroundColor: "#f7f7f7", borderRadius: 1 }}
-            />
-            <Button
-              fullWidth
-              variant="contained"
+            <p className="dark:text-white dark:bg-gray-900 mb-4 bg-white text-black ">Enter your registered email to receive a temporary password.</p>
+            <div className="mb-4">
+              <div className="flex items-center border border-gray-300 rounded-lg  bg-white text-black dark:bg-gray-900 dark:text-white p-2">
+                <Email className=" bg-white text-black dark:bg-gray-900 dark:text-white" />
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="ml-2 w-full outline-none bg-white text-black dark:bg-gray-900 dark:text-white"
+                />
+              </div>
+            </div>
+            <button
+              className="w-full bg-yellow-500 text-white font-bold py-2 rounded-lg hover:bg-yellow-600"
               onClick={handleEmailSubmit}
-              sx={{
-                backgroundColor: "#f7a71e",
-                color: "white",
-                fontSize: "16px",
-                fontWeight: "bold",
-                marginTop: 2,
-                padding: "12px",
-                borderRadius: "8px",
-                "&:hover": { backgroundColor: "#e69b18" },
-              }}
             >
               Send Code
-            </Button>
+            </button>
           </>
         ) : (
           <>
-            <Typography variant="body2" color="gray" mb={2}>
-              Enter the temporary password sent to your email.
-            </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Temporary Password"
-              placeholder="Enter the code"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Lock color="disabled" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ mb: 2, backgroundColor: "#f7f7f7", borderRadius: 1 }}
-            />
-            <Button
-              fullWidth
-              variant="contained"
+            <p className="text-gray-600 mb-4">Enter the temporary password sent to your email.</p>
+            <div className="mb-4">
+              <div className="flex items-center border border-gray-300 rounded-lg bg-gray-100 p-2">
+                <Lock className="text-gray-500" />
+                <input
+                  type="password"
+                  placeholder="Enter the code"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="ml-2 w-full bg-transparent outline-none"
+                />
+              </div>
+            </div>
+            <button
+              className="w-full bg-yellow-500 text-white font-bold py-2 rounded-lg hover:bg-yellow-600"
               onClick={handlePasswordSubmit}
-              sx={{
-                backgroundColor: "#f7a71e",
-                color: "white",
-                fontSize: "16px",
-                fontWeight: "bold",
-                marginTop: 2,
-                padding: "12px",
-                borderRadius: "8px",
-                "&:hover": { backgroundColor: "#e69b18" },
-              }}
             >
               Verify and Reset Password
-            </Button>
+            </button>
           </>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
