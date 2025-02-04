@@ -8,20 +8,22 @@ const categorySchema = new mongoose.Schema(
       required: [true, "Category name is required"],
       unique: true,
       trim: true,
+      maxlength: [15, "Category name cannot exceed 15 characters"],
     },
     slug: {
       type: String,
       unique: true,
       lowercase: true,
+      default: "",
     },
     image: {
       public_id: {
         type: String,
-        required: true,
+        required: false,
       },
       url: {
         type: String,
-        required: true,
+        required: false,
       },
     },
   },
@@ -36,8 +38,6 @@ categorySchema.pre("save", function (next) {
   }
   next();
 });
-
-categorySchema.index({ name: 1 });
 
 const CategoryModel = mongoose.model("category", categorySchema);
 
