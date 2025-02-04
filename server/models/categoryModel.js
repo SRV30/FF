@@ -7,7 +7,7 @@ const categorySchema = new mongoose.Schema(
       type: String,
       required: [true, "Category name is required"],
       unique: true,
-      default: "",
+      trim: true,
     },
     slug: {
       type: String,
@@ -15,8 +15,14 @@ const categorySchema = new mongoose.Schema(
       lowercase: true,
     },
     image: {
-      type: String,
-      default: "",
+      public_id: {
+        type: String,
+        required: true,
+      },
+      url: {
+        type: String,
+        required: true,
+      },
     },
   },
   {
