@@ -22,6 +22,7 @@ import ReviewSection from "./pages/components/ReviewSection"
 import Login from "./pages/auth-page/Login";
 import ForgotPassword from "./pages/auth-page/ForgotPassword";
 import ResetPassword from "./pages/auth-page/ResetPassword";
+import SignUp from "./pages/auth-page/Signup";
 const App = () => {
   return (
     <div className="flex flex-col overflow-hidden bg-white dark:bg-black text-black dark:text-white">
@@ -52,6 +53,7 @@ const App = () => {
         <Route path="/Review" element={<Review />} />
         <Route path="/ReviewSection" element={<ReviewSection />} />
         <Route path="/OrderSuccess" element={<OrderSuccess />} />
+        <Route path="/signup" element={<SignUp/>} />
       </Routes>
 
       <Footer />
