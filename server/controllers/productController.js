@@ -2,6 +2,7 @@ import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
 import ProductModel from "../models/productModel.js";
 import { deleteImage, uploadImage } from "../utils/cloudinary.js";
 
+// Admin
 export const createProduct = catchAsyncErrors(async (req, res, next) => {
   try {
     const {
@@ -175,6 +176,7 @@ export const getProductDetails = catchAsyncErrors(async (req, res) => {
   }
 });
 
+// Admin
 export const updateProductDetails = catchAsyncErrors(async (req, res) => {
   try {
     const { _id, image } = req.body;
@@ -237,68 +239,71 @@ export const updateProductDetails = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const deleteProductDetails = catchAsyncErrors(async (req, res) => {
-    try {
-      const { _id } = req.body;
-  
-      if (!_id) {
-        return res.status(400).json({
-          message: "provide _id ",
-          error: true,
-          success: false,
-        });
-      }
-  
-      const deleteProduct = await ProductModel.deleteOne({ _id: _id });
-  
-      return res.json({
-        message: "Delete successfully",
-        error: false,
-        success: true,
-        data: deleteProduct,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        message: error.message || error,
+// Admin
+export const deleteProduct = catchAsyncErrors(async (req, res) => {
+  try {
+    const { _id } = req.body;
+
+    if (!_id) {
+      return res.status(400).json({
+        message: "provide _id ",
         error: true,
         success: false,
       });
     }
-  });
 
-//search product
-export const searchProduct = async (req, res) => {
+    const product = await ProductModel.findByIdAndDelete(_id, {
+      returnDocument: "before",
+    });
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found.",
+        error: true,
+        success: false,
+      });
+    }
+
+    if (product.images && product.images.length > 0) {
+      await Promise.all(
+        product.images.map((img) => deleteImage(img.public_id))
+      );
+    }
+
+    return res.json({
+      message: "Product deleted successfully.",
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const searchProduct = catchAsyncErrors(async (req, res) => {
   try {
-    let { search, page, limit } = req.body;
+    let { search = "", page = 1, limit = 10 } = req.query;
 
-    if (!page) {
-      page = 1;
-    }
-    if (!limit) {
-      limit = 10;
-    }
-
-    const query = search
-      ? {
-          $text: {
-            $search: search,
-          },
-        }
-      : {};
+    page = Math.max(1, parseInt(page));
+    limit = Math.max(1, parseInt(limit));
 
     const skip = (page - 1) * limit;
+    const query = search ? { $text: { $search: search } } : {};
 
     const [data, dataCount] = await Promise.all([
       ProductModel.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate("category subCategory"),
+        .populate("category"),
       ProductModel.countDocuments(query),
     ]);
 
     return res.json({
-      message: "Product data",
+      message: "Product data fetched successfully.",
       error: false,
       success: true,
       data: data,
@@ -314,4 +319,4 @@ export const searchProduct = async (req, res) => {
       success: false,
     });
   }
-};
+});

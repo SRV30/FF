@@ -1,9 +1,11 @@
 import express from "express";
 import {
   createProduct,
+  deleteProduct,
   getProduct,
   getProductByCategory,
   getProductDetails,
+  searchProduct,
   updateProductDetails,
 } from "../controllers/productController.js";
 import { admin } from "../middleware/Admin.js";
@@ -26,6 +28,15 @@ productRouter.get("/get/category/:id", getProductByCategory);
 
 productRouter.get("/get/:productId", getProductDetails);
 
-productRouter.put("/update", auth, upload.array("images", 5), updateProductDetails);
+productRouter.put(
+  "/update",
+  auth,
+  upload.array("images", 5),
+  updateProductDetails
+);
+
+productRouter.delete("/delete", auth, admin, deleteProduct);
+
+productRouter.post("/search", searchProduct)
 
 export default productRouter;
