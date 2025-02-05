@@ -5,7 +5,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/login", credentials);
+      const response = await axiosInstance.post("/api/user/login", credentials);
       const { token, user } = response.data;
 
       localStorage.setItem("authToken", token);
@@ -24,7 +24,7 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/logout");
+      const response = await axiosInstance.get("/api/user/logout");
 
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
@@ -59,7 +59,7 @@ export const getSingleDetail = createAsyncThunk(
   "auth/getSingleDetail",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/me");
+      const response = await axiosInstance.get("/api/user/me");
       return response.data.user;
     } catch (error) {
       return rejectWithValue(
@@ -70,7 +70,7 @@ export const getSingleDetail = createAsyncThunk(
 );
 
 const initialState = {
-  user: JSON.parse(localStorage.getItem("user")) || null,
+  user: JSON.parse(localStorage.getItem("user")) || "null",
   isAuthenticated: !!localStorage.getItem("authToken"),
   loading: false,
   error: null,

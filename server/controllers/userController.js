@@ -558,7 +558,7 @@ export const refreshToken = catchAsyncErrors(async (req, res) => {
 
 export const getUserDetails = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user;
 
     if (!userId) {
       return res.status(401).json({
