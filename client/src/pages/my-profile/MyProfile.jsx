@@ -1,29 +1,25 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { User, ShoppingBag, Lock, MapPin, LogOut, Camera } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { FaUserEdit } from "react-icons/fa";
+import { getSingleDetail } from "@/store/auth-slice/user";
+import { useDispatch, useSelector } from "react-redux";
+
 const MyProfile = () => {
   const fileInputRef = useRef(null);
   const [profileImage, setProfileImage] = useState(
     "https://placehold.co/150x150"
   );
+  const dispatch = useDispatch();
+  const { user, loading, error } = useSelector((state) => state.auth);
 
-  const profile = {
-    "Full Name": "Jimmy Scott",
-    Email: "jimmysco283@gmail.com",
-    Gender: "Male",
-    "Date Of Birth": "August 02, 1987",
-    Phone: "(+1) 012 345 6789",
-    "Emergency Contact": "Not provided",
-  };
+  useEffect(() => {
+    dispatch(getSingleDetail());
+  }, [dispatch]);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
-    if (
-      file &&
-      file.type.startsWith("image/") &&
-      file.size <= 5 * 1024 * 1024
-    ) {
+    if (file && file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024) {
       const reader = new FileReader();
       reader.onload = (e) => setProfileImage(e.target.result);
       reader.readAsDataURL(file);
@@ -31,6 +27,9 @@ const MyProfile = () => {
       alert("Invalid file. Please upload an image under 5MB.");
     }
   };
+
+  // Fields to display
+  const displayFields = ["name", "email", "phone", "gender"];
 
   return (
     <div className="min-h-screen p-4 transition-all bg-white dark:bg-gray-900 text-white dark:text-black">
@@ -52,8 +51,7 @@ const MyProfile = () => {
                 to="/my-orders"
                 className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <ShoppingBag size={16} className="inline-block mr-2" /> My
-                Orders
+                <ShoppingBag size={16} className="inline-block mr-2" /> My Orders
               </NavLink>
               <NavLink
                 to="/update-password"
@@ -69,10 +67,9 @@ const MyProfile = () => {
               </NavLink>
               <NavLink
                 to="/update-profile"
-                className={`block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700`}
+                className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <FaUserEdit size={16} className="inline-block mr-2" />
-                Update Profile
+                <FaUserEdit size={16} className="inline-block mr-2" /> Update Profile
               </NavLink>
             </nav>
             <button className="w-full mt-6 flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-800 text-white rounded-lg">
@@ -106,24 +103,21 @@ const MyProfile = () => {
               </div>
               <div>
                 <h2 className="text-xl font-semibold">
-                  {profile["Full Name"]}
+                  {loading ? "Loading..." : user?.name}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400">
-                  {profile["Email"]}
+                  {loading ? "Loading..." : user?.email}
                 </p>
               </div>
             </div>
 
             <div className="grid gap-4">
-              {Object.entries(profile).map(([key, value]) => (
-                <div
-                  key={key}
-                  className={`p-4 rounded-lg bg-gray-100 dark:bg-gray-900`}
-                >
+              {displayFields.map((field) => (
+                <div key={field} className="p-4 rounded-lg bg-gray-100 dark:bg-gray-900">
                   <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {key}
+                    {field.charAt(0).toUpperCase() + field.slice(1)}
                   </span>
-                  <p className="font-medium">{value}</p>
+                  <p className="font-medium">{user ? user[field] : "Loading..."}</p>
                 </div>
               ))}
             </div>
