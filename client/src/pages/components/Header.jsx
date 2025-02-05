@@ -3,25 +3,38 @@ import {
   Search,
   Heart,
   ShoppingCart,
-  ChevronDown,
   Menu,
   X,
   Sun,
   Moon,
   User,
 } from "lucide-react";
-import { useLocation } from "react-router-dom"; // Import useLocation to check the current route
-
-// Import the logo images from the assets folder
-import logoLight from "../../assets/logo-light.png"; // Adjust the path as needed
-import logoDark from "../../assets/logo-dark.png"; // Adjust the path as needed
+import { useLocation, useNavigate } from "react-router-dom";
+import logoLight from "../../assets/logo-light.png";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "@/store/auth-slice/user";
+import { toast } from "react-toastify";
 
 export default function Header() {
   const [darkMode, setDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [dropdownTimeoutId, setDropdownTimeoutId] = useState(null); // Store the timeout ID
-  const location = useLocation(); // Get the current route location
+  const [dropdownTimeoutId, setDropdownTimeoutId] = useState(null);
+  const location = useLocation();
+
+  const { isAuthenticated, user, error } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    toast.success("Logged out successfully!");
+    navigate("/");
+
+    if (error) {
+      toast.error("Error logging out!");
+    }
+  };
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -57,23 +70,17 @@ export default function Header() {
         setDropdownTimeoutId(null);
       }
     } else {
-      // If dropdown is closed, open it and set a timeout to close it after 15 seconds
       setDropdownOpen(true);
       const timeoutId = setTimeout(() => {
         setDropdownOpen(false);
         setDropdownTimeoutId(null);
-      }, 5000); // 5 seconds
+      }, 5000);
       setDropdownTimeoutId(timeoutId);
     }
   };
 
   return (
-
-    <header className="bg-[#e6b561] dark:bg-gray-900 flex items-center justify-between px-6 py-3 ">
-      {/* Left Section: Logo */}
-
     <header className="bg-yellow-500 dark:bg-gray-900 flex items-center justify-between px-6 py-3 sticky top-0 z-50">
-
       <div className="flex items-center space-x-2">
         <a href="/">
           {/* Use the imported logo images */}
@@ -130,7 +137,8 @@ export default function Header() {
 
       <div className="flex items-center space-x-4 text-black dark:text-white">
         <a href="/search">
-          <Search className="w-5 h-5 cursor-pointer" /> {/* Added Search Icon */}
+          <Search className="w-5 h-5 cursor-pointer" />{" "}
+          {/* Added Search Icon */}
         </a>
         <a href="/wishlist">
           <Heart className="w-5 h-5 cursor-pointer" />
@@ -138,7 +146,7 @@ export default function Header() {
         <a href="/Cart">
           <ShoppingCart className="w-5 h-5 cursor-pointer" />
         </a>
-        
+
         <button onClick={toggleDarkMode} className="w-6 h-6">
           {darkMode ? (
             <Sun className="w-5 h-5 text-yellow-400" />
@@ -149,43 +157,63 @@ export default function Header() {
 
         <div className="relative">
           <button
-            onClick={handleDropdownToggle} // Use the new handler
+            onClick={handleDropdownToggle}
             className="w-8 h-8 bg-red-600 text-white flex items-center justify-center rounded-full"
           >
             <User className="w-5 h-5" />
           </button>
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-md rounded-md py-2">
-              <a
-                href="/update-profile"
-                className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Edit Profile
-              </a>
-              <a
-                href="/settings"
-                className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Settings & Privacy
-              </a>
-              <a
-                href="/support"
-                className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Help & Support
-              </a>
-              <a
-                href="/display"
-                className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Display & Accessibility
-              </a>
-              <a
-                href="/logout"
-                className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Logout
-              </a>
+              {isAuthenticated ? (
+                <>
+                  <a
+                    href="/my-profile"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    My Profile
+                  </a>
+                  <a
+                    href="/signup"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Signup
+                  </a>
+                  <a
+                    href="/support"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Help & Support
+                  </a>
+                  <a
+                    href="/display"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Display & Accessibility
+                  </a>
+
+                  <button
+                    onClick={handleLogout}
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <a
+                    href="/login"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Login
+                  </a>
+                  <a
+                    href="/signup"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Signup
+                  </a>
+                </>
+              )}
             </div>
           )}
         </div>

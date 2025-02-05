@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Email, Lock, Visibility, VisibilityOff, Person } from "@mui/icons-material";
-import { useSelector,useDispatch } from "react-redux";
+import {
+  Email,
+  Lock,
+  Visibility,
+  VisibilityOff,
+  Person,
+} from "@mui/icons-material";
+import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { clearError, signupUser } from "@/store/auth-slice/user";
 import gsap from "gsap";
@@ -12,38 +18,35 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch=useDispatch();
-  const navigate=useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const {isAuthenticated,error,loading,user}=useSelector((state)=>state.auth)
-useEffect(()=>{
-    
-
-},[user,isAuthenticated,loading,navigate,dispatch])
-  const handleSubmit = async(e) => {
-        e.preventDefault();
-        await dispatch(signupUser({name,email,password}))
+  const { isAuthenticated, error, loading, user } = useSelector(
+    (state) => state.auth
+  );
+  useEffect(() => {}, [user, isAuthenticated, loading, navigate, dispatch]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    dispatch(signupUser({ name, email, password }));
   };
-const clearErrorMessage = () => {
-    dispatch(clearError());
-};
-const redirect=location.search?location.search.split("=")[1]:"/my-profile";
+ 
+  const redirect = location.search
+    ? location.search.split("=")[1]
+    : "/my-profile";
 
-useEffect(()=>{
-    if(error){
-        toast.error(error);
-        dispatch(clearError());
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch(clearError());
     }
 
-    if(isAuthenticated){
-        toast.success("Successfully Register User");
-        navigate(redirect)
+    if (isAuthenticated) {
+      toast.success("Successfully Register User");
+      navigate(redirect);
     }
 
-    gsap.from(".login-form",{opacity:0,y:-30,duration:1})
-},[dispatch,error,isAuthenticated,redirect,navigate]);
-
-
+    gsap.from(".login-form", { opacity: 0, y: -30, duration: 1 });
+  }, [dispatch, error, isAuthenticated, redirect, navigate]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-white text-black dark:bg-gray-800 dark:text-white">
@@ -99,15 +102,19 @@ useEffect(()=>{
           )}
         </div>
 
-        <button className="w-full bg-yellow-500 text-white font-bold py-2 rounded-lg transition-transform transform hover:scale-105 hover:bg-yellow-600"
-        onClick={handleSubmit}
+        <button
+          className="w-full bg-yellow-500 text-white font-bold py-2 rounded-lg transition-transform transform hover:scale-105 hover:bg-yellow-600"
+          onClick={handleSubmit}
         >
           Sign Up
         </button>
-           
+
         <p className="text-gray-600 mt-4">
           Already have an account?
-          <Link to="/login" className="text-yellow-500 font-bold cursor-pointer ml-1">
+          <Link
+            to="/login"
+            className="text-yellow-500 font-bold cursor-pointer ml-1"
+          >
             Login
           </Link>
         </p>

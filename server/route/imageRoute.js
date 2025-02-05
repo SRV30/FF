@@ -7,10 +7,7 @@ import { deleteImageController, uploadImageController } from "../controllers/Ima
 
 router.post("/upload", upload.single("image"), uploadImageController);
 
-// Route to delete image from Cloudinary
 router.delete("/delete", deleteImageController);
 
-// Route to delete product and its images from Cloudinary
-// router.delete("/product/:id", deleteProductAndImagesController);
 
 export default router;
