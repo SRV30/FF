@@ -6,7 +6,7 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/api/user/login", credentials);
-      const { token, user } = response.data;
+      const { token, user } = response.data.data;
 
       localStorage.setItem("authToken", token);
       localStorage.setItem("user", JSON.stringify(user));
@@ -60,14 +60,17 @@ export const getSingleDetail = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get("/api/user/me");
-      return response.data.user;
+   
+      return response.data.data;  
     } catch (error) {
+      console.error(error);  
       return rejectWithValue(
-        error.response?.data || { message: "Get user details failed!" }
+        error.response?.data || error.message || { message: "Get user details failed!" }
       );
     }
   }
 );
+
 
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || "null",
