@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const CategoryPanel = () => {
-  const categories = ["MENS", "WOMENS", "KIDS", "VIEW MORE PRODUCTS"];
+  const navigate = useNavigate();
+
+  const categories = ["MEN", "WOMEN", "KIDS", "VIEW MORE PRODUCTS"];
 
   return (
     <div className="flex items-center flex-wrap justify-center border-b border-gray-300 dark:border-gray-400 text-black dark:text-white mt-6 px-4 py-3 gap-10 mx-9 md:mx-28 lg:mx-72">

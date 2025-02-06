@@ -9,10 +9,19 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import Typewriter from "typewriter-effect";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getProducts } from "@/store/product-slice/productSlice";
 
-const JewelryCategory = ({ title, items, onToggleWishlist }) => {
+const ProductCategory = ({ title, items, onToggleWishlist }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getProducts());
+  }, [dispatch]);
 
   useEffect(() => {
     const updateItemsPerView = () => {
@@ -84,15 +93,17 @@ const JewelryCategory = ({ title, items, onToggleWishlist }) => {
         <div className="overflow-hidden flex gap-6 px-4 w-full">
           {getVisibleItems().map((item) => (
             <motion.div
-              key={item.id}
+              key={item._id}
               className="flex-none w-64 bg-white rounded-xl transform transition hover:scale-105"
               whileHover={{ scale: 1.05 }}
             >
               <div className="relative">
                 <img
-                  src={item.image}
+                  src={item.images[0]?.url}
                   alt={`Buy ${item.name} at the best price`}
                   className="w-full h-40 md:h-48 lg:h-64 object-fit rounded-t-xl"
+                  // onClick={() => navigate(`/products/${item.id}`)}
+                  onClick={() => navigate(`/product/:id`)}
                 />
                 <button
                   className="absolute top-2 right-2 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md cursor-pointer"
@@ -107,8 +118,11 @@ const JewelryCategory = ({ title, items, onToggleWishlist }) => {
                   <ShoppingCart className="w-6 h-6 hover:scale-110 transition duration-300 ease-in-out" />
                 </button>
               </div>
-              <div className="p-5 bg-white dark:bg-gray-800">
-                <h3 className="fugaz-one-regular font-semibold text-lg mb-2">
+              <div
+                className="p-5 bg-white dark:bg-gray-800"
+                onClick={() => navigate(`/product/:id`)}
+              >
+                <h3 className="fugaz-one-regular font-semibold text-lg mb-2 capitalize">
                   {item.name}
                 </h3>
                 <div className="flex items-center mb-2">
@@ -117,7 +131,7 @@ const JewelryCategory = ({ title, items, onToggleWishlist }) => {
                       <Star
                         key={i}
                         className={`w-5 h-5 ${
-                          i < item.rating
+                          i < item.ratings
                             ? "text-yellow-400 fill-current"
                             : "text-gray-200"
                         }`}
@@ -125,7 +139,7 @@ const JewelryCategory = ({ title, items, onToggleWishlist }) => {
                     ))}
                   </div>
                   <span className="ml-2 text-sm text-gray-500 dark:text-gray-200">
-                    ({item.reviews} reviews)
+                    ({item.reviews.length} reviews)
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -150,7 +164,7 @@ const JewelryCategory = ({ title, items, onToggleWishlist }) => {
   );
 };
 
-JewelryCategory.propTypes = {
+ProductCategory.propTypes = {
   title: PropTypes.string.isRequired,
   items: PropTypes.arrayOf(
     PropTypes.shape({
@@ -165,4 +179,4 @@ JewelryCategory.propTypes = {
   onToggleWishlist: PropTypes.func.isRequired,
 };
 
-export default JewelryCategory;
+export default ProductCategory;

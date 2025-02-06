@@ -4,6 +4,7 @@ import {
   deleteProduct,
   getProduct,
   getProductByCategory,
+  getProductByFilter,
   getProductDetails,
   searchProduct,
   updateProductDetails,
@@ -24,6 +25,8 @@ productRouter.post(
 
 productRouter.get("/get", getProduct);
 
+productRouter.get("/get/filter", getProductByFilter);
+
 productRouter.get("/get/category/:id", getProductByCategory);
 
 productRouter.get("/get/:productId", getProductDetails);
@@ -37,6 +40,6 @@ productRouter.put(
 
 productRouter.delete("/delete", auth, admin, deleteProduct);
 
-productRouter.post("/search", searchProduct)
+productRouter.post("/search", searchProduct);
 
 export default productRouter;

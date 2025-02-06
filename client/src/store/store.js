@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
-import darkModeReducer from "./extra/darkModeSlice";
+import darkModeReducer from "./extra-slice/darkModeSlice";
 import authReducer from "./auth-slice/user";
-import productReducer from "./auth-slice/productSlice";
+import productReducer from "./product-slice/productSlice";
 import addressReducer from "./address-slice/addressSlice";
 const store = configureStore({
   reducer: {

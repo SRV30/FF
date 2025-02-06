@@ -17,15 +17,15 @@ import UpdateProfile from "./pages/my-profile/UpdateProfile";
 import SavedAddress from "./pages/my-profile/SavedAddress";
 import ContactUs from "./pages/components/ContactUs";
 import OrderSuccess from "./pages/orders/OrderSuccess";
-import ReviewSection from "./pages/components/ReviewSection";
 import Login from "./pages/auth-page/Login";
 import ForgotPassword from "./pages/auth-page/ForgotPassword";
 import ResetPassword from "./pages/auth-page/ResetPassword";
 import SignUp from "./pages/auth-page/Signup";
-import WhatsAppButton from "./pages/components/Whatsapp";
+import WhatsAppButton from "./pages/extras/Whatsapp";
 import AdminAddProduct from "./pages/admin/AdminAddProduct";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "./pages/extras/ProtectedRoute";
+import ScrollToTop from "./pages/extras/ScrollToTop";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -42,7 +42,14 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/my-profile" element={<MyProfile />} />
+        <Route
+          path="/my-profile"
+          element={
+            <ProtectedRoute>
+              <MyProfile />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/my-orders"
           element={
@@ -76,14 +83,12 @@ const App = () => {
           }
         />
         <Route path="/products" element={<Products />} />
-        <Route path="/singleproduct" element={<SingleProduct />} />
-        {/* <Route path="/singleproduct" element={<Review />} /> */}
+        <Route path="/product/:id" element={<SingleProduct />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />
         <Route path="/Review" element={<Review />} />
-        <Route path="/ReviewSection" element={<ReviewSection />} />
         <Route
           path="/OrderSuccess"
           element={
@@ -115,8 +120,11 @@ const App = () => {
             />
           </>
         )}
+
+        {/* 404, Restricted */}
       </Routes>
 
+        <ScrollToTop />
       <Footer />
     </div>
   );

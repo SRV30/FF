@@ -1,90 +1,101 @@
+import { motion } from "framer-motion";
 import { FaTwitter, FaFacebook, FaLinkedin, FaYoutube } from "react-icons/fa";
 import logoLight from "../../assets/logo-light.png";
-import logoDark from "../../assets/logo-dark.png";
+import logoDark from "../../assets/logoLight.png";
 
 const Footer = () => {
   return (
     <footer className="bg-yellow-500 dark:bg-gray-900 text-black dark:text-white p-8">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between space-y-6 md:space-y-0">
-        {/* Left - Logo */}
-        <div className="flex flex-col space-y-4">
-          <img 
-            src={logoLight}     //light mode ke liye
-            alt="Faith & Fast"
-            className="h-16 w-auto object-contain dark:hidden"
+      {/* Animated Fade-in Container */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between space-y-6 md:space-y-0"
+      >
+        {/* Logo Section */}
+        <motion.div
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col space-y-4"
+        >
+          <img
+            src={logoLight}
+            alt="Faith & Fast Logo"
+            className="h-32 w-32 object-contain dark:hidden"
           />
-          <img 
-            src={logoLight}  //dark mode ke liye
-            alt="Faith & Fast"
-            className="h-16 w-auto object-contain hidden dark:block"
+          <img
+            src={logoDark}
+            alt="Faith & Fast Logo"
+            className="h-32 w-32 object-contain hidden dark:block"
           />
-        </div>
+        </motion.div>
 
-        {/* Sections */}
+        {/* Links Section */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-sm">
-          {/* Product */}
-          <div>
-            <h3 className="font-semibold">Product</h3>
-            <ul className="mt-2 space-y-1">
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">Features</a></li>
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">Pricing</a></li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="font-semibold">Resources</h3>
-            <ul className="mt-2 space-y-1">
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">Blog</a></li>
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">User guides</a></li>
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">Webinars</a></li>
-            </ul>
-          </div>
-
-          {/* Community */}
-          <div>
-            <h3 className="font-semibold">Community</h3>
-            <ul className="mt-2 space-y-1">
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">Developers</a></li>
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">Users</a></li>
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h3 className="font-semibold">Company</h3>
-            <ul className="mt-2 space-y-1">
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">About</a></li>
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">Join us</a></li>
-            </ul>
-          </div>
-
-          {/* Support */}
-          <div>
-            <h3 className="font-semibold">Support</h3>
-            <ul className="mt-2 space-y-1">
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">Help center</a></li>
-              <li><a href="#" className="hover:text-red-700 dark:hover:text-red-400">Chat support</a></li>
-            </ul>
-          </div>
+          {[
+            { title: "Product", links: ["Features", "Pricing"], hrefs: ["/products", "/products"] },
+            { title: "Company", links: ["About", "Contact Us"], hrefs: ["#", "/contactus"] },
+            { title: "Support", links: ["Help Center", "Chat Support"], hrefs: ["#", "#"] },
+          ].map((section, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <h3 className="font-semibold text-lg">{section.title}</h3>
+              <ul className="mt-2 space-y-1">
+                {section.links.map((link, i) => (
+                  <li key={i}>
+                    <a
+                      href={section.hrefs[i]}
+                      className="hover:text-red-700 dark:hover:text-red-400 transition duration-300"
+                    >
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Divider */}
       <div className="border-t border-gray-300 dark:border-gray-700 my-6"></div>
 
-      {/* Bottom Section */}
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm">
-        <p>© 2024 Faith & Fast, Inc. • <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Privacy</a> • <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Terms</a> • <a href="#" className="hover:text-red-700 dark:hover:text-red-400">Sitemap</a></p>
+      {/* Copyright & Social Media */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-center md:text-left"
+      >
+        <p>
+          © 2024 Faith & Fast, Inc. •{" "}
+          <a className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer">Privacy</a>{" "}
+          • <a className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer">Terms</a>{" "}
+          •{" "}
+          <a className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer">Sitemap</a>
+        </p>
 
-        {/* Social Icons */}
-        <div className="flex space-x-4 text-gray-700 dark:text-gray-300 mt-4 md:mt-0">
-          <FaTwitter className="w-5 h-5 cursor-pointer hover:text-red-700 dark:hover:text-red-400 transition-colors" />
-          <FaFacebook className="w-5 h-5 cursor-pointer hover:text-red-700 dark:hover:text-red-400 transition-colors" />
-          <FaLinkedin className="w-5 h-5 cursor-pointer hover:text-red-700 dark:hover:text-red-400 transition-colors" />
-          <FaYoutube className="w-5 h-5 cursor-pointer hover:text-red-700 dark:hover:text-red-400 transition-colors" />
-        </div>
-      </div>
+        {/* Social Media Icons */}
+        <motion.div className="flex space-x-4 text-gray-700 dark:text-gray-300 mt-4 md:mt-0">
+          {[FaTwitter, FaFacebook, FaLinkedin, FaYoutube].map((Icon, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ scale: 1.2, rotate: 10 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ duration: 0.3 }}
+              className="cursor-pointer"
+            >
+              <Icon className="w-5 h-5 hover:text-red-700 dark:hover:text-red-400 transition-colors" />
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
     </footer>
   );
 };

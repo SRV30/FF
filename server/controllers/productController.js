@@ -320,3 +320,57 @@ export const searchProduct = catchAsyncErrors(async (req, res) => {
     });
   }
 });
+
+export const getProductByFilter = catchAsyncErrors(async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      category = "",
+      sortBy = "relevant",
+      minPrice = 0,
+      maxPrice = 100000,
+    } = req.query;
+
+    const query = {};
+
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
+    }
+
+    if (category) {
+      query.category = {
+        $in: category.split(",").map((id) => new mongoose.Types.ObjectId(id)),
+      };
+    }
+
+    query.price = { $gte: parseInt(minPrice), $lte: parseInt(maxPrice) };
+
+    let sortQuery = {};
+    if (sortBy === "price-low-high") {
+      sortQuery.price = 1;
+    } else if (sortBy === "price-high-low") {
+      sortQuery.price = -1;
+    }
+
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    const products = await ProductModel.find(query)
+      .sort(sortQuery)
+      .limit(limitNumber)
+      .skip((pageNumber - 1) * limitNumber)
+      .exec();
+
+    const count = await ProductModel.countDocuments(query);
+
+    res.status(200).json({
+      products,
+      totalPages: Math.ceil(count / limitNumber),
+      currentPage: pageNumber,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching products", error });
+  }
+});

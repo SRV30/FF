@@ -1,117 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import BannerProduct from "./BannerProduct";
 import CategoryPanel from "./CategoryPanel";
-import JewelryCategory from "./JewelryCategory";
+import ProductCategory from "./ProductCategory.jsx";
 import { CircleArrowRightIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ContactUs from "./ContactUs";
+import MetaData from "../extras/MetaData";
+import { useDispatch, useSelector } from "react-redux";
+import { getProducts } from "@/store/product-slice/productSlice";
 
 const Home = () => {
   const [wishlist, setWishlist] = useState([]);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const categories = [
-    {
-      title: "MEN",
-      items: [
-        {
-          id: "n1",
-          name: "Diamond Pendant",
-          price: 999.99,
-          rating: 4,
-          reviews: 128,
-          image:
-            "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop",
-        },
-        {
-          id: "n2",
-          name: "Pearl Chain",
-          price: 599.99,
-          rating: 5,
-          reviews: 85,
-          image:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb7ChUUk-mMLUSvbvTNEF7ypEq0fvkXPHrEw&s",
-        },
-        {
-          id: "n3",
-          name: "Gold Choker",
-          price: 799.99,
-          rating: 4,
-          reviews: 92,
-          image:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb7ChUUk-mMLUSvbvTNEF7ypEq0fvkXPHrEw&s",
-        },
-        {
-          id: "n4",
-          name: "Crystal Necklace",
-          price: 449.99,
-          rating: 4,
-          reviews: 76,
-          image:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb7ChUUk-mMLUSvbvTNEF7ypEq0fvkXPHrEw&s",
-        },
-        {
-          id: "br1",
-          name: "Tennis Bracelet",
-          price: 1499.99,
-          rating: 5,
-          reviews: 164,
-          image:
-            "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=400&fit=crop",
-        },
-      ],
-    },
-    {
-      title: "WOMEN",
-      items: [
-        {
-          id: "e1",
-          name: "Diamond Studs",
-          price: 499.99,
-          rating: 5,
-          reviews: 156,
-          image:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb7ChUUk-mMLUSvbvTNEF7ypEq0fvkXPHrEw&s",
-        },
-        {
-          id: "e2",
-          name: "Gold Hoops",
-          price: 299.99,
-          rating: 4,
-          reviews: 94,
-          image:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb7ChUUk-mMLUSvbvTNEF7ypEq0fvkXPHrEw&s",
-        },
-        {
-          id: "e3",
-          name: "Pearl Drops",
-          price: 249.99,
-          rating: 4,
-          reviews: 67,
-          image:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb7ChUUk-mMLUSvbvTNEF7ypEq0fvkXPHrEw&s",
-        },
-        {
-          id: "br1",
-          name: "Tennis Bracelet",
-          price: 1499.99,
-          rating: 5,
-          reviews: 164,
-          image:
-            "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=400&fit=crop",
-        },
-        {
-          id: "br1",
-          name: "Tennis Bracelet",
-          price: 1499.99,
-          rating: 5,
-          reviews: 164,
-          image:
-            "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=400&fit=crop",
-        },
-      ],
-    },
-  ];
+  const {
+    product = [],
+    loadingCategory,
+    error,
+  } = useSelector((state) => state.product);
+
+  useEffect(() => {
+    dispatch(getProducts());
+  }, [dispatch]);
+
+  const categorizedProducts = product.reduce((acc, item) => {
+    if (!acc[item.gender]) {
+      acc[item.gender] = [];
+    }
+    acc[item.gender].push(item);
+    return acc;
+  }, {});
+
+  const categories = Object.keys(categorizedProducts).map((category) => ({
+    title: category.toUpperCase(),
+    items: categorizedProducts[category],
+  }));
 
   const handleToggleWishlist = (itemId) => {
     setWishlist((prev) =>
@@ -129,19 +54,26 @@ const Home = () => {
       className="min-h-screen bg-gray-50 dark:bg-gray-900 text-black dark:text-white"
     >
       <header>
+        <MetaData title="Home | Faith & Fast" />
         <BannerProduct />
         <CategoryPanel />
       </header>
 
       <main className="container mx-auto px-4 sm:px-6 mb-6">
-        {categories.map((category, index) => (
-          <JewelryCategory
-            key={index}
-            {...category}
-            wishlist={wishlist}
-            onToggleWishlist={handleToggleWishlist}
-          />
-        ))}
+        {categories.length > 0 ? (
+          categories.map((category, index) => (
+            <ProductCategory
+              key={index}
+              {...category}
+              wishlist={wishlist}
+              onToggleWishlist={handleToggleWishlist}
+            />
+          ))
+        ) : (
+          <p className="text-center text-lg text-gray-500 dark:text-gray-300">
+            No products available.
+          </p>
+        )}
       </main>
 
       <button
@@ -151,6 +83,8 @@ const Home = () => {
         <span className="mr-2">View More Products</span>
         <CircleArrowRightIcon className="w-6 h-6" />
       </button>
+
+      <ContactUs />
     </motion.div>
   );
 };

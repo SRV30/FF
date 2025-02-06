@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleDarkMode } from "@/store/extra/darkModeSlice";
+import { toggleDarkMode } from "@/store/extra-slice/darkModeSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
 
@@ -37,9 +37,9 @@ const DarkModeToggle = () => {
         transition={{ duration: 0.5 }}
       >
         {darkMode ? (
-          <Moon className="text-yellow-400" size={22} />
+          <Moon className="text-red-600" size={22} />
         ) : (
-          <Sun className="text-orange-500" size={22} />
+          <Sun className="text-yellow-500" size={22} />
         )}
       </motion.div>
 
@@ -50,7 +50,7 @@ const DarkModeToggle = () => {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 10, opacity: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-sm font-semibold text-gray-800 dark:text-white"
+          className="text-sm font-semibold text-gray-800 dark:text-white hidden sm:block"
         >
           {darkMode ? "Dark Mode" : "Light Mode"}
         </motion.span>
