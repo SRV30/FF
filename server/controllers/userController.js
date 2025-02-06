@@ -214,7 +214,7 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
 
 export const logoutUser = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user;
 
     if (!userId) {
       return res.status(400).json({
@@ -259,7 +259,7 @@ export const logoutUser = catchAsyncErrors(async (req, res) => {
 
 export const uploadAvatar = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user;
     const image = req.file;
 
     if (!image) {
@@ -595,7 +595,7 @@ export const getUserDetails = catchAsyncErrors(async (req, res) => {
 
 export const updateUserDetails = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user;
     const { name, email, mobile, password } = req.body;
     const avatar = req.file;
 

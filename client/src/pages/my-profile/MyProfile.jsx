@@ -7,15 +7,21 @@ import { useDispatch, useSelector } from "react-redux";
 
 const MyProfile = () => {
   const fileInputRef = useRef(null);
-  const [profileImage, setProfileImage] = useState(
-    "https://placehold.co/150x150"
-  );
   const dispatch = useDispatch();
-  const { user, loading, error } = useSelector((state) => state.auth);
+  const { user, loading } = useSelector((state) => state.auth);
+
+  const [profileImage, setProfileImage] = useState(user?user.avatar: "https://placehold.co/150x150");
 
   useEffect(() => {
     dispatch(getSingleDetail());
   }, [dispatch]);
+
+  // Update profile image when user data is available
+  useEffect(() => {
+    if (user?.avatar) {
+      setProfileImage(user.profileImage);
+    }
+  }, [user]);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -28,8 +34,7 @@ const MyProfile = () => {
     }
   };
 
-  // Fields to display
-  const displayFields = ["name", "email", "phone", "gender"];
+  const displayFields = ["name", "email"];
 
   return (
     <div className="min-h-screen p-4 transition-all bg-white dark:bg-gray-900 text-white dark:text-black">
@@ -41,34 +46,19 @@ const MyProfile = () => {
         <div className="flex flex-col md:flex-row gap-6">
           <div className="md:w-1/4">
             <nav className="space-y-2">
-              <NavLink
-                to="/my-profile"
-                className="block px-4 py-2 rounded-lg bg-yellow-500 text-white dark:bg-yellow-800"
-              >
+              <NavLink to="/my-profile" className="block px-4 py-2 rounded-lg bg-yellow-500 text-white dark:bg-yellow-800">
                 <User size={16} className="inline-block mr-2" /> Profile Info
               </NavLink>
-              <NavLink
-                to="/my-orders"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
+              <NavLink to="/my-orders" className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                 <ShoppingBag size={16} className="inline-block mr-2" /> My Orders
               </NavLink>
-              <NavLink
-                to="/update-password"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
+              <NavLink to="/update-password" className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                 <Lock size={16} className="inline-block mr-2" /> Update Password
               </NavLink>
-              <NavLink
-                to="/saved-address"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
+              <NavLink to="/saved-address" className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                 <MapPin size={16} className="inline-block mr-2" /> Saved Address
               </NavLink>
-              <NavLink
-                to="/update-profile"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
+              <NavLink to="/update-profile" className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                 <FaUserEdit size={16} className="inline-block mr-2" /> Update Profile
               </NavLink>
             </nav>
@@ -80,34 +70,30 @@ const MyProfile = () => {
           <div className="md:w-3/4">
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
               <div className="relative group">
-                <input
+                {/* <input
                   type="file"
                   ref={fileInputRef}
                   onChange={handleImageUpload}
                   accept="image/*"
                   className="hidden"
-                />
+                /> */}
                 <div
                   className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 cursor-pointer"
                   onClick={() => fileInputRef.current.click()}
                 >
                   <img
-                    src={profileImage}
+                    src={user.avatar}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <button className="absolute bottom-0 right-0 p-2 bg-gray-700 rounded-full hover:bg-gray-600">
+                {/* <button className="absolute bottom-0 right-0 p-2 bg-gray-700 rounded-full hover:bg-gray-600">
                   <Camera size={16} className="text-white" />
-                </button>
+                </button> */}
               </div>
               <div>
-                <h2 className="text-xl font-semibold">
-                  {loading ? "Loading..." : user?.name}
-                </h2>
-                <p className="text-gray-500 dark:text-gray-400">
-                  {loading ? "Loading..." : user?.email}
-                </p>
+                <h2 className="text-xl font-semibold">{loading ? "Loading..." : user?.name}</h2>
+                <p className="text-gray-500 dark:text-gray-400">{loading ? "Loading..." : user?.role}</p>
               </div>
             </div>
 
