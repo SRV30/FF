@@ -24,8 +24,12 @@ import ResetPassword from "./pages/auth-page/ResetPassword";
 import SignUp from "./pages/auth-page/Signup";
 import WhatsAppButton from "./pages/components/Whatsapp";
 import AdminAddProduct from "./pages/admin/AdminAddProduct";
+import { useSelector } from "react-redux";
+import ProtectedRoute from "./pages/extras/ProtectedRoute";
 
 const App = () => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
   return (
     <div className="flex flex-col bg-white dark:bg-black text-black dark:text-white">
       <ToastContainer position="top-center" />
@@ -33,31 +37,84 @@ const App = () => {
       <WhatsAppButton />
 
       <Routes>
-        {/* Your other components go here */}
+        {/* User routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/my-profile" element={<MyProfile />} />
-        <Route path="/my-orders" element={<MyOrders />} />
-        <Route path="/update-password" element={<UpdatePassword />} />
-        <Route path="/update-profile" element={<UpdateProfile />} />
-        <Route path="/saved-address" element={<SavedAddress />} />
+        <Route
+          path="/my-orders"
+          element={
+            <ProtectedRoute>
+              <MyOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/update-password"
+          element={
+            <ProtectedRoute>
+              <UpdatePassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/update-profile"
+          element={
+            <ProtectedRoute>
+              <UpdateProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/saved-address"
+          element={
+            <ProtectedRoute>
+              <SavedAddress />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/products" element={<Products />} />
         <Route path="/singleproduct" element={<SingleProduct />} />
-        <Route path="/singleproduct" element={<Review />} />
+        {/* <Route path="/singleproduct" element={<Review />} /> */}
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />
         <Route path="/Review" element={<Review />} />
         <Route path="/ReviewSection" element={<ReviewSection />} />
-        <Route path="/OrderSuccess" element={<OrderSuccess />} />
+        <Route
+          path="/OrderSuccess"
+          element={
+            <ProtectedRoute>
+              <OrderSuccess />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/signup" element={<SignUp />} />
 
         {/* Admin routes */}
-        <Route path="/dashboard" element={<AdminDashboard />} />
-        <Route path="/addproduct" element={<AdminAddProduct />} />
+        {isAuthenticated && user?.role === "ADMIN" && (
+          <>
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute isAdmin={true}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/create/product"
+              element={
+                <ProtectedRoute isAdmin={true}>
+                  <AdminAddProduct />
+                </ProtectedRoute>
+              }
+            />
+          </>
+        )}
       </Routes>
 
       <Footer />

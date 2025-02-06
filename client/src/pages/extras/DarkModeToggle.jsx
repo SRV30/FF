@@ -1,6 +1,8 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { toggleDarkMode } from '@/store/extra/darkModeSlice';
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleDarkMode } from "@/store/extra/darkModeSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sun, Moon } from "lucide-react";
 
 const DarkModeToggle = () => {
   const dispatch = useDispatch();
@@ -12,19 +14,48 @@ const DarkModeToggle = () => {
 
   useEffect(() => {
     if (darkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
   }, [darkMode]);
 
   return (
-    <button
+    <motion.button
       onClick={handleToggle}
-      className="p-2 bg-blue-500 text-white rounded dark:bg-blue-800"
+      className="relative flex items-center gap-3 px-4 py-2 rounded-full transition-all duration-500 bg-gray-200 dark:bg-gray-800 shadow-lg hover:scale-110"
+      whileTap={{ scale: 0.9 }}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
     >
-      Toggle Dark Mode
-    </button>
+      <motion.div
+        key={darkMode ? "moon" : "sun"}
+        initial={{ rotate: -180, opacity: 0 }}
+        animate={{ rotate: 0, opacity: 1 }}
+        exit={{ rotate: 180, opacity: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {darkMode ? (
+          <Moon className="text-yellow-400" size={22} />
+        ) : (
+          <Sun className="text-orange-500" size={22} />
+        )}
+      </motion.div>
+
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={darkMode ? "dark" : "light"}
+          initial={{ x: -10, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 10, opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          className="text-sm font-semibold text-gray-800 dark:text-white"
+        >
+          {darkMode ? "Dark Mode" : "Light Mode"}
+        </motion.span>
+      </AnimatePresence>
+    </motion.button>
   );
 };
 

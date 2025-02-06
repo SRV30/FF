@@ -7,6 +7,7 @@ import {
   ChevronRight,
   ShoppingCart,
 } from "lucide-react";
+import CategoryPanel from "./CategoryPanel";
 
 const JewelryCategory = ({ title, items, onToggleWishlist, wishlist }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -22,7 +23,7 @@ const JewelryCategory = ({ title, items, onToggleWishlist, wishlist }) => {
   };
 
   return (
-    <div className="my-8">
+    <div className="mt-8">
       <div className="flex items-center justify-between mb-4 px-4 ">
         <h2 className="text-2xl font-semibold text-black dark:text-yellow-400">
           {title}
@@ -293,6 +294,7 @@ const Home = () => {
           image:
             "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=400&fit=crop",
         },
+        
       ],
     },
   ];
@@ -308,7 +310,8 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
       <BannerProduct />
-      <div className="container mx-auto px-4 sm:px-6 lg:ml-11">
+      <CategoryPanel />
+      <div className="container mx-auto px-4 sm:px-6 ">
         {categories.map((category, index) => (
           <JewelryCategory
             key={index}
