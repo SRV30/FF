@@ -10,7 +10,6 @@ import SingleProduct from "./pages/products/SingleProduct";
 import Review from "./pages/products/Review";
 import Cart from "./pages/orders/Cart";
 import Wishlist from "./pages/orders/Wishlist";
-import ProductPostForm from "./pages/admin/ProductPostForm";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import MyOrders from "./pages/my-profile/MyOrders";
 import UpdatePassword from "./pages/my-profile/UpdatePassword";
@@ -22,18 +21,19 @@ import ReviewSection from "./pages/components/ReviewSection";
 import Login from "./pages/auth-page/Login";
 import ForgotPassword from "./pages/auth-page/ForgotPassword";
 import ResetPassword from "./pages/auth-page/ResetPassword";
-
 import SignUp from "./pages/auth-page/Signup";
+import WhatsAppButton from "./pages/components/Whatsapp";
+import AdminAddProduct from "./pages/admin/AdminAddProduct";
 
 const App = () => {
   return (
     <div className="flex flex-col bg-white dark:bg-black text-black dark:text-white">
       <ToastContainer position="top-center" />
       <Header />
+      <WhatsAppButton />
 
       <Routes>
         {/* Your other components go here */}
-
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -48,16 +48,16 @@ const App = () => {
         <Route path="/singleproduct" element={<Review />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/productpostform" element={<ProductPostForm />} />
-        <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />
         <Route path="/Review" element={<Review />} />
         <Route path="/ReviewSection" element={<ReviewSection />} />
         <Route path="/OrderSuccess" element={<OrderSuccess />} />
+        <Route path="/signup" element={<SignUp />} />
 
-        <Route path="/signup" element={<SignUp/>} />
-
+        {/* Admin routes */}
+        <Route path="/dashboard" element={<AdminDashboard />} />
+        <Route path="/addproduct" element={<AdminAddProduct />} />
       </Routes>
 
       <Footer />

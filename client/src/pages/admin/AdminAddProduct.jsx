@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const ProductPostForm = () => {
+const AdminAddProduct = () => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    price: '',
-    stock: '',
-    category: '',
-    gender: '',
-    size: '', // Changed from sizes[] to size (single selection)
+    title: "",
+    description: "",
+    price: "",
+    stock: "",
+    category: "",
+    gender: "",
+    size: "",
     colors: [],
-    images: []
+    images: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -18,84 +18,129 @@ const ProductPostForm = () => {
   const MAX_IMAGES = 5;
 
   const categories = [
-    'T-Shirts', 'Shirts', 'Pants', 'Jeans', 'Dresses', 'Skirts',
-    'Jackets', 'Sweaters', 'Hoodies', 'Activewear', 'Swimwear',
-    'Underwear', 'Socks', 'Shoes' 
+    "T-Shirts",
+    "Shirts",
+    "Pants",
+    "Jeans",
+    "Dresses",
+    "Skirts",
+    "Jackets",
+    "Sweaters",
+    "Hoodies",
+    "Activewear",
+    "Swimwear",
+    "Underwear",
+    "Socks",
+    "Shoes",
   ];
 
   const availableSizes = [
-    'XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL', '6XL',
-    '28', '30', '32', '34', '36', '38', '40', '42', '44'
+    "XXS",
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "3XL",
+    "4XL",
+    "5XL",
+    "6XL",
+    "28",
+    "30",
+    "32",
+    "34",
+    "36",
+    "38",
+    "40",
+    "42",
+    "44",
   ];
 
   const availableColors = [
-    'Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 
-    'Pink', 'Purple', 'Orange', 'Brown', 'Grey', 'Navy'
+    "Black",
+    "White",
+    "Red",
+    "Blue",
+    "Green",
+    "Yellow",
+    "Pink",
+    "Purple",
+    "Orange",
+    "Brown",
+    "Grey",
+    "Navy",
   ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleColorToggle = (color) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       colors: prev.colors.includes(color)
-        ? prev.colors.filter(c => c !== color)
-        : [...prev.colors, color]
+        ? prev.colors.filter((c) => c !== color)
+        : [...prev.colors, color],
     }));
   };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const remainingSlots = MAX_IMAGES - previewImages.length;
-    
+
     if (files.length > remainingSlots) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        images: `You can only add ${remainingSlots} more image${remainingSlots === 1 ? '' : 's'}. Maximum of 5 images allowed.`
+        images: `You can only add ${remainingSlots} more image${
+          remainingSlots === 1 ? "" : "s"
+        }. Maximum of 5 images allowed.`,
       }));
       return;
     }
 
-    setPreviewImages(prev => [...prev, ...files.map(file => URL.createObjectURL(file))]);
-    setFormData(prev => ({
+    setPreviewImages((prev) => [
       ...prev,
-      images: [...prev.images, ...files]
+      ...files.map((file) => URL.createObjectURL(file)),
+    ]);
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...files],
     }));
-    setErrors(prev => ({ ...prev, images: '' }));
+    setErrors((prev) => ({ ...prev, images: "" }));
   };
 
   const removeImage = (index) => {
-    setPreviewImages(prev => prev.filter((_, i) => i !== index));
-    setFormData(prev => ({
+    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
+    setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: prev.images.filter((_, i) => i !== index),
     }));
-    setErrors(prev => ({ ...prev, images: '' }));
+    setErrors((prev) => ({ ...prev, images: "" }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
-    if (!formData.title) newErrors.title = 'Title is required';
-    if (!formData.price) newErrors.price = 'Price is required';
-    if (!formData.stock) newErrors.stock = 'Stock quantity is required';
-    if (!formData.category) newErrors.category = 'Category is required';
-    if (!formData.gender) newErrors.gender = 'Gender is required';
-    if (!formData.size) newErrors.size = 'Size is required'; // Updated validation for size
-    if (formData.colors.length === 0) newErrors.colors = 'At least one color is required';
+    if (!formData.title) newErrors.title = "Title is required";
+    if (!formData.price) newErrors.price = "Price is required";
+    if (!formData.stock) newErrors.stock = "Stock quantity is required";
+    if (!formData.category) newErrors.category = "Category is required";
+    if (!formData.gender) newErrors.gender = "Gender is required";
+    if (!formData.size) newErrors.size = "Size is required"; // Updated validation for size
+    if (formData.colors.length === 0)
+      newErrors.colors = "At least one color is required";
     if (formData.images.length === 0) {
-      newErrors.images = 'At least one image is required';
+      newErrors.images = "At least one image is required";
     } else if (formData.images.length > MAX_IMAGES) {
-      newErrors.images = 'Maximum 5 images allowed';
+      newErrors.images = "Maximum 5 images allowed";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -103,7 +148,7 @@ const ProductPostForm = () => {
       return;
     }
 
-    console.log('Form submitted:', formData);
+    console.log("Form submitted:", formData);
     // Handle form submission here
   };
 
@@ -111,7 +156,7 @@ const ProductPostForm = () => {
     <div className="max-w-full mx-auto p-4">
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-2xl font-bold mb-6">Add New Product</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div>
@@ -124,7 +169,9 @@ const ProductPostForm = () => {
               className="w-full p-2 border rounded"
               placeholder="Product Title"
             />
-            {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+            {errors.title && (
+              <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+            )}
           </div>
 
           {/* Price and Stock Grid */}
@@ -141,11 +188,15 @@ const ProductPostForm = () => {
                 min="0"
                 step="0.01"
               />
-              {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+              {errors.price && (
+                <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Stock Available</label>
+              <label className="block text-sm font-medium mb-2">
+                Stock Available
+              </label>
               <input
                 type="number"
                 name="stock"
@@ -156,7 +207,9 @@ const ProductPostForm = () => {
                 min="0"
                 step="1"
               />
-              {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock}</p>}
+              {errors.stock && (
+                <p className="text-red-500 text-sm mt-1">{errors.stock}</p>
+              )}
             </div>
           </div>
 
@@ -171,11 +224,15 @@ const ProductPostForm = () => {
                 className="w-full p-2 border rounded"
               >
                 <option value="">Select Category</option>
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
                 ))}
               </select>
-              {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
+              {errors.category && (
+                <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+              )}
             </div>
 
             <div>
@@ -192,7 +249,9 @@ const ProductPostForm = () => {
                 <option value="unisex">Unisex</option>
                 <option value="kids">Kids</option>
               </select>
-              {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender}</p>}
+              {errors.gender && (
+                <p className="text-red-500 text-sm mt-1">{errors.gender}</p>
+              )}
             </div>
           </div>
 
@@ -206,38 +265,46 @@ const ProductPostForm = () => {
               className="w-full p-2 border rounded"
             >
               <option value="">Select Size</option>
-              {availableSizes.map(size => (
-                <option key={size} value={size}>{size}</option>
+              {availableSizes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
               ))}
             </select>
-            {errors.size && <p className="text-red-500 text-sm mt-1">{errors.size}</p>}
+            {errors.size && (
+              <p className="text-red-500 text-sm mt-1">{errors.size}</p>
+            )}
           </div>
 
           {/* Colors */}
           <div>
             <label className="block text-sm font-medium mb-2">Colors</label>
             <div className="flex flex-wrap gap-2">
-              {availableColors.map(color => (
+              {availableColors.map((color) => (
                 <button
                   key={color}
                   type="button"
                   onClick={() => handleColorToggle(color)}
                   className={`px-4 py-2 rounded ${
                     formData.colors.includes(color)
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-200'
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200"
                   }`}
                 >
                   {color}
                 </button>
               ))}
             </div>
-            {errors.colors && <p className="text-red-500 text-sm mt-1">{errors.colors}</p>}
+            {errors.colors && (
+              <p className="text-red-500 text-sm mt-1">{errors.colors}</p>
+            )}
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium mb-2">Description</label>
+            <label className="block text-sm font-medium mb-2">
+              Description
+            </label>
             <textarea
               name="description"
               value={formData.description}
@@ -261,11 +328,13 @@ const ProductPostForm = () => {
               className="w-full p-2 border rounded"
               disabled={previewImages.length >= MAX_IMAGES}
             />
-            {errors.images && <p className="text-red-500 text-sm mt-1">{errors.images}</p>}
+            {errors.images && (
+              <p className="text-red-500 text-sm mt-1">{errors.images}</p>
+            )}
             <p className="text-sm text-gray-500 mt-1">
               {previewImages.length} of {MAX_IMAGES} images added
             </p>
-            
+
             {/* Image Previews */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
               {previewImages.map((preview, index) => (
@@ -300,4 +369,4 @@ const ProductPostForm = () => {
   );
 };
 
-export default ProductPostForm;
+export default AdminAddProduct;

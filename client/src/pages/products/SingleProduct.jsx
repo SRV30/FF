@@ -1,37 +1,38 @@
-import React, { useState } from 'react';
-import { Star, ShoppingCart, X, Minus, Plus, Heart } from 'lucide-react';
-import Review from './Review';
+import React, { useState } from "react";
+import { Star, ShoppingCart, X, Minus, Plus, Heart } from "lucide-react";
+import Review from "./Review";
 
 const SingleProduct = () => {
-  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedSize, setSelectedSize] = useState("");
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
-  const [couponCode, setCouponCode] = useState('');
+  const [couponCode, setCouponCode] = useState("");
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   // Move product data inside component
   const product = {
     id: 1,
-    name: 'Men Slim Fit Relaxed Denim Jacket',
+    name: "Men Slim Fit Relaxed Denim Jacket",
     price: 79,
     rating: 4,
     reviews: 122,
-    description: 'A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.',
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    description:
+      "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
     images: [
-      '/api/placeholder/600/800',
-      '/api/placeholder/600/800',
-      '/api/placeholder/600/800',
-      '/api/placeholder/600/800',
-      '/api/placeholder/600/800'
+      "/api/placeholder/600/800",
+      "/api/placeholder/600/800",
+      "/api/placeholder/600/800",
+      "/api/placeholder/600/800",
+      "/api/placeholder/600/800",
     ],
     features: [
-      '100% Original product.',
-      'Cash on delivery is available on this product.',
-      'Easy return and exchange policy within 7 days.'
-    ]
+      "100% Original product.",
+      "Cash on delivery is available on this product.",
+      "Easy return and exchange policy within 7 days.",
+    ],
   };
 
   // Toggle wishlist
@@ -42,12 +43,12 @@ const SingleProduct = () => {
   // Cart Functions
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert('Please select a size before adding to cart');
+      alert("Please select a size before adding to cart");
       return;
     }
 
     const existingItemIndex = cartItems.findIndex(
-      item => item.id === product.id && item.size === selectedSize
+      (item) => item.id === product.id && item.size === selectedSize
     );
 
     if (existingItemIndex > -1) {
@@ -64,8 +65,8 @@ const SingleProduct = () => {
         {
           ...product,
           size: selectedSize,
-          quantity: 1
-        }
+          quantity: 1,
+        },
       ]);
     }
   };
@@ -73,22 +74,27 @@ const SingleProduct = () => {
   // Rest of the functions
   const updateQuantity = (itemId, size, newQuantity) => {
     if (newQuantity < 1) return;
-    
-    setCartItems(cartItems.map(item => 
-      (item.id === itemId && item.size === size) 
-        ? { ...item, quantity: newQuantity } 
-        : item
-    ));
+
+    setCartItems(
+      cartItems.map((item) =>
+        item.id === itemId && item.size === size
+          ? { ...item, quantity: newQuantity }
+          : item
+      )
+    );
   };
 
   const removeFromCart = (itemId, size) => {
-    setCartItems(cartItems.filter(item => 
-      !(item.id === itemId && item.size === size)
-    ));
+    setCartItems(
+      cartItems.filter((item) => !(item.id === itemId && item.size === size))
+    );
   };
 
   // Calculations
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const discount = 0;
   const total = subtotal - discount;
 
@@ -101,7 +107,9 @@ const SingleProduct = () => {
       <Star
         key={index}
         className={`w-5 h-5 ${
-          index < rating ? 'fill-red-500 text-red-500' : 'fill-gray-200 text-gray-200'
+          index < rating
+            ? "fill-red-500 text-red-500"
+            : "fill-gray-200 text-gray-200"
         }`}
       />
     ));
@@ -146,7 +154,10 @@ const SingleProduct = () => {
 
           <div className="flex-1 overflow-y-auto p-4">
             {cartItems.map((item, index) => (
-              <div key={`${item.id}-${item.size}`} className="flex items-center space-x-4 mb-4 pb-4 border-b">
+              <div
+                key={`${item.id}-${item.size}`}
+                className="flex items-center space-x-4 mb-4 pb-4 border-b"
+              >
                 <img
                   src={item.images[0]}
                   alt={item.name}
@@ -157,8 +168,10 @@ const SingleProduct = () => {
                   <p className="text-sm text-gray-500">Size: {item.size}</p>
                   <p className="font-medium">${item.price}</p>
                   <div className="flex items-center mt-2">
-                    <button 
-                      onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.id, item.size, item.quantity - 1)
+                      }
                       className="p-1 border rounded-l"
                     >
                       <Minus className="w-4 h-4" />
@@ -166,13 +179,15 @@ const SingleProduct = () => {
                     <span className="px-4 py-1 border-t border-b">
                       {item.quantity}
                     </span>
-                    <button 
-                      onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.id, item.size, item.quantity + 1)
+                      }
                       className="p-1 border rounded-r"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
-                    <button 
+                    <button
                       onClick={() => removeFromCart(item.id, item.size)}
                       className="ml-4 text-red-500 text-sm"
                     >
@@ -202,7 +217,7 @@ const SingleProduct = () => {
                   placeholder="Enter Coupon Code"
                   className="w-full border rounded-lg py-2 px-3"
                 />
-                <button 
+                <button
                   onClick={applyCoupon}
                   className="absolute right-2 top-1/2 -translate-y-1/2 bg-black text-white px-4 py-1 rounded"
                 >
@@ -247,7 +262,7 @@ const SingleProduct = () => {
                 key={index}
                 onClick={() => setSelectedImage(index)}
                 className={`border-2 rounded-lg overflow-hidden transition-all hover:opacity-80 ${
-                  selectedImage === index ? 'border-red-500' : 'border-gray-200'
+                  selectedImage === index ? "border-red-500" : "border-gray-200"
                 }`}
               >
                 <img
@@ -261,7 +276,7 @@ const SingleProduct = () => {
 
           {/* Main Image */}
           <div className="flex-1 relative">
-            <button 
+            <button
               onClick={() => setIsModalOpen(true)}
               className="w-full rounded-lg overflow-hidden hover:opacity-90 transition-opacity"
             >
@@ -278,7 +293,9 @@ const SingleProduct = () => {
             >
               <Heart
                 className={`w-6 h-6 ${
-                  isWishlisted ? 'fill-red-500 stroke-red-500' : 'stroke-gray-400'
+                  isWishlisted
+                    ? "fill-red-500 stroke-red-500"
+                    : "stroke-gray-400"
                 }`}
               />
             </button>
@@ -287,19 +304,15 @@ const SingleProduct = () => {
           {/* Product Info */}
           <div className="lg:w-1/3">
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
-            
+
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex">
-                {renderStars(product.rating)}
-              </div>
+              <div className="flex">{renderStars(product.rating)}</div>
               <span className="text-gray-500">({product.reviews})</span>
             </div>
 
             <div className="text-3xl font-bold mb-6">${product.price}</div>
 
-            <p className="text-gray-600 mb-6">
-              {product.description}
-            </p>
+            <p className="text-gray-600 mb-6">{product.description}</p>
 
             <div className="mb-6">
               <h3 className="font-semibold mb-2">Select Size</h3>
@@ -310,8 +323,8 @@ const SingleProduct = () => {
                     onClick={() => setSelectedSize(size)}
                     className={`w-12 h-12 flex items-center justify-center rounded-lg border transition-colors ${
                       selectedSize === size
-                        ? 'border-red-500 text-red-500'
-                        : 'border-gray-200 hover:border-gray-400'
+                        ? "border-red-500 text-red-500"
+                        : "border-gray-200 hover:border-gray-400"
                     }`}
                   >
                     {size}
@@ -320,7 +333,7 @@ const SingleProduct = () => {
               </div>
             </div>
 
-            <button 
+            <button
               onClick={handleAddToCart}
               className="w-full bg-black text-white py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors"
             >
@@ -341,7 +354,7 @@ const SingleProduct = () => {
 
       <ImageModal />
       <CartSidebar />
-      <Review/>
+      <Review />
     </div>
   );
 };
