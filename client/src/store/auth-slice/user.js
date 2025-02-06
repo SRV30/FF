@@ -62,12 +62,14 @@ export const getSingleDetail = createAsyncThunk(
       const response = await axiosInstance.get("/api/user/me");
       return response.data.data;
     } catch (error) {
+      console.error(error);  
       return rejectWithValue(
-        error.response?.data || { message: "Get user details failed!" }
+        error.response?.data || error.message || { message: "Get user details failed!" }
       );
     }
   }
 );
+
 
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
