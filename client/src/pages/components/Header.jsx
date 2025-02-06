@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "@/store/auth-slice/user";
 import { toast } from "react-toastify";
 import DarkModeToggle from "../extras/DarkModeToggle";
-import gsap from "gsap";
 import logoLight from "../../assets/logo-light.png";
 import logo from "../../assets/logoLight.png";
 import PropTypes from "prop-types";
@@ -32,17 +31,6 @@ export default function Header() {
       setDarkMode(true);
       document.documentElement.classList.add("dark");
     }
-
-    gsap.fromTo(
-      ".header",
-      { opacity: 0, y: -30 },
-      { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
-    );
-    gsap.fromTo(
-      ".dropdown-content",
-      { opacity: 0, y: -10 },
-      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
-    );
   }, []);
 
   const toggleDarkMode = () => {
@@ -70,7 +58,7 @@ export default function Header() {
         </a>
       </div>
 
-      <nav className="hidden md:flex space-x-6 font-semibold text-gray-700 dark:text-gray-300">
+      <nav className="hidden md:flex space-x-6 lg:space-x-10 font-semibold text-gray-700 dark:text-gray-300 lg:ml-50">
         {["/", "/products", "/about", "/contactus"].map((path, index) => {
           const label =
             path === "/"
