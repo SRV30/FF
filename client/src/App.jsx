@@ -6,7 +6,6 @@ import Footer from "./pages/components/Footer";
 import MyProfile from "./pages/my-profile/MyProfile";
 import Products from "./pages/products/Products";
 import About from "./pages/components/About";
-import SingleProduct from "./pages/products/SingleProduct";
 import Review from "./pages/products/Review";
 import Cart from "./pages/orders/Cart";
 import Wishlist from "./pages/orders/Wishlist";
@@ -26,6 +25,7 @@ import AdminAddProduct from "./pages/admin/AdminAddProduct";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "./pages/extras/ProtectedRoute";
 import ScrollToTop from "./pages/extras/ScrollToTop";
+import ProductDetails from "./pages/products/SingleProduct";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -83,7 +83,7 @@ const App = () => {
           }
         />
         <Route path="/products" element={<Products />} />
-        <Route path="/product/:id" element={<SingleProduct />} />
+        <Route path="/product/:productId" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/About" element={<About />} />

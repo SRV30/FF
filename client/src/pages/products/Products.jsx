@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, ShoppingCart, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Typewriter from "typewriter-effect";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getProductByFilter,
-  getProducts,
-} from "@/store/product-slice/productSlice";
+import { getProductByFilter } from "@/store/product-slice/productSlice";
 import { Pagination } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Products = () => {
   const [priceRange, setPriceRange] = useState([0, 10000]);
@@ -16,16 +14,24 @@ const Products = () => {
   const [sortBy, setSortBy] = useState("relevant");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
-
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { product = [], totalPages } = useSelector((state) => state.product);
 
-  const {
-    product = [],
-    loadingCategory,
-    error,
-    totalPages,
-    currentPage,
-  } = useSelector((state) => state.product);
+  const [shuffledProducts, setShuffledProducts] = useState([]);
+  const hasShuffled = useRef(false);
+
+  useEffect(() => {
+    if (product.length > 0) {
+      if (!hasShuffled.current) {
+        const shuffled = [...product].sort(() => Math.random() - 0.5);
+        setShuffledProducts(shuffled);
+        hasShuffled.current = true;
+      } else {
+        setShuffledProducts(product);
+      }
+    }
+  }, [product]);
 
   useEffect(() => {
     dispatch(
@@ -263,7 +269,7 @@ const Products = () => {
               layout
               className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-4"
             >
-              {product.map((item) => (
+              {shuffledProducts.map((item) => (
                 <motion.div
                   key={item._id}
                   layout
@@ -278,7 +284,8 @@ const Products = () => {
                     <img
                       src={item.images[0]?.url}
                       alt={item.name}
-                      className="w-full h-48 sm:h-56 lg:h-64 object-fit"
+                      className="w-full h-48 sm:h-56 lg:h-64 object-fit cursor-pointer"
+                      onClick={() => navigate(`/product/${item._id}`)}
                     />
                     <motion.button
                       whileTap={{ scale: 0.9 }}
@@ -293,19 +300,22 @@ const Products = () => {
                       <ShoppingCart className="w-5 h-5" />
                     </motion.button>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold mb-2 line-clamp-2">
+                  <div
+                    className="p-4 cursor-pointer"
+                    onClick={() => navigate(`/product/${item._id}`)}
+                  >
+                    <h3 className="font-semibold mb-2 line-clamp-2 capitalize">
                       {item.name}
                     </h3>
                     <div className="flex justify-between items-center">
-                      <p className="text-xl font-bold  bg-white dark:bg-gray-900 text-black dark:text-white">
+                      <p className="text-xl font-bold bg-white dark:bg-gray-900 text-black dark:text-white">
                         ₹
                         {(
                           item.price -
                           item.price * (item.discount / 100)
                         ).toFixed(2)}
                         {item.discount > 0 && (
-                          <span className="text-sm  line-through ml-2 bg-white dark:bg-gray-900 text-black dark:text-white">
+                          <span className="text-sm line-through ml-2 bg-white dark:bg-gray-900 text-black dark:text-white">
                             ₹{item.price.toFixed(2)}
                           </span>
                         )}
@@ -330,13 +340,14 @@ const Products = () => {
               )}
             </AnimatePresence>
 
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={handlePageChange}
-              className="mt-6"
-              color="yellow"
-            />
+            <div className="flex justify-center mt-6">
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={handlePageChange}
+                color="yellow"
+              />
+            </div>
           </div>
         </div>
       </div>

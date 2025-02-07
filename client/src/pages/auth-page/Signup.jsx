@@ -32,7 +32,7 @@ const SignUp = () => {
  
   const redirect = location.search
     ? location.search.split("=")[1]
-    : "/my-profile";
+    : "/";
 
   useEffect(() => {
     if (error) {
