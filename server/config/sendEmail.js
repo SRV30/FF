@@ -10,7 +10,7 @@ const sendEmail = async ({ sendTo, subject, html }) => {
   try {
     const tranEmailApi = new Sib.TransactionalEmailsApi();
     await tranEmailApi.sendTransacEmail({
-      sender: { email: "support@faithandfast.com", name: "Faith & Fast" },
+      sender: { email: "support@faithandfast.com", name: "Faith AND Fast" },
       to: [{ email: sendTo }],
       subject: subject,
       htmlContent: html,

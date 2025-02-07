@@ -43,7 +43,7 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
 
     const emailResponse = await sendEmail({
       sendTo: email,
-      subject: "Verify Your Email - Faith & Fast",
+      subject: "Verify Your Email - Faith AND Fast",
       html: verifyEmailTemplate({
         name,
         url: verifyEmailUrl,
@@ -346,7 +346,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res) => {
 
     await sendEmail({
       sendTo: email,
-      subject: "Forgot password from Faith & Fast",
+      subject: "Forgot password from Faith AND Fast",
       html: forgotPasswordTemplate({
         name: user.name,
         otp: otp,

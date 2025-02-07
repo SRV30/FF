@@ -54,7 +54,7 @@ const Home = () => {
       className="min-h-screen bg-gray-50 dark:bg-gray-900 text-black dark:text-white"
     >
       <header>
-        <MetaData title="Home | Faith & Fast" />
+        <MetaData title="Home | Faith AND Fast" />
         <BannerProduct />
         <CategoryPanel />
       </header>

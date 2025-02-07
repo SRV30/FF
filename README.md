@@ -1,4 +1,4 @@
-# Faith & Fast
+# Faith AND Fast
 
 ---
 

@@ -38,7 +38,7 @@ const Login = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-white text-black dark:bg-gray-800 dark:text-white">
-      <MetaData title="Login | Faith & Fast" />
+      <MetaData title="Login | Faith AND Fast" />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

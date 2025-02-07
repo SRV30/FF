@@ -20,9 +20,9 @@ const ContactUs = () => {
         email_link: "mailto:support@faithandfast.com",
       },
       seo_meta: {
-        title: "Contact Faith & Fast | Get in Touch with Us",
+        title: "Contact Faith AND Fast | Get in Touch with Us",
         description:
-          "Reach out to Faith & Fast for any inquiries, support, or collaborations. Contact us via phone, email, or WhatsApp.",
+          "Reach out to Faith AND Fast for any inquiries, support, or collaborations. Contact us via phone, email, or WhatsApp.",
       },
     };
 
@@ -44,7 +44,7 @@ const ContactUs = () => {
         <h1 className="text-4xl font-bold text-center mb-4">
           Contact{" "}
           <span className="text-yellow-500 dark:text-red-500">
-            Faith & Fast
+            Faith AND Fast
           </span>
         </h1>
 

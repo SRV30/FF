@@ -62,14 +62,58 @@ export const getSingleDetail = createAsyncThunk(
       const response = await axiosInstance.get("/api/user/me");
       return response.data.data;
     } catch (error) {
-      console.error(error);  
+      console.error(error);
       return rejectWithValue(
-        error.response?.data || error.message || { message: "Get user details failed!" }
+        error.response?.data ||
+          error.message || { message: "Get user details failed!" }
       );
     }
   }
 );
 
+export const updateProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(
+        "/api/user/update-user",
+        formData
+      );
+      const { token, user } = response.data.data;
+
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      return { token, user };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "Profile update failed!" }
+      );
+    }
+  }
+);
+
+export const uploadAvatar = createAsyncThunk(
+  "auth/uploadAvatar",
+  async (avatarFile, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("avatar", avatarFile);
+
+      const response = await axiosInstance.put(
+        "/api/user/upload-avatar",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Upload failed");
+    }
+  }
+);
 
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
@@ -142,6 +186,33 @@ const authSlice = createSlice({
         state.loading = false;
         state.error =
           action.payload?.message || "Fetching user details failed!";
+      })
+
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        localStorage.setItem("user", JSON.stringify(action.payload));
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Profile update failed!";
+      })
+
+      .addCase(uploadAvatar.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = { ...state.user, avatar: action.payload.avatar };
+      })
+      .addCase(uploadAvatar.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

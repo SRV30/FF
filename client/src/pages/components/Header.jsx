@@ -52,7 +52,7 @@ export default function Header() {
         <a href="/" className="hover:opacity-80 transition-opacity">
           <img
             src={darkMode ? logo : logoLight}
-            alt="Faith & Fast Logo"
+            alt="Faith AND Fast Logo"
             className="h-12 w-auto"
           />
         </a>

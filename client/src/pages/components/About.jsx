@@ -9,12 +9,12 @@ const AboutUs = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "About Us - Faith & Fast | Trendy Fashion";
+    document.title = "About Us - Faith AND Fast | Trendy Fashion";
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute(
         "content",
-        "Discover Faith & Fast, your go-to brand for high-quality, trendy fashion for men and women. Explore our premium collection today!"
+        "Discover Faith AND Fast, your go-to brand for high-quality, trendy fashion for men and women. Explore our premium collection today!"
       );
   }, []);
 
@@ -24,7 +24,7 @@ const AboutUs = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white transition-all duration-300">
-    <MetaData title="About | Faith & Fast" />
+    <MetaData title="About | Faith AND Fast" />
       {/* Heading */}
       <div className="max-w-6xl mx-auto py-20 px-6">
         <motion.div
@@ -36,13 +36,13 @@ const AboutUs = () => {
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
             About{" "}
             <span className="text-yellow-500 dark:text-red-600 inline-block hover:scale-105 transition-transform">
-              FAITH & FAST
+              Faith AND Fast
             </span>
           </h1>
           <p className="text-xl max-w-3xl mx-auto leading-relaxed text-gray-700 dark:text-gray-300">
             Welcome to{" "}
             <span className="font-semibold text-yellow-500 dark:text-red-600">
-              FAITH & FAST
+              Faith AND Fast
             </span>
             , your go-to destination for trendy and high-quality fashion for
             both men and women. Fashion is more than just clothing – it’s a way
@@ -83,7 +83,7 @@ const AboutUs = () => {
             <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
               At{" "}
               <span className="font-semibold text-yellow-500 dark:text-red-600">
-                FAITH & FAST
+                Faith AND Fast
               </span>
               , we offer a carefully curated collection of stylish and
               comfortable apparel for every occasion. Whether you need casual
@@ -101,7 +101,7 @@ const AboutUs = () => {
               <h2 className="text-3xl font-bold mb-6">
                 Why Choose{" "}
                 <span className="text-yellow-500 dark:text-red-600">
-                  FAITH & FAST
+                  Faith AND Fast
                 </span>
                 ?
               </h2>
@@ -142,7 +142,7 @@ const AboutUs = () => {
           <h2 className="text-4xl font-bold mb-8 leading-tight">
             Join us in redefining fashion with{" "}
             <span className="text-yellow-500 dark:text-red-600">
-              FAITH & FAST
+              Faith AND Fast
             </span>
             .
             <span className="block mt-2 text-2xl font-normal text-gray-700 dark:text-gray-300">

@@ -119,17 +119,17 @@ const forgotPasswordTemplate = ({ name, otp }) => {
   
             <div class="body">
               <p>Hello ${name},</p>
-              <p>We received a request to reset the password for your Faith & Fast account.</p>
+              <p>We received a request to reset the password for your Faith AND Fast account.</p>
               <p>If you didn't request a password reset, you can ignore this email.</p>
               <p>To reset your password, please use the following OTP:</p>
               <div class="otp-container">
                 <p>${otp}</p>
               </div>
-              <p>This OTP is valid for only 10 minutes. Enter it on the Faith & Fast website to proceed with resetting your password.</p>
+              <p>This OTP is valid for only 10 minutes. Enter it on the Faith AND Fast website to proceed with resetting your password.</p>
             </div>
   
             <div class="footer">
-              <p>Faith & Fast | <a href="https://www.faithandfast.com" target="_blank">www.faithandfast.com</a></p>
+              <p>Faith AND Fast | <a href="https://www.faithandfast.com" target="_blank">www.faithandfast.com</a></p>
               <p>For assistance, please contact <a href="mailto:support@faithandfast.com">support@faithandfast.com</a></p>
             </div>
   

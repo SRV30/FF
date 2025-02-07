@@ -22,12 +22,12 @@ const Footer = () => {
         >
           <img
             src={logoLight}
-            alt="Faith & Fast Logo"
+            alt="Faith AND Fast Logo"
             className="h-32 w-32 object-contain dark:hidden"
           />
           <img
             src={logoDark}
-            alt="Faith & Fast Logo"
+            alt="Faith AND Fast Logo"
             className="h-32 w-32 object-contain hidden dark:block"
           />
         </motion.div>
@@ -35,9 +35,21 @@ const Footer = () => {
         {/* Links Section */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-sm">
           {[
-            { title: "Product", links: ["Features", "Pricing"], hrefs: ["/products", "/products"] },
-            { title: "Company", links: ["About", "Contact Us"], hrefs: ["#", "/contactus"] },
-            { title: "Support", links: ["Help Center", "Chat Support"], hrefs: ["#", "#"] },
+            {
+              title: "Product",
+              links: ["Features", "Pricing"],
+              hrefs: ["/products", "/products"],
+            },
+            {
+              title: "Company",
+              links: ["About", "Contact Us"],
+              hrefs: ["/about", "/contactus"],
+            },
+            {
+              title: "Support",
+              links: ["Help Center", "Chat Support"],
+              hrefs: ["", ""],
+            },
           ].map((section, index) => (
             <motion.div
               key={index}
@@ -74,11 +86,18 @@ const Footer = () => {
         className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-center md:text-left"
       >
         <p>
-          © 2024 Faith & Fast, Inc. •{" "}
-          <a className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer">Privacy</a>{" "}
-          • <a className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer">Terms</a>{" "}
+          © 2024 Faith AND Fast, Inc. •{" "}
+          <a className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer">
+            Privacy
+          </a>{" "}
           •{" "}
-          <a className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer">Sitemap</a>
+          <a className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer">
+            Terms
+          </a>{" "}
+          •{" "}
+          <a className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer">
+            Sitemap
+          </a>
         </p>
 
         {/* Social Media Icons */}

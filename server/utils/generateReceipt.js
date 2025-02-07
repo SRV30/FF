@@ -53,7 +53,7 @@ const generateReceiptHTML = (order) => {
         <div class="container">
           <h2>Order Confirmation</h2>
           <p>Dear ${user.name},</p>
-          <p>Thank you for shopping with Faith & Fast. Your order has been successfully placed. Below are the order details:</p>
+          <p>Thank you for shopping with Faith AND Fast. Your order has been successfully placed. Below are the order details:</p>
 
           <h3>Order Details:</h3>
           <table>
@@ -91,9 +91,9 @@ const generateReceiptHTML = (order) => {
 
           <div class="receipt-footer">
             <p>We will notify you once your order has been shipped.</p>
-            <p>Thank you for choosing Faith & Fast!</p>
+            <p>Thank you for choosing Faith AND Fast!</p>
             <p><strong>Contact Us:</strong> support@faithandfast.com</p>
-            <p><strong><a href="www.faithandfast.com">Faith & Fast </a></strong></p>
+            <p><strong><a href="www.faithandfast.com">Faith AND Fast </a></strong></p>
           </div>
         </div>
 
@@ -104,7 +104,7 @@ const generateReceiptHTML = (order) => {
             // Add title and content to PDF
             doc.text('Order Confirmation', 20, 20);
             doc.text('Dear ${user.name},', 20, 30);
-            doc.text('Thank you for shopping with Faith & Fast.', 20, 40);
+            doc.text('Thank you for shopping with Faith AND Fast.', 20, 40);
             
             // Add product list to PDF
             let y = 50; // Initialize y position

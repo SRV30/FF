@@ -276,7 +276,7 @@ export const cancelOrder = catchAsyncErrors(async (req, res) => {
 
     const emailSent = await sendEmail({
       sendTo: order.user.email,
-      subject: "Your Order Has Been Cancelled - Faith & Fast",
+      subject: "Your Order Has Been Cancelled - Faith AND Fast",
       html: `
             <html>
               <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333;">
@@ -300,9 +300,9 @@ export const cancelOrder = catchAsyncErrors(async (req, res) => {
                   }</p>
                   <p style="font-size: 16px;">If you have any concerns or questions, feel free to contact our support team at <strong>support@faithandfast.com</strong>.</p>
                   <p style="font-size: 16px; text-align: center;">
-                    <a href="https://www.faithandfast.com" style="color: #fff; background-color: #e91e63; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Visit Faith & Fast</a>
+                    <a href="https://www.faithandfast.com" style="color: #fff; background-color: #e91e63; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Visit Faith AND Fast</a>
                   </p>
-                  <p style="font-size: 16px; text-align: center;">Best regards,<br>Faith & Fast Team</p>
+                  <p style="font-size: 16px; text-align: center;">Best regards,<br>Faith AND Fast Team</p>
                 </div>
               </body>
             </html>

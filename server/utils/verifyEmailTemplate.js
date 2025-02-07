@@ -4,7 +4,7 @@ const verifyEmailTemplate = ({ name, url }) => {
       
       <!-- Logo -->
       <div style="text-align: center;">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQuiHW4TNdJTywl0UynwQxUfi9CBCGxqZf5g&s" alt="Faith & Fast" style="max-width: 180px; margin-bottom: 20px;">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQuiHW4TNdJTywl0UynwQxUfi9CBCGxqZf5g&s" alt="Faith AND Fast" style="max-width: 180px; margin-bottom: 20px;">
       </div>
   
       <!-- Greeting -->
@@ -12,7 +12,7 @@ const verifyEmailTemplate = ({ name, url }) => {
       
       <!-- Welcome Message -->
       <p style="font-size: 16px; line-height: 1.6;">
-        Welcome to <strong>Faith & Fast</strong>! 🎉 We're thrilled to have you join our community.
+        Welcome to <strong>Faith AND Fast</strong>! 🎉 We're thrilled to have you join our community.
         To complete your registration, please verify your email address by clicking the button below.
       </p>
   
@@ -43,12 +43,12 @@ const verifyEmailTemplate = ({ name, url }) => {
   
       <!-- Security Notice -->
       <p style="font-size: 14px; color: #777;">
-        If you didn't sign up for Faith & Fast, please ignore this email. This verification link is valid for **24 hours**.
+        If you didn't sign up for Faith AND Fast, please ignore this email. This verification link is valid for **24 hours**.
       </p>
   
       <!-- Signature -->
       <p style="font-size: 16px; font-weight: bold; margin-top: 20px;">Best Regards,</p>
-      <p style="font-size: 16px; font-weight: bold; color: #ff8c00;">Faith & Fast Team</p>
+      <p style="font-size: 16px; font-weight: bold; color: #ff8c00;">Faith AND Fast Team</p>
   
       <!-- Footer -->
       <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">

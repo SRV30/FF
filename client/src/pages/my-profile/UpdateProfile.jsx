@@ -1,34 +1,49 @@
-import { useState, useRef } from "react";
-import {
-  User,
-  MapPin,
-  Camera,
-  Mail,
-  Phone,
-  Calendar,
-  AlertCircle,
-} from "lucide-react";
-import { ToastContainer, toast } from "react-toastify";
+import { useState, useRef, useEffect } from "react";
+import { User, Camera, Mail, Phone } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  updateProfile,
+  getSingleDetail,
+  uploadAvatar,
+} from "@/store/auth-slice/user";
+import { useNavigate } from "react-router-dom";
 
 const UpdateProfile = () => {
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { user, loading } = useSelector((state) => state.auth);
   const fileInputRef = useRef(null);
 
-  const [profileImage, setProfileImage] = useState(
-    "https://placehold.co/150x150"
-  );
-  const [isImageError, setIsImageError] = useState(false);
+  const navigate = useNavigate();
 
+  const [profileImage, setProfileImage] = useState(
+    user?.avatar || "https://placehold.co/150x150"
+  );
   const [formData, setFormData] = useState({
-    fullName: "Jimmy Scott",
-    email: "jimmysco283@gmail.com",
-    gender: "Male",
-    dateOfBirth: "1987-08-02",
-    phone: "012-345-6789",
-    emergencyContact: "",
-    address: "123 Main St, New York, NY 10001",
+    name: "",
+    email: "",
+    mobile: "",
   });
+
+  useEffect(() => {
+    dispatch(getSingleDetail());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        mobile: user.mobile || "",
+        avatar: user.avatar || null,
+      });
+
+      if (user.avatar) {
+        setProfileImage(user.avatar);
+      }
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,19 +66,15 @@ const UpdateProfile = () => {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target.result);
-        setIsImageError(false);
-      };
-
-      reader.onerror = () => {
-        setIsImageError(true);
-        setProfileImage("https://placehold.co/150x150");
-        toast.error("Error reading file");
-      };
-
-      reader.readAsDataURL(file);
+      dispatch(uploadAvatar(file))
+        .unwrap()
+        .then(() => {
+          toast.success("Avatar updated successfully!");
+          navigate("/my-profile");
+        })
+        .catch((error) => {
+          toast.error(error || "Failed to update avatar");
+        });
     }
   };
 
@@ -71,38 +82,49 @@ const UpdateProfile = () => {
     fileInputRef.current.click();
   };
 
-  const handleImageError = () => {
-    setIsImageError(true);
-    setProfileImage("https://placehold.co/150x150");
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    const formDataToSend = new FormData();
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Profile updated successfully! 🎉");
-    } catch (error) {
-      toast.error("Failed to update profile. Please try again.");
-    } finally {
-      setLoading(false);
+    if (!formData.name || !formData.email || !formData.mobile) {
+      toast.error("All fields are required");
+      return;
     }
+
+    if (formData.mobile.length !== 10) {
+      toast.error("mobile number must be 10 digits");
+      return;
+    }
+
+    Object.keys(formData).forEach((key) => {
+      formDataToSend.append(key, formData[key]);
+    });
+
+    if (formData.avatar) {
+      formDataToSend.append("avatar", formData.avatar);
+    }
+
+    dispatch(updateProfile(formDataToSend))
+      .unwrap()
+      .then(() => {
+        toast.success("Profile updated successfully!");
+        navigate("/my-profile");
+      })
+      .catch((error) => {
+        toast.error(error.message || "Failed to update profile");
+      });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className="mx-auto max-w-6xl rounded-lg shadow-lg dark:bg-gray-900 bg-white text-black dark:text-white p-6">
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Account Settings</h1>
         </div>
 
         <div className="flex justify-center">
-          {/* Profile Update Form */}
           <div className="md:w-3/4">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Profile Image */}
               <div className="flex justify-center mb-6">
                 <div className="relative group">
                   <input
@@ -116,43 +138,35 @@ const UpdateProfile = () => {
                     <img
                       src={profileImage}
                       alt="Profile"
-                      className="w-full h-full object-cover cursor-pointer transition-opacity duration-200 group-hover:opacity-75"
+                      className="w-full h-full object-cover cursor-pointer"
                       onClick={handleImageClick}
-                      onError={handleImageError}
                     />
                   </div>
                   <button
                     type="button"
                     onClick={handleImageClick}
-                    className="absolute bottom-0 right-0 p-2 rounded-full 
-                      dark:bg-gray-900 bg-gray-100 
-                      hover:bg-gray-200 dark:hover:bg-gray-900
-                      transition-colors duration-200 ease-in-out
-                      shadow-lg"
+                    className="absolute bottom-0 right-0 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors shadow-lg"
                   >
                     <Camera size={16} />
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-lg dark:bg-gray-900 dark:text-white bg-white text-black">
-                {/* Full Name */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-lg dark:bg-gray-900 bg-white">
                 <div className="space-y-2">
                   <label className="block text-sm font-medium">Full Name</label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
                       type="text"
-                      name="fullName"
-                      value={formData.fullName}
+                      name="name"
+                      value={formData.name}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border transition-colors
-                      dark:bg-gray-900 dark:text-white border-gray-500 text-white focus:border-yellow-400 bg-white"
+                      className="w-full pl-10 pr-4 py-2 rounded-lg border bg-white text-black"
                     />
                   </div>
                 </div>
 
-                {/* Email */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium">Email</label>
                   <div className="relative">
@@ -162,134 +176,44 @@ const UpdateProfile = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border transition-colors
-                      dark:bg-gray-900 dark:text-white"
+                      className="w-full pl-10 pr-4 py-2 rounded-lg border bg-white text-black"
                     />
                   </div>
-                </div>
-
-                {/* Gender */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium">Gender</label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg border transition-colors
-                      dark:bg-gray-900 dark:text-white "
-                  >
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
                 </div>
 
                 <div className="space-y-2">
                   <label className="block text-sm font-medium">
-                    Date of Birth
+                    Phone Number
                   </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      type="date"
-                      name="dateOfBirth"
-                      value={formData.dateOfBirth}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border transition-colors
-                      dark:bg-gray-900 dark:text-white"
-                    />
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium">Phone</label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
                       type="tel"
-                      name="phone"
-                      value={formData.phone}
+                      name="mobile"
+                      value={formData.mobile}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border transition-colors
-                      dark:bg-gray-900 dark:text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium">
-                    Emergency Contact
-                  </label>
-                  <div className="relative">
-                    <AlertCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      type="tel"
-                      name="emergencyContact"
-                      value={formData.emergencyContact}
-                      onChange={handleChange}
-                      placeholder="Emergency contact number"
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border transition-colors
-                      dark:bg-gray-900 dark:text-white "
-                    />
-                  </div>
-                </div>
-
-                {/* Address */}
-                <div className="space-y-2 md:col-span-2">
-                  <label className="block text-sm font-medium">Address</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <textarea
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      rows="3"
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border transition-colors
-                      dark:bg-gray-900 dark:text-white "
+                      className="w-full pl-10 pr-4 py-2 rounded-lg border bg-white text-black"
                     />
                   </div>
                 </div>
               </div>
-
-              {/* Submit Button */}
               <div className="flex justify-center">
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`px-6 py-2 rounded-lg text-white font-medium transition-all duration-200
-                    ${
-                      loading
-                        ? "bg-yellow-400 cursor-not-allowed"
-                        : "bg-yellow-600 hover:bg-yellow-700"
-                    }`}
+                  className={`px-6 py-2 rounded-lg text-white font-medium ${
+                    loading
+                      ? "bg-yellow-500 dark:bg-red-600 cursor-not-allowed"
+                      : "bg-yellow-500 dark:bg-red-600"
+                  }`}
                 >
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
-                      <span>Updating...</span>
-                    </div>
-                  ) : (
-                    "Update Profile"
-                  )}
+                  {loading ? "Updating..." : "Update Profile"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       </div>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        className="dark:text-black text-white"
-      />
     </div>
   );
 };
