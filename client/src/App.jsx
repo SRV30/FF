@@ -26,6 +26,8 @@ import { useSelector } from "react-redux";
 import ProtectedRoute from "./pages/extras/ProtectedRoute";
 import ScrollToTop from "./pages/extras/ScrollToTop";
 import ProductDetails from "./pages/products/SingleProduct";
+import SingleUser from "./pages/admin/AdminSingleUser";
+import AdminUsers from "./pages/admin/AdminUsers";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -115,6 +117,22 @@ const App = () => {
               element={
                 <ProtectedRoute isAdmin={true}>
                   <AdminAddProduct />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute isAdmin={true}>
+                  <AdminUsers />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/admin/users/:id"
+              element={
+                <ProtectedRoute isAdmin={true}>
+                  <SingleUser />
                 </ProtectedRoute>
               }
             />

@@ -12,6 +12,7 @@ import {
   resetPassword,
   updateUserDetails,
   updateUserRole,
+  updateUserStatus,
   uploadAvatar,
   verifyEmailController,
   verifyOtp,
@@ -56,5 +57,7 @@ userRouter.get("/admin/get/:id", auth, admin, getSingleUser);
 userRouter.put("/admin/update", auth, admin, updateUserRole);
 
 userRouter.delete("/admin/delete/:id", auth, admin, deleteUser);
+
+userRouter.patch("/admin/:id/status", auth, admin, updateUserStatus);
 
 export default userRouter;

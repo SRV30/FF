@@ -6,7 +6,6 @@ import {
   Package,
   BarChart3,
   Settings,
-  LogOut,
   Menu,
   X,
   Bell,
@@ -17,12 +16,16 @@ import {
   ShoppingCart,
   Tag,
 } from "lucide-react";
+import AdminUsers from "./AdminUsers";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeSection, setActiveSection] = useState("Dashboard");
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([
     { id: 1, text: "New order #123 received" },
     { id: 2, text: "Low stock alert: Blue Denim Jacket" },
@@ -100,10 +103,6 @@ const AdminDashboard = () => {
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
-  };
-
-  const handleLogout = () => {
-    alert("Logging out...");
   };
 
   const handleNotificationClick = () => {
@@ -240,11 +239,7 @@ const AdminDashboard = () => {
           </div>
         );
       case "Customers":
-        return (
-          <div className="p-4 lg:p-6 bg-white rounded-lg">
-            Customers section content
-          </div>
-        );
+        return <AdminUsers />;
       case "Products":
         return (
           <div className="p-4 lg:p-6 bg-white rounded-lg">
@@ -290,7 +285,7 @@ const AdminDashboard = () => {
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
           {[
             { icon: LayoutDashboard, text: "Dashboard" },
-            { icon: Users, text: "Customers" },
+            { icon: Users, text: "Customers", path: "/admin/users" },
             { icon: ShoppingBag, text: "Products" },
             { icon: Package, text: "Orders" },
             { icon: BarChart3, text: "Analytics" },
@@ -307,16 +302,9 @@ const AdminDashboard = () => {
                 }`}
             >
               <item.icon className="w-5 h-5" />
-              <span>{item.text}</span>
+              <span onClick={() => navigate(item.path)}>{item.text}</span>
             </button>
           ))}
-          <button
-            onClick={handleLogout}
-            className="flex items-center w-full px-3 py-2 rounded-lg text-left space-x-3 text-red-600 hover:bg-red-50 mt-6"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
         </nav>
       </aside>
 
