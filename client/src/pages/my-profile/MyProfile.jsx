@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { User, ShoppingBag, Lock, MapPin, LogOut } from "lucide-react";
+import { User, ShoppingBag, Lock, MapPin } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { FaUserEdit } from "react-icons/fa";
 import { getSingleDetail } from "@/store/auth-slice/user";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { Helmet } from "react-helmet";
 import MetaData from "../extras/MetaData";
 
 const MyProfile = () => {
@@ -13,6 +12,7 @@ const MyProfile = () => {
   const dispatch = useDispatch();
   const { user, loading } = useSelector((state) => state.auth);
 
+  // eslint-disable-next-line no-unused-vars
   const [profileImage, setProfileImage] = useState(
     user ? user.avatar : "https://placehold.co/150x150"
   );
@@ -23,7 +23,7 @@ const MyProfile = () => {
 
   useEffect(() => {
     if (user?.avatar) {
-      setProfileImage(user.profileImage);
+      setProfileImage(user.avatar);
     }
   }, [user]);
 
@@ -114,11 +114,15 @@ const MyProfile = () => {
                   className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 cursor-pointer"
                   onClick={() => fileInputRef.current.click()}
                 >
-                  <img
-                    src={user.avatar}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+                  {loading ? (
+                    <p>Loading...</p>
+                  ) : (
+                    <img
+                      src={user?.avatar || "https://placehold.co/150x150"}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
               </div>
               <div>

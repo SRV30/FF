@@ -6,12 +6,21 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/api/user/login", credentials);
-      const { token, user } = response.data.data;
+      const { accessToken, refreshToken, user, verifyEmail } =
+        response.data.data;
 
-      localStorage.setItem("authToken", token);
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("verifyEmail", verifyEmail);
+
       console.log("Retrieved User:", user);
-      return { token, user };
+      console.log("User:", JSON.parse(localStorage.getItem("user")));
+      console.log("Access Token:", localStorage.getItem("accessToken"));
+      console.log("Refresh Token:", localStorage.getItem("refreshToken"));
+      console.log("Is Authenticated:", !!localStorage.getItem("accessToken"));
+
+      return { accessToken, refreshToken, user };
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Invalid email or password!" }
@@ -40,11 +49,11 @@ export const signupUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/api/user/register", userData);
-      const { token, user } = response.data.data;
+      const { accessToken, user } = response.data.data;
 
-      localStorage.setItem("authToken", token);
+      localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
-      return { token, user };
+      return { accessToken, user };
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Signup failed!" }
@@ -58,6 +67,8 @@ export const getSingleDetail = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get("/api/user/me");
+      localStorage.setItem("verifyEmail", response.data.data.verifyEmail);
+
       return response.data.data;
     } catch (error) {
       console.error(error);
@@ -77,11 +88,13 @@ export const updateProfile = createAsyncThunk(
         "/api/user/update-user",
         formData
       );
-      const { token, user } = response.data.data;
+      const { accessToken, user } = response.data?.data || {};
 
-      localStorage.setItem("authToken", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      return { token, user };
+      if (accessToken && user) {
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("user", JSON.stringify(user));
+      }
+      return { accessToken, user };
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Profile update failed!" }
@@ -198,9 +211,12 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
+const storedUser = localStorage.getItem("user");
 const initialState = {
-  user: JSON.parse(localStorage.getItem("user")) || null,
-  isAuthenticated: !!localStorage.getItem("authToken"),
+  user: storedUser ? JSON.parse(storedUser) : null,
+  isAuthenticated: !!localStorage.getItem("accessToken"),
+  accessToken: localStorage.getItem("accessToken") || null,
+  refreshToken: localStorage.getItem("refreshToken") || null,
   loading: false,
   error: null,
   users: [],
@@ -208,6 +224,7 @@ const initialState = {
   totalUsers: 0,
   totalPages: 0,
   success: false,
+  verifyEmail: false,
 };
 
 const authSlice = createSlice({
@@ -231,9 +248,16 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        const { accessToken, refreshToken, user } = action.payload;
         state.loading = false;
+        state.user = user;
         state.isAuthenticated = true;
-        state.user = action.payload.user;
+        state.accessToken = accessToken;
+        state.refreshToken = refreshToken;
+        state.verifyEmail = action.payload.verifyEmail;
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -247,8 +271,12 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.verifyEmail = false;
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("verifyEmail");
 
-        localStorage.removeItem("authToken");
         localStorage.removeItem("user");
       })
       .addCase(logoutUser.rejected, (state, action) => {
@@ -276,6 +304,7 @@ const authSlice = createSlice({
       .addCase(getSingleDetail.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.verifyEmail = action.payload.verifyEmail;
       })
       .addCase(getSingleDetail.rejected, (state, action) => {
         state.loading = false;

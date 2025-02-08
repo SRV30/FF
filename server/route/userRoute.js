@@ -14,7 +14,7 @@ import {
   updateUserRole,
   updateUserStatus,
   uploadAvatar,
-  verifyEmailController,
+  verifyEmailOtp,
   verifyOtp,
 } from "../controllers/userController.js";
 import auth from "../middleware/auth.js";
@@ -25,7 +25,9 @@ const userRouter = express.Router();
 
 userRouter.post("/register", registerUser);
 
-userRouter.post("/verify-email", verifyEmailController);
+userRouter.post("/verify-email", verifyEmailOtp);
+
+userRouter.post("/resend-otp", verifyEmailOtp);
 
 userRouter.post("/login", loginUser);
 

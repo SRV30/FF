@@ -5,6 +5,7 @@ import productReducer from "./product-slice/productSlice";
 import addressReducer from "./address-slice/addressSlice";
 import updatePassSlice from "./auth-slice/updatePasswordSlice";
 import productDetailsSlice from "./product-slice/productDetails";
+import otpSlice from "./auth-slice/otpSlice";
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     address: addressReducer,
     updatePassword: updatePassSlice,
     productDetails: productDetailsSlice,
+    otp: otpSlice
   },
 });
 

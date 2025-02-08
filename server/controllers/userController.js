@@ -25,8 +25,8 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.json({
-        message: "Email already exist",
+      return res.status(400).json({
+        message: "Email already exists",
         error: true,
         success: false,
       });
@@ -35,19 +35,14 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
     const salt = await bcryptjs.genSalt(10);
     const hashPassword = await bcryptjs.hash(password, salt);
 
-    const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    const verifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    const otp = generatedOtp();
+    const otpExpiry = new Date();
+    otpExpiry.setMinutes(otpExpiry.getMinutes() + 15);
 
     const emailResponse = await sendEmail({
       sendTo: email,
       subject: "Verify Your Email - Faith AND Fast",
-      html: verifyEmailTemplate({
-        name,
-        url: verifyEmailUrl,
-      }),
+      html: verifyEmailTemplate({ name, otp }),
     });
 
     if (!emailResponse) {
@@ -62,7 +57,9 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
       name,
       email,
       password: hashPassword,
-      isVerified: false,
+      verifyEmail: false,
+      login_otp: otp,
+      login_expiry: otpExpiry,
     });
 
     const savedUser = await newUser.save();
@@ -91,48 +88,120 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const verifyEmailController = catchAsyncErrors(async (req, res) => {
+export const verifyEmailOtp = catchAsyncErrors(async (req, res) => {
   try {
-    const { code } = req.body;
+    const { email, otp } = req.body;
 
-    if (!code) {
-      return res.status(400).json({
-        message: "Verification code is required",
-        error: true,
-        success: false,
-      });
-    }
-
-    const user = await User.findById(code);
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
-        message: "Invalid or expired verification code",
+        message: "Email not registered.",
+        error: true,
+        success: false,
+      });
+    }
+    if (user.login_expiry < new Date()) {
+
+      const newOtp = generatedOtp();
+      const newExpiry = new Date();
+      newExpiry.setMinutes(newExpiry.getMinutes() + 15);
+
+
+      const emailResponse = await sendEmail({
+        sendTo: email,
+        subject: "New OTP for Email Verification - Faith AND Fast",
+        html: verifyEmailTemplate({ name: user.name, otp: newOtp }),
+      });
+
+      if (!emailResponse) {
+        return res.status(500).json({
+          message: "Failed to resend OTP. Try again later.",
+          error: true,
+          success: false,
+        });
+      }
+
+
+      user.login_otp = newOtp;
+      user.login_expiry = newExpiry;
+      await user.save();
+
+      return res.status(410).json({
+        message: "OTP expired. A new OTP has been sent to your email.",
         error: true,
         success: false,
       });
     }
 
-    if (user.verifyEmail) {
-      return res.status(400).json({
-        message: "Email is already verified",
-        error: true,
-        success: false,
-      });
+    if (otp !== user.login_otp) {
+      return res.status(401).json({ message: "Invalid OTP", error: true });
     }
 
-    user.verifyEmail = true;
-    await user.save();
+    await User.findByIdAndUpdate(user._id, {
+      verifyEmail: true,
+      login_otp: null,
+      login_expiry: null,
+    });
 
-    return res.status(200).json({
-      message: "Email successfully verified",
-      success: true,
+    return res.json({
+      message: "Email verified successfully.",
       error: false,
-      data: user,
+      success: true,
     });
   } catch (error) {
     return res.status(500).json({
-      message: error.message || "Internal Server Error",
+      message: error.message || "An error occurred while verifying OTP.",
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const resendOtp = catchAsyncErrors(async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Email not registered.",
+        error: true,
+        success: false,
+      });
+    }
+
+    const newOtp = generatedOtp();
+    const newExpiry = new Date();
+    newExpiry.setMinutes(newExpiry.getMinutes() + 15);
+
+    const emailResponse = await sendEmail({
+      sendTo: email,
+      subject: "New OTP for Email Verification - Faith AND Fast",
+      html: verifyEmailTemplate({ name: user.name, otp: newOtp }),
+    });
+
+    if (!emailResponse) {
+      return res.status(500).json({
+        message: "Failed to resend OTP. Try again later.",
+        error: true,
+        success: false,
+      });
+    }
+
+    user.login_otp = newOtp;
+    user.login_expiry = newExpiry;
+    await user.save();
+
+    return res.status(200).json({
+      message: "A new OTP has been sent to your email.",
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Failed to resend OTP.",
       error: true,
       success: false,
     });
@@ -201,6 +270,7 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
         accessToken,
         refreshToken,
         user,
+        verifyEmail: user.verifyEmail
       },
     });
   } catch (error) {
@@ -851,23 +921,19 @@ export const updateUserStatus = catchAsyncErrors(async (req, res) => {
     const { status } = req.body;
     const { id } = req.params;
 
-    // Validate status
     const allowedStatuses = ["Active", "Warning", "Suspended"];
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({ error: "Invalid status provided" });
     }
 
-    // Find user
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Update user status
     user.status = status;
     await user.save();
 
-    // Send warning email if status is "Warning"
     if (status === "Warning") {
       await sendEmail({
         sendTo: user.email,

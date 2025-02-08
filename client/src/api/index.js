@@ -7,7 +7,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async (config) => {
-    const accessToken = localStorage.getItem("accesstoken");
+    const accessToken = localStorage.getItem("accessToken");
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -56,16 +56,16 @@ const refreshAccessToken = async (refreshToken) => {
     });
 
     if (!response.data.success) {
-      localStorage.removeItem("accesstoken");
+      localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
     }
 
     const accessToken = response.data.data.accessToken;
-    localStorage.setItem("accesstoken", accessToken);
+    localStorage.setItem("accessToken", accessToken);
     return accessToken;
   } catch (error) {
     console.error("Token refresh failed:", error);
-    localStorage.removeItem("accesstoken");
+    localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     return null;
   }

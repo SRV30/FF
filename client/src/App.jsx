@@ -28,6 +28,7 @@ import ScrollToTop from "./pages/extras/ScrollToTop";
 import ProductDetails from "./pages/products/SingleProduct";
 import SingleUser from "./pages/admin/AdminSingleUser";
 import AdminUsers from "./pages/admin/AdminUsers";
+import VerifyEmail from "./pages/auth-page/VerifyEmail";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -41,6 +42,8 @@ const App = () => {
       <Routes>
         {/* User routes */}
         <Route path="/" element={<Home />} />
+
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -120,7 +123,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-             <Route
+            <Route
               path="/admin/users"
               element={
                 <ProtectedRoute isAdmin={true}>
@@ -128,7 +131,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-             <Route
+            <Route
               path="/admin/users/:id"
               element={
                 <ProtectedRoute isAdmin={true}>
@@ -142,7 +145,7 @@ const App = () => {
         {/* 404, Restricted */}
       </Routes>
 
-        <ScrollToTop />
+      <ScrollToTop />
       <Footer />
     </div>
   );
