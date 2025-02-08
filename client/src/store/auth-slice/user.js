@@ -24,11 +24,9 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/api/user/logout");
+      await axiosInstance.get("/api/user/logout");
 
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      return response.data;
+      return {};
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Logout failed!" }
@@ -154,6 +152,9 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = null;
         state.isAuthenticated = false;
+
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
@@ -166,9 +167,7 @@ const authSlice = createSlice({
       })
       .addCase(signupUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = true;
         state.user = action.payload.user;
-        localStorage.setItem("user", JSON.stringify(action.payload));
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
@@ -195,8 +194,9 @@ const authSlice = createSlice({
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
-        localStorage.setItem("user", JSON.stringify(action.payload));
+        state.user = action.payload.user;
+
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
@@ -210,6 +210,9 @@ const authSlice = createSlice({
       .addCase(uploadAvatar.fulfilled, (state, action) => {
         state.loading = false;
         state.user = { ...state.user, avatar: action.payload.avatar };
+
+        const updatedUser = { ...state.user, avatar: action.payload.avatar };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
       })
       .addCase(uploadAvatar.rejected, (state, action) => {
         state.loading = false;
