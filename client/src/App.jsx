@@ -29,6 +29,9 @@ import ScrollToTop from "./pages/extras/ScrollToTop";
 import CreateOrder from "./pages/orders/Checkout";
 
 import ProductDetails from "./pages/products/SingleProduct";
+import SingleUser from "./pages/admin/AdminSingleUser";
+import AdminUsers from "./pages/admin/AdminUsers";
+import VerifyEmail from "./pages/auth-page/VerifyEmail";
 
 
 const App = () => {
@@ -43,6 +46,8 @@ const App = () => {
       <Routes>
         {/* User routes */}
         <Route path="/" element={<Home />} />
+
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -123,13 +128,29 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute isAdmin={true}>
+                  <AdminUsers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users/:id"
+              element={
+                <ProtectedRoute isAdmin={true}>
+                  <SingleUser />
+                </ProtectedRoute>
+              }
+            />
           </>
         )}
 
         {/* 404, Restricted */}
       </Routes>
 
-        <ScrollToTop />
+      <ScrollToTop />
       <Footer />
     </div>
   );

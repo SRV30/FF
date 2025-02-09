@@ -10,6 +10,7 @@ import wishListReducer from "./add-to-wishList/addToWishList";
 import orderReducer from "./order-slice/order";
 
 import productDetailsSlice from "./product-slice/productDetails";
+import otpSlice from "./auth-slice/otpSlice";
 
 
 const store = configureStore({
@@ -25,6 +26,7 @@ const store = configureStore({
     order: orderReducer
 
     productDetails: productDetailsSlice,
+    otp: otpSlice
 
   },
 });

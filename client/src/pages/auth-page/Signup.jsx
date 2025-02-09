@@ -21,18 +21,14 @@ const SignUp = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { isAuthenticated, error, loading, user } = useSelector(
-    (state) => state.auth
-  );
-  useEffect(() => {}, [user, isAuthenticated, loading, navigate, dispatch]);
+  const { error, loading, user } = useSelector((state) => state.auth);
+  useEffect(() => {}, [user, loading, navigate, dispatch]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(signupUser({ name, email, password }));
+    toast.success("Successfully Register User");
+    navigate("/login");
   };
- 
-  const redirect = location.search
-    ? location.search.split("=")[1]
-    : "/";
 
   useEffect(() => {
     if (error) {
@@ -40,13 +36,8 @@ const SignUp = () => {
       dispatch(clearError());
     }
 
-    if (isAuthenticated) {
-      toast.success("Successfully Register User");
-      navigate(redirect);
-    }
-
     gsap.from(".login-form", { opacity: 0, y: -30, duration: 1 });
-  }, [dispatch, error, isAuthenticated, redirect, navigate]);
+  }, [dispatch, error, navigate]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-white text-black dark:bg-gray-800 dark:text-white">

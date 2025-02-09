@@ -18,13 +18,22 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    login_otp: {
+      type: String,
+      default: null,
+    },
+    login_expiry: {
+      type: Date,
+      default: null,
+    },
+    failedAttempts: { type: Number, default: 0 },
     lastLogin: {
       type: Date,
       default: null,
     },
     status: {
       type: String,
-      enum: ["Active", "Inactive", "Suspended"],
+      enum: ["Active", "Warning", "Suspended"],
       default: "Active",
     },
     addressDetails: [

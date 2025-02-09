@@ -12,8 +12,9 @@ import {
   resetPassword,
   updateUserDetails,
   updateUserRole,
+  updateUserStatus,
   uploadAvatar,
-  verifyEmailController,
+  verifyEmailOtp,
   verifyOtp,
 } from "../controllers/userController.js";
 import auth from "../middleware/auth.js";
@@ -24,7 +25,9 @@ const userRouter = express.Router();
 
 userRouter.post("/register", registerUser);
 
-userRouter.post("/verify-email", verifyEmailController);
+userRouter.post("/verify-email", verifyEmailOtp);
+
+userRouter.post("/resend-otp", verifyEmailOtp);
 
 userRouter.post("/login", loginUser);
 
@@ -56,5 +59,7 @@ userRouter.get("/admin/get/:id", auth, admin, getSingleUser);
 userRouter.put("/admin/update", auth, admin, updateUserRole);
 
 userRouter.delete("/admin/delete/:id", auth, admin, deleteUser);
+
+userRouter.patch("/admin/:id/status", auth, admin, updateUserStatus);
 
 export default userRouter;
