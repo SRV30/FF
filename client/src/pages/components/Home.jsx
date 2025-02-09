@@ -16,6 +16,7 @@ const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+
   const {
     product = [],
     loadingCategory,
@@ -25,6 +26,10 @@ const Home = () => {
     dispatch(addToCart(item._id));
     toast.success(`Successfully added to cart!`);
   };
+
+  const { product = [] } = useSelector((state) => state.product);
+
+
   useEffect(() => {
     dispatch(getProducts());
   }, [dispatch]);
@@ -41,6 +46,21 @@ const Home = () => {
     title: category.toUpperCase(),
     items: categorizedProducts[category],
   }));
+
+  // Shuffle function to randomize the categories array
+  const shuffleArray = (array) => {
+    let shuffledArray = array.slice();
+    for (let i = shuffledArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledArray[i], shuffledArray[j]] = [
+        shuffledArray[j],
+        shuffledArray[i],
+      ];
+    }
+    return shuffledArray;
+  };
+
+  const shuffledCategories = shuffleArray(categories); // Get shuffled categories
 
   const handleToggleWishlist = (itemId) => {
     setWishlist((prev) =>
@@ -64,8 +84,8 @@ const Home = () => {
       </header>
 
       <main className="container mx-auto px-4 sm:px-6 mb-6">
-        {categories.length > 0 ? (
-          categories.map((category, index) => (
+        {shuffledCategories.length > 0 ? (
+          shuffledCategories.map((category, index) => (
             <ProductCategory
               key={index}
               {...category}

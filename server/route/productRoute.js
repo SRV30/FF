@@ -2,10 +2,14 @@ import express from "express";
 import {
   createProduct,
   deleteProduct,
+  deleteProductReview,
   getProduct,
   getProductByCategory,
   getProductByFilter,
   getProductDetails,
+  getProductReviews,
+  getProductsByGender,
+  postProductReview,
   searchProduct,
   updateProductDetails,
 } from "../controllers/productController.js";
@@ -41,5 +45,13 @@ productRouter.put(
 productRouter.delete("/delete", auth, admin, deleteProduct);
 
 productRouter.post("/search", searchProduct);
+
+productRouter.get("/gender/:gender", getProductsByGender)
+
+productRouter.get("/reviews/:productId", getProductReviews)
+
+productRouter.post("/review/:productId", auth, postProductReview)
+
+productRouter.delete("/review/:productId/:reviewId", auth, admin, deleteProductReview)
 
 export default productRouter;

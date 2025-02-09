@@ -1,6 +1,7 @@
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
 import ProductModel from "../models/productModel.js";
 import { deleteImage, uploadImage } from "../utils/cloudinary.js";
+import ErrorHandler from "../utils/errorHandler.js";
 
 // Admin
 export const createProduct = catchAsyncErrors(async (req, res, next) => {
@@ -372,5 +373,136 @@ export const getProductByFilter = catchAsyncErrors(async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Error fetching products", error });
+  }
+});
+
+export const getProductsByGender = catchAsyncErrors(async (req, res) => {
+  try {
+    const { gender } = req.params;
+
+    const validGenders = ["MEN", "WOMEN", "KIDS"];
+    if (!validGenders.includes(gender.toUpperCase())) {
+      return next(new ErrorHandler("Invalid gender specified", 400));
+    }
+
+    const products = await ProductModel.find({
+      gender: gender.toUpperCase(),
+      publish: true,
+    })
+      .populate("category", "name")
+      .populate("user", "name email");
+
+    res.status(200).json({
+      success: true,
+      products,
+      count: products.length,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const getProductReviews = catchAsyncErrors(async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const product = await ProductModel.findById(productId);
+
+    if (!product) {
+      res.status(404).json({ message: "Product not found" });
+      return;
+    }
+
+    res.json({ reviews: product.reviews });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const postProductReview = catchAsyncErrors(async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { rating, comment, name } = req.body;
+
+    const product = await ProductModel.findById(productId);
+
+    if (!product) {
+      res.status(404).json({ message: "Product not found" });
+      return;
+    }
+
+    const review = {
+      user: req.user._id,
+      name,
+      rating,
+      comment,
+      createdAt: new Date().toISOString(),
+    };
+
+    product.reviews.push(review);
+    product.numOfReviews = product.reviews.length;
+
+    product.ratings =
+      product.reviews.reduce((acc, review) => acc + review.rating, 0) /
+      product.reviews.length;
+
+    await product.save();
+    res.status(201).json({ message: "Review posted successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export const deleteProductReview = catchAsyncErrors(async (req, res) => {
+  try {
+    const { productId, reviewId } = req.params;
+
+    const product = await ProductModel.findById(productId);
+
+    if (!product) {
+      res.status(404).json({ message: "Product not found" });
+      return;
+    }
+
+    const reviewIndex = product.reviews.findIndex(
+      (review) => review._id.toString() === reviewId
+    );
+
+    if (reviewIndex === -1) {
+      res.status(404).json({ message: "Review not found" });
+      return;
+    }
+
+    product.reviews.splice(reviewIndex, 1);
+    product.numOfReviews = product.reviews.length;
+
+    if (product.reviews.length > 0) {
+      product.ratings =
+        product.reviews.reduce((acc, review) => acc + review.rating, 0) /
+        product.reviews.length;
+    } else {
+      product.ratings = 0;
+    }
+
+    await product.save();
+    res.status(200).json({ message: "Review deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
   }
 });

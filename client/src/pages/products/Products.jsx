@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, ShoppingCart, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Typewriter from "typewriter-effect";
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   getProductByFilter,
   getProducts,
@@ -14,6 +15,11 @@ import { addToCart } from "@/store/add-to-cart/addToCart";
 import { addToWishList } from "@/store/add-to-wishList/addToWishList";
 
 
+import { getProductByFilter } from "@/store/product-slice/productSlice";
+import { Pagination } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+
 const Products = () => {
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,8 +28,16 @@ const Products = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
 
+
   const { cartItems, loading } = useSelector((state) => state.cart);
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { product = [], totalPages } = useSelector((state) => state.product);
+
+  const [shuffledProducts, setShuffledProducts] = useState([]);
+  const hasShuffled = useRef(false);
+
 
   const handleAddCart = (item) => {
     dispatch(addToCart(item._id));
@@ -41,6 +55,19 @@ const Products = () => {
     totalPages,
     currentPage,
   } = useSelector((state) => state.product);
+
+  useEffect(() => {
+    if (product.length > 0) {
+      if (!hasShuffled.current) {
+        const shuffled = [...product].sort(() => Math.random() - 0.5);
+        setShuffledProducts(shuffled);
+        hasShuffled.current = true;
+      } else {
+        setShuffledProducts(product);
+      }
+    }
+  }, [product]);
+
 
   useEffect(() => {
     dispatch(
@@ -198,6 +225,7 @@ const Products = () => {
               transition={{ duration: 0.3 }}
               className="text-center py-8 text-gray-500 dark:text-gray-100"
             >
+
               No products match your selected filters.
             </motion.div>
           )}
@@ -210,6 +238,89 @@ const Products = () => {
           className="mt-6"
           color="yellow"
         />
+
+              {shuffledProducts.map((item) => (
+                <motion.div
+                  key={item._id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.3 }}
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-white dark:bg-black rounded-lg shadow overflow-hidden group hover:shadow-lg transition-shadow"
+                >
+                  <div className="relative">
+                    <img
+                      src={item.images[0]?.url}
+                      alt={item.name}
+                      className="w-full h-48 sm:h-56 lg:h-64 object-fit cursor-pointer"
+                      onClick={() => navigate(`/product/${item._id}`)}
+                    />
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      className="absolute top-2 right-2 p-2 bg-white dark:bg-black rounded-full shadow hover:bg-gray-100 transition-colors"
+                    >
+                      <Heart className="w-5 h-5" />
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      className="absolute top-14 right-2 p-2 bg-white dark:bg-black rounded-full shadow hover:bg-gray-100 transition-colors"
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                    </motion.button>
+                  </div>
+                  <div
+                    className="p-4 cursor-pointer"
+                    onClick={() => navigate(`/product/${item._id}`)}
+                  >
+                    <h3 className="font-semibold mb-2 line-clamp-2 capitalize">
+                      {item.name}
+                    </h3>
+                    <div className="flex justify-between items-center">
+                      <p className="text-xl font-bold bg-white dark:bg-gray-900 text-black dark:text-white">
+                        ₹
+                        {(
+                          item.price -
+                          item.price * (item.discount / 100)
+                        ).toFixed(2)}
+                        {item.discount > 0 && (
+                          <span className="text-sm line-through ml-2 bg-white dark:bg-gray-900 text-black dark:text-white">
+                            ₹{item.price.toFixed(2)}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            <AnimatePresence>
+              {product.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-center py-8 text-gray-500 dark:text-gray-100"
+                >
+                  No products match your selected filters.
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="flex justify-center mt-6">
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={handlePageChange}
+                color="yellow"
+              />
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
