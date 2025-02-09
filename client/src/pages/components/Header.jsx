@@ -101,9 +101,9 @@ export default function Header() {
           <ShoppingCart className="w-6 h-6 cursor-pointer hover:text-red-600 transition-colors" />
         </a>
 
-        <button onClick={toggleDarkMode} className="text-white">
+        <div onClick={toggleDarkMode} className="cursor-pointer text-white">
           <DarkModeToggle />
-        </button>
+        </div>
 
         <div className="relative">
           <button

@@ -7,8 +7,10 @@ import {
   updateProfile,
   getSingleDetail,
   uploadAvatar,
+  logoutUser,
 } from "@/store/auth-slice/user";
 import { useNavigate } from "react-router-dom";
+import MetaData from "../extras/MetaData";
 
 const UpdateProfile = () => {
   const dispatch = useDispatch();
@@ -107,8 +109,11 @@ const UpdateProfile = () => {
     dispatch(updateProfile(formDataToSend))
       .unwrap()
       .then(() => {
-        toast.success("Profile updated successfully!");
-        navigate("/my-profile");
+        toast.success(
+          "Profile updated successfully. Please re-login to apply the changes."
+        );
+        dispatch(logoutUser());
+        navigate("/login");
       })
       .catch((error) => {
         toast.error(error.message || "Failed to update profile");
@@ -117,6 +122,7 @@ const UpdateProfile = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-white text-black dark:bg-gray-900 dark:text-white">
+      <MetaData title="Update Profile" />
       <div className="mx-auto max-w-6xl rounded-lg shadow-lg dark:bg-gray-900 bg-white text-black dark:text-white p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Account Settings</h1>

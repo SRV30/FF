@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "@/store/auth-slice/user";
+import { getSingleDetail, loginUser } from "@/store/auth-slice/user";
 import { toast } from "react-toastify";
 import MetaData from "../extras/MetaData";
 
@@ -16,6 +16,7 @@ const Login = () => {
   const { loading, error, isAuthenticated } = useSelector(
     (state) => state.auth
   );
+  const { verifyEmail } = useSelector((state) => state.otp);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,10 +32,20 @@ const Login = () => {
       toast.error(error);
     }
     if (isAuthenticated) {
+      dispatch(getSingleDetail());
+
       toast.success("Login successful");
       navigate(redirect);
+
+      const isEmailVerified = localStorage.getItem("verifyEmail") === "true";
+      if (!verifyEmail && !isEmailVerified) {
+        navigate("/verify-email");
+      }
+      else{
+        navigate("/")
+      }
     }
-  }, [isAuthenticated, error, navigate, redirect]);
+  }, [isAuthenticated, error, navigate, redirect, verifyEmail, dispatch]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-white text-black dark:bg-gray-800 dark:text-white">

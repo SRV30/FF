@@ -1,54 +1,42 @@
-const verifyEmailTemplate = ({ name, url }) => {
+const verifyEmailTemplate = ({ name, otp }) => {
   return `
-    <div style="font-family: 'Arial', sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 10px; background: #fff; border: 1px solid #ddd; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 10px; background: #fff; border: 1px solid #ddd; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
       
       <!-- Logo -->
       <div style="text-align: center;">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQuiHW4TNdJTywl0UynwQxUfi9CBCGxqZf5g&s" alt="Faith AND Fast" style="max-width: 180px; margin-bottom: 20px;">
+        <img src="http://localhost:5173/src/assets/logo-light.png" alt="Faith AND Fast" style="max-width: 180px; margin-bottom: 20px;">
       </div>
   
       <!-- Greeting -->
       <p style="font-size: 20px; font-weight: bold;">Hello ${name},</p>
       
-      <!-- Welcome Message -->
+      <!-- OTP Message -->
       <p style="font-size: 16px; line-height: 1.6;">
-        Welcome to <strong>Faith AND Fast</strong>! 🎉 We're thrilled to have you join our community.
-        To complete your registration, please verify your email address by clicking the button below.
+        Welcome to <strong>Faith AND Fast</strong>! 🎉 We're excited to have you with us.
+        To complete your registration, please use the OTP below to verify your email address.
       </p>
   
-      <!-- Verify Button -->
+      <!-- OTP Display -->
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${url}" style="
-          display: inline-block;
-          background: #ff8c00;
-          color: #fff;
-          padding: 14px 28px;
-          font-size: 16px;
-          font-weight: bold;
-          text-decoration: none;
-          border-radius: 8px;
-          transition: background 0.3s ease-in-out;
-          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
-        " onmouseover="this.style.background='#e07b00'" onmouseout="this.style.background='#ff8c00'">
-          ✅ Verify Your Email
-        </a>
+        <p style="font-size: 24px; font-weight: bold; color: #ff8c00;">
+          <strong>Your OTP: <span style="color: #333;">${otp}</span></strong>
+        </p>
       </div>
   
-      <!-- Additional Info -->
+      <!-- Expiry Information -->
       <p style="font-size: 14px; color: #666; text-align: center;">
-        If the button doesn't work, you can also verify your email using the following link:
-        <br>
-        <a href="${url}" style="color: #ff8c00; text-decoration: none;">${url}</a>
+        This OTP is valid for <strong>15 minutes</strong> from the time of receiving this email. Please use it promptly.
       </p>
   
       <!-- Security Notice -->
       <p style="font-size: 14px; color: #777;">
-        If you didn't sign up for Faith AND Fast, please ignore this email. This verification link is valid for **24 hours**.
+        If you didn't sign up for Faith AND Fast, please ignore this email.
+        Your OTP is part of the verification process for your registration.
       </p>
   
       <!-- Signature -->
       <p style="font-size: 16px; font-weight: bold; margin-top: 20px;">Best Regards,</p>
-      <p style="font-size: 16px; font-weight: bold; color: #ff8c00;">Faith AND Fast Team</p>
+      <p style="font-size: 16px; font-weight: bold; color: #ff8c00;">The Faith AND Fast Team</p>
   
       <!-- Footer -->
       <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
@@ -56,9 +44,8 @@ const verifyEmailTemplate = ({ name, url }) => {
         Need help? Contact us at 
         <a href="mailto:support@faithandfast.com" style="color: #ff8c00; text-decoration: none;">support@faithandfast.com</a>
       </p>
-  
     </div>
-    `;
+  `;
 };
 
 export default verifyEmailTemplate;

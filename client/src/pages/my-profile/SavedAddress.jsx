@@ -262,7 +262,7 @@ const SavedAddress = () => {
                   </label>
                   <select
                     name="country"
-                    value={formData.country || "IN"}
+                    value={formData.country}
                     onChange={handleChange}
                     className="w-full p-2 border rounded-lg bg-white dark:bg-gray-800 text-black dark:text-white"
                     required
@@ -403,7 +403,7 @@ const SavedAddress = () => {
                   </label>
                   <select
                     name="country"
-                    value={formData.country || "IN"}
+                    value={formData.country}
                     onChange={handleChange}
                     className="w-full p-2 border rounded-lg bg-white dark:bg-gray-800 text-black dark:text-white"
                     required
