@@ -1,81 +1,70 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Trash2, ShoppingCart } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteWishListItem, getWishListItems } from "@/store/add-to-wishList/addToWishList";
+
+import { toast } from "react-toastify";
+import { addToCart } from "@/store/add-to-cart/addToCart";
 
 const Wishlist = () => {
-  const [wishlistItems, setWishlistItems] = useState([
-    {
-      id: 1,
-      name: "Classic White T-Shirt",
-      price: 29.99,
-      image: "/api/placeholder/160/200",
-      description: "100% Cotton casual fit t-shirt",
-    },
-    {
-      id: 2,
-      name: "Denim Jacket",
-      price: 89.99,
-      image: "/api/placeholder/160/200",
-      description: "Vintage wash denim jacket",
-    },
-    {
-      id: 3,
-      name: "Black Jeans",
-      price: 59.99,
-      image: "/api/placeholder/160/200",
-      description: "Slim fit stretch denim jeans",
-    },
-  ]);
+  const dispatch = useDispatch();
+  const { WishListItems, loading, error } = useSelector((state) => state.wishList);
 
-  const [cartItems, setCartItems] = useState([]);
+  useEffect(() => {
+    dispatch(getWishListItems());
+  }, [dispatch]);
 
   const removeFromWishlist = (itemId) => {
-    setWishlistItems(wishlistItems.filter((item) => item.id !== itemId));
+    dispatch(deleteWishListItem(itemId));
   };
 
-  const addToCart = (item) => {
-    setCartItems([...cartItems, item]);
-    removeFromWishlist(item.id);
+  const handleAddCart = (item) => {
+    dispatch(addToCart(item.productId));
+    dispatch(deleteWishListItem(item._id));
+    toast.success("Successfully added to cart!");
   };
+
+  if (loading) {
+    return <div className="text-center text-gray-500 py-8">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 py-8">{error}</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">My Wishlist</h1>
-
-      {wishlistItems.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
-          Your wishlist is empty
-        </div>
+      {WishListItems.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">Your wishlist is empty</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {wishlistItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-lg shadow-sm overflow-hidden"
-            >
+          {WishListItems.map((item) => (
+            <div key={item._id} className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="p-2">
                 <div className="mb-2 relative">
                   <img
-                    src={item.image}
-                    alt={item.name}
+                    src={item.productId.images[0]?.url}
+                    alt={item.productId.name}
                     className="w-40 h-48 object-cover mx-auto"
                   />
                 </div>
                 <div className="flex flex-col">
-                  <h3 className="text-sm font-medium mb-1">{item.name}</h3>
-                  <p className="text-xs text-gray-600 mb-2">
-                    {item.description}
-                  </p>
-                  <div className="text-sm font-bold mb-2">${item.price}</div>
+                  <h3 className="text-sm font-medium mb-1">{item.productId.name}</h3>
+                  <p className="text-xs text-gray-600 mb-2">{item.productId.description}</p>
+                  <div className="text-sm font-bold mb-2">
+                    <p className="text-gray-500">₹{item.productId.price.toFixed(2)}</p>
+                  </div>
                   <div className="flex gap-1">
                     <button
-                      onClick={() => addToCart(item)}
+                      onClick={() => handleAddCart(item)}
                       className="flex-1 bg-blue-600 text-white px-2 py-3 rounded text-xs hover:bg-blue-700 transition-colors flex items-center justify-center gap-1"
                     >
                       <ShoppingCart className="w-3 h-3" />
                       Add to Cart
                     </button>
                     <button
-                      onClick={() => removeFromWishlist(item.id)}
+                      onClick={() => removeFromWishlist(item._id)}
                       className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
                       aria-label="Remove from wishlist"
                     >
@@ -86,12 +75,6 @@ const Wishlist = () => {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {cartItems.length > 0 && (
-        <div className="fixed bottom-4 right-4 bg-green-600 text-white px-3 py-1.5 rounded text-sm shadow-lg">
-          {cartItems.length} item(s) added to cart
         </div>
       )}
     </div>

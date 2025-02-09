@@ -225,7 +225,7 @@ export const cancelOrder = catchAsyncErrors(async (req, res) => {
 
     const order = await OrderModel.findById(orderId)
       .populate("products.product")
-      .populate("user");
+      .populate("user", "name email"); // Ensure user is populated
 
     if (!order) {
       return res.status(404).json({
@@ -241,10 +241,13 @@ export const cancelOrder = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    if (
-      order.user.toString() !== userId.toString() &&
-      req.user.role !== "ADMIN"
-    ) {
+    // Debugging: Log key variables
+    console.log("Order User ID:", order.user._id.toString());
+    console.log("Request User ID:", userId.toString());
+    console.log("Request User Role:", req.user.role);
+
+    // Allow cancellation if the user is the owner of the order or an admin
+    if (order.user._id.toString() !== userId.toString() && req.user.role !== "ADMIN") {
       console.log("Unauthorized attempt by user:", req.user._id);
       return res.status(403).json({
         success: false,
@@ -269,7 +272,7 @@ export const cancelOrder = catchAsyncErrors(async (req, res) => {
       status: "CANCELLED",
       changedAt: new Date(),
       changedBy: userId.toString(),
-      notes: "Order cancelled by user",
+      notes: req.user.role === "ADMIN" ? "Order cancelled by admin" : "Order cancelled by user",
     });
 
     await order.save();
@@ -316,6 +319,7 @@ export const cancelOrder = catchAsyncErrors(async (req, res) => {
       order,
     });
   } catch (error) {
+    console.error("Error cancelling order:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",

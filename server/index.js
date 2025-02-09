@@ -23,7 +23,7 @@ cloudinary.config({
 });
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 1 * 60 * 1000,
   max: 100,
   message: "Too many requests, please try again later.",
 });
@@ -65,6 +65,7 @@ app.get("/", (req, res) => {
 //routes
 import addressRouter from "./route/addressRoute.js";
 import cartRouter from "./route/cartRoute.js";
+import wishListRouter from "./route/wishListRoute.js";
 import categoryRouter from "./route/categoryRoute.js";
 import discountRouter from "./route/discountRoutes.js";
 import orderRouter from "./route/orderRoute.js";
@@ -75,6 +76,7 @@ import webhookRouter from "./route/webhookRoutes.js";
 
 app.use("/api/address", addressRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/wishlist", wishListRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/discount", discountRouter);
 app.use("/api/order", orderRouter);

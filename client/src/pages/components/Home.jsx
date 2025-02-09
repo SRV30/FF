@@ -9,6 +9,7 @@ import ContactUs from "./ContactUs";
 import MetaData from "../extras/MetaData";
 import { useDispatch, useSelector } from "react-redux";
 import { getProducts } from "@/store/product-slice/productSlice";
+import { addToCart } from "@/store/add-to-cart/addToCart";
 
 const Home = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -20,7 +21,10 @@ const Home = () => {
     loadingCategory,
     error,
   } = useSelector((state) => state.product);
-
+ const handleAddCart = (item) => {
+    dispatch(addToCart(item._id));
+    toast.success(`Successfully added to cart!`);
+  };
   useEffect(() => {
     dispatch(getProducts());
   }, [dispatch]);

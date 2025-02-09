@@ -26,6 +26,7 @@ import AdminAddProduct from "./pages/admin/AdminAddProduct";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "./pages/extras/ProtectedRoute";
 import ScrollToTop from "./pages/extras/ScrollToTop";
+import CreateOrder from "./pages/orders/Checkout";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -85,6 +86,7 @@ const App = () => {
         <Route path="/products" element={<Products />} />
         <Route path="/product/:id" element={<SingleProduct />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<CreateOrder/>} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />

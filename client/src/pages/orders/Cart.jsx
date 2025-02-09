@@ -1,187 +1,204 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { FiMinus, FiPlus, FiTrash2 } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  deleteCartItem,
+  getCartItems,
+  updateCartItemQty,
+} from "@/store/add-to-cart/addToCart";
+import { Helmet } from "react-helmet";
 
 const Cart = () => {
-  const [selectedSize, setSelectedSize] = useState('');
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems] = useState([
-    {
-      id: 1,
-      name: 'Blue Shirt',
-      code: '75205',
-      price: 620.73,
-      quantity: 1,
-      image: '/api/placeholder/80/80'
-    },
-    {
-      id: 2,
-      name: 'Stylish Shirt',
-      code: '92701',
-      price: 125.28,
-      quantity: 1,
-      image: '/api/placeholder/80/80'
-    },
-    {
-      id: 3,
-      name: 'Jeans',
-      code: '75201',
-      price: 327.71,
-      quantity: 1,
-      image: '/api/placeholder/80/80'
-    }
-  ]);
+  const dispatch = useDispatch();
+  const navigate=useNavigate();
+  const { cartItems, loading, error } = useSelector((state) => state.cart);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = 0;
-  const total = subtotal - discount;
+  
+  useEffect(() => {
+    dispatch(getCartItems());
+  }, [dispatch, cartItems, loading, error]);
+
+  
+  const handleUpdateQty = (id, qty) => {
+    if (qty > 0) {
+      dispatch(updateCartItemQty({ _id: id, qty }));
+    }
+  };
+
+  
+  const handleDeleteItem = (id) => {
+    dispatch(deleteCartItem(id));
+  };
+
+  
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + item.productId.price * item.quantity,
+    0
+  );
+
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 },
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-yellow-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center">
-            <span className="text-2xl font-bold">Logo</span>
-          </div>
-          <nav className="hidden md:flex space-x-6">
-            <a href="#" className="hover:text-yellow-200">Home</a>
-            <a href="#" className="hover:text-yellow-200">Collection</a>
-            <a href="#" className="hover:text-yellow-200">About</a>
-            <a href="#" className="hover:text-yellow-200">Contact Us</a>
-          </nav>
-        </div>
-      </header>
+    <>
+      {/* SEO Optimization */}
+      <Helmet>
+        <title>Shopping Cart - Your Store</title>
+        <meta
+          name="description"
+          content="View and manage your shopping cart. Add, remove, or update items before checkout."
+        />
+        <meta name="keywords" content="shopping cart, ecommerce, online store" />
+      </Helmet>
 
-      {/* Main Content */}
-      <main className="container mx-auto p-4 md:p-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <div className="aspect-w-4 aspect-h-5">
-              <img
-                src="/api/placeholder/600/750"
-                alt="Product"
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-          </div>
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Shopping Cart</h1>
 
-          {/* Product Details */}
+      
+        {error && (
+          <p className="text-red-500 text-center py-10">{error}</p>
+        )}
+
+        {cartItems.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-gray-600 text-lg mb-4">Your cart is empty.</p>
+            <Link
+              to="/products"
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Continue Shopping
+            </Link>
+          </div>
+        ) : (
           <div className="space-y-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-2xl font-bold">Men Slim Fit Relaxed Denim Jacket</h1>
-                <div className="flex items-center mt-2">
-                  {[1, 2, 3, 4].map((star) => (
-                    <span key={star} className="text-yellow-400">★</span>
-                  ))}
-                  <span className="text-gray-400">★</span>
-                  <span className="ml-2 text-gray-600">(122)</span>
+            {/* Cart Items */}
+            <AnimatePresence>
+              {cartItems.map((item) => (
+                <motion.div
+                  key={item._id}
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col sm:flex-row items-center justify-between bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                >
+                  {/* Product Image and Details */}
+                  <div className="flex items-center gap-4 flex-1">
+                    <img
+                      src={item.productId.images[0]?.url}
+                      alt={item.productId.name}
+                      className="w-20 h-20 object-cover rounded-md"
+                    />
+                    <div>
+                      <Link
+                        to={`/product/${item.productId._id}`}
+                        className="text-lg font-semibold text-gray-800 hover:text-blue-500"
+                      >
+                        {item.productId.name}
+                      </Link>
+                      <p className="text-gray-500">
+                        ₹{item.productId.price.toFixed(2)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Stock: {item.productId.stock}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Quantity Controls */}
+                  <div className="flex items-center gap-4 mt-4 sm:mt-0">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className={`p-2 border rounded-lg ${
+                          item.quantity <= 1
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-gray-100"
+                        } transition-colors`}
+                        onClick={() => handleUpdateQty(item._id, item.quantity - 1)}
+                        disabled={item.quantity <= 1}
+                      >
+                        <FiMinus className="w-4 h-4" />
+                      </button>
+                      <span className="text-lg font-medium">{item.quantity}</span>
+                      <button
+                        className={`p-2 border rounded-lg ${
+                          item.quantity >= item.productId.stock
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-gray-100"
+                        } transition-colors`}
+                        onClick={() => handleUpdateQty(item._id, item.quantity + 1)}
+                        disabled={item.quantity >= item.productId.stock}
+                      >
+                        <FiPlus className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Delete Button */}
+                    <button
+                      className="p-2 border rounded-lg text-red-500 hover:bg-red-50 transition-colors"
+                      onClick={() => handleDeleteItem(item._id)}
+                    >
+                      <FiTrash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {/* Order Summary */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white p-6 rounded-lg shadow-sm"
+            >
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                Order Summary
+              </h2>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <p className="text-gray-600">Subtotal</p>
+                  <p className="text-gray-800 font-medium">
+                    ₹{totalPrice.toFixed(2)}
+                  </p>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-gray-600">Shipping</p>
+                  <p className="text-gray-800 font-medium">Free</p>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-gray-600">Discount</p>
+                  <p className="text-gray-800 font-medium">₹0.00</p>
+                </div>
+                <div className="border-t pt-3">
+                  <div className="flex justify-between">
+                    <p className="text-lg font-bold text-gray-800">Total</p>
+                    <p className="text-lg font-bold text-gray-800">
+                      ₹{totalPrice.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="text-3xl font-bold">$79</div>
-            </div>
 
-            <p className="text-gray-600">
-              A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.
-            </p>
-
-            <div className="space-y-4">
-              <h3 className="font-medium">Select Size</h3>
-              <div className="flex space-x-4">
-                {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
-                  <button
-                    key={size}
-                    className={`w-12 h-12 rounded-md border ${
-                      selectedSize === size
-                        ? 'border-black bg-black text-white'
-                        : 'border-gray-300 hover:border-black'
-                    }`}
-                    onClick={() => setSelectedSize(size)}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800">
-              ADD TO CART
-            </button>
-
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>100% Original product.</p>
-              <p>Cash on delivery is available.</p>
-              <p>Easy return and exchange policy.</p>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      {/* Shopping Cart Sidebar */}
-      <div className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-lg transform ${isCartOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out z-50`}>
-        <div className="h-full flex flex-col">
-          <div className="p-4 border-b flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-yellow-600">Your cart</h2>
-            <button onClick={() => setIsCartOpen(false)}>
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4">
-            {cartItems.map((item) => (
-              <div key={item.id} className="flex items-center space-x-4 mb-4 pb-4 border-b">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-20 h-20 object-cover rounded"
-                />
-                <div className="flex-1">
-                  <h3 className="font-medium">{item.name}</h3>
-                  <p className="text-sm text-gray-500">Code: {item.code}</p>
-                  <p className="font-medium">${item.price.toFixed(2)}</p>
-                </div>
-                <div className="text-sm text-gray-500">x{item.quantity}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="p-4 border-t bg-gray-50">
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span>Sub Total</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Discount</span>
-                <span>- ${discount.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Delivery Charge</span>
-                <span>Free</span>
-              </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Enter Coupon Code"
-                  className="w-full border rounded-md py-2 px-3"
-                />
-                <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-yellow-500 text-white px-4 py-1 rounded">
-                  Apply
-                </button>
-              </div>
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total:</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
-              <button className="w-full bg-yellow-500 text-white py-3 rounded-md hover:bg-yellow-600">
-                Continue to check out
+              {/* Checkout Button */}
+              <button
+                className="w-full bg-blue-500 text-white py-3 rounded-lg mt-6 hover:bg-blue-600 transition-colors"
+                onClick={() => navigate("/checkout")}
+              >
+                Proceed to Checkout
               </button>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        )}
       </div>
-    </div>
+    </>
   );
 };
 
