@@ -1,8 +1,8 @@
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
-import CartProductModel from "../models/cartModel.js";
+import wishListProductModel from "../models/wishlistModel.js";
 import UserModel from "../models/userModel.js";
 
-export const addToCartItemController = catchAsyncErrors(async (req, res) => {
+export const addToWishListItemController = catchAsyncErrors(async (req, res) => {
   try {
     const userId = req.user;
     const { productId } = req.body;
@@ -15,46 +15,46 @@ export const addToCartItemController = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const checkItemCart = await CartProductModel.findOne({
+    const checkItemWishList = await wishListProductModel.findOne({
       userId: userId,
       productId: productId,
     });
 
-    if (checkItemCart) {
+    if (checkItemWishList) {
       return res.status(400).json({
-        message: "Item already in cart",
+        message: "Item already in WishList",
         error: true,
         success: false,
       });
     }
 
-    const cartItem = new CartProductModel({
+    const WishListItem = new wishListProductModel({
       quantity: 1,
       userId: userId,
       productId: productId,
     });
-    const savedCartItem = await cartItem.save();
+    const savedWishListItem = await WishListItem.save();
 
-    const updateCartUser = await UserModel.updateOne(
+    const updateWishListUser = await UserModel.updateOne(
       { _id: userId },
       {
         $addToSet: {
-          shopping_cart: productId,
+          shopping_WishList: productId,
         },
       }
     );
 
-    if (!updateCartUser.Modified) {
+    if (!updateWishListUser.Modified) {
       return res.status(500).json({
-        message: "Failed to update user cart",
+        message: "Failed to update user WishList",
         error: true,
         success: false,
       });
     }
 
     return res.json({
-      data: savedCartItem,
-      message: "Item added to cart successfully",
+      data: savedWishListItem,
+      message: "Item added to WishList successfully",
       error: false,
       success: true,
     });
@@ -67,24 +67,24 @@ export const addToCartItemController = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const getCartItemController = catchAsyncErrors(async (req, res) => {
+export const getWishListItemController = catchAsyncErrors(async (req, res) => {
   try {
     const userId = req.user;
 
-    const cartItems = await CartProductModel.find({
+    const WishListItems = await wishListProductModel.find({
       userId: userId,
     }).populate("productId");
 
-    if (cartItems.length === 0) {
+    if (WishListItems.length === 0) {
       return res.status(404).json({
-        message: "No items found in the cart",
+        message: "No items found in the WishList",
         error: true,
         success: false,
       });
     }
 
     return res.json({
-      data: cartItems,
+      data: WishListItems,
       error: false,
       success: true,
     });
@@ -97,7 +97,7 @@ export const getCartItemController = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const updateCartItemQtyController = catchAsyncErrors(
+export const updateWishListItemQtyController = catchAsyncErrors(
   async (req, res) => {
     try {
       const userId = req.user;
@@ -111,7 +111,7 @@ export const updateCartItemQtyController = catchAsyncErrors(
         });
       }
 
-      const updatedCartItem = await CartProductModel.updateOne(
+      const updatedWishListItem = await wishListProductModel.updateOne(
         {
           _id: _id,
           userId: userId,
@@ -122,19 +122,19 @@ export const updateCartItemQtyController = catchAsyncErrors(
         { new: true }
       );
 
-      if (!updatedCartItem) {
+      if (!updatedWishListItem) {
         return res.status(404).json({
-          message: "Cart item not found",
+          message: "WishList item not found",
           error: true,
           success: false,
         });
       }
 
       return res.json({
-        message: "Cart updated successfully",
+        message: "WishList updated successfully",
         success: true,
         error: false,
-        data: updatedCartItem,
+        data: updatedWishListItem,
       });
     } catch (error) {
       return res.status(500).json({
@@ -146,7 +146,7 @@ export const updateCartItemQtyController = catchAsyncErrors(
   }
 );
 
-export const deleteCartItemQtyController = catchAsyncErrors(
+export const deleteWishListItemQtyController = catchAsyncErrors(
   async (req, res) => {
     try {
       const userId = req.user;
@@ -160,21 +160,21 @@ export const deleteCartItemQtyController = catchAsyncErrors(
         });
       }
 
-      const deleteResult = await CartProductModel.deleteOne({
+      const deleteResult = await wishListProductModel.deleteOne({
         _id: _id,
         userId: userId,
       });
 
       if (deleteResult.deletedCount === 0) {
         return res.status(404).json({
-          message: "Cart item not found",
+          message: "WishList item not found",
           error: true,
           success: false,
         });
       }
 
       return res.json({
-        message: "Item removed from cart successfully",
+        message: "Item removed from WishList successfully",
         error: false,
         success: true,
         data: deleteResult,
