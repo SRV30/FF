@@ -1,5 +1,4 @@
 import { logoutUser } from "@/store/auth-slice/user";
-import store from "@/store/store";
 import axios from "axios";
 
 const axiosInstance = axios.create({
@@ -43,6 +42,7 @@ axiosInstance.interceptors.request.use(
         }
       }
 
+      const { default: store } = await import("@/store/store");
       store.dispatch(logoutUser());
     }
 
