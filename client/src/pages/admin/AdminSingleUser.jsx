@@ -53,6 +53,7 @@ const SingleUser = () => {
         updateUserRole({ email: singleUser.email, role: selectedRole })
       );
       toast.success("Role updated successfully");
+      navigate("/admin/users");
     } catch (error) {
       toast.error(error || "Failed to update role");
     }
@@ -60,15 +61,12 @@ const SingleUser = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      console.log("Deleting user...");  // Debugging log
+      console.log("Deleting user...");
       await dispatch(deleteUser(id));
-  
-      toast.success("User deleted successfully");
-      
 
-        navigate("/admin/users");
- 
-  
+      toast.success("User deleted successfully");
+
+      navigate("/admin/users");
     } catch (error) {
       console.error("Delete Error:", error);
       toast.error(error?.message || "Failed to delete user");
@@ -76,7 +74,7 @@ const SingleUser = () => {
       setShowDeleteModal(false);
     }
   };
-  
+
   if (loading)
     return (
       <div className="flex justify-center items-center h-64">

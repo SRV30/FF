@@ -35,6 +35,10 @@ export const logoutUser = createAsyncThunk(
     try {
       await axiosInstance.get("/api/user/logout");
 
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+
       return {};
     } catch (error) {
       return rejectWithValue(

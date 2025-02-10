@@ -1,3 +1,5 @@
+import { logoutUser } from "@/store/auth-slice/user";
+import store from "@/store/store";
 import axios from "axios";
 
 const axiosInstance = axios.create({
@@ -40,6 +42,8 @@ axiosInstance.interceptors.request.use(
           return axiosInstance(originRequest);
         }
       }
+
+      store.dispatch(logoutUser());
     }
 
     return Promise.reject(error);
@@ -56,17 +60,18 @@ const refreshAccessToken = async (refreshToken) => {
     });
 
     if (!response.data.success) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      throw new Error("Refresh token invalid");
     }
 
     const accessToken = response.data.data.accessToken;
     localStorage.setItem("accessToken", accessToken);
+
     return accessToken;
   } catch (error) {
     console.error("Token refresh failed:", error);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
     return null;
   }
 };

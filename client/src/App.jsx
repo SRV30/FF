@@ -29,9 +29,12 @@ import ProductDetails from "./pages/products/SingleProduct";
 import SingleUser from "./pages/admin/AdminSingleUser";
 import AdminUsers from "./pages/admin/AdminUsers";
 import VerifyEmail from "./pages/auth-page/VerifyEmail";
+import useCheckTokenExpiry from "./pages/auth-page/AuthProvider";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+
+  useCheckTokenExpiry();
 
   return (
     <div className="flex flex-col bg-white dark:bg-black text-black dark:text-white">
