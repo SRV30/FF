@@ -62,8 +62,8 @@ const ProductDetails = ({ products }) => {
   }, [dispatch, productId]);
 
   useEffect(() => {
-    if (product?.gender) {
-      dispatch(getSimilarProducts(product.gender));
+    if (product?.category) {
+      dispatch(getSimilarProducts(product.category));
     }
   }, [dispatch, product]);
 
