@@ -22,10 +22,10 @@ const Home = () => {
   }, [dispatch]);
 
   const categorizedProducts = product.reduce((acc, item) => {
-    if (!acc[item.gender]) {
-      acc[item.gender] = [];
+    if (!acc[item.category]) {
+      acc[item.category] = [];
     }
-    acc[item.gender].push(item);
+    acc[item.category].push(item);
     return acc;
   }, {});
 
@@ -34,7 +34,6 @@ const Home = () => {
     items: categorizedProducts[category],
   }));
 
-  // Shuffle function to randomize the categories array
   const shuffleArray = (array) => {
     let shuffledArray = array.slice();
     for (let i = shuffledArray.length - 1; i > 0; i--) {
@@ -47,7 +46,7 @@ const Home = () => {
     return shuffledArray;
   };
 
-  const shuffledCategories = shuffleArray(categories); // Get shuffled categories
+  const shuffledCategories = shuffleArray(categories);
 
   const handleToggleWishlist = (itemId) => {
     setWishlist((prev) =>

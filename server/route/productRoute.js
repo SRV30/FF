@@ -4,11 +4,10 @@ import {
   deleteProduct,
   deleteProductReview,
   getProduct,
-  getProductByCategory,
   getProductByFilter,
   getProductDetails,
   getProductReviews,
-  getProductsByGender,
+  getProductsByCategory,
   postProductReview,
   searchProduct,
   updateProductDetails,
@@ -20,7 +19,7 @@ import upload from "../middleware/multer.js";
 const productRouter = express.Router();
 
 productRouter.post(
-  "/create",
+  "/new",
   auth,
   admin,
   upload.array("images", 5),
@@ -31,7 +30,7 @@ productRouter.get("/get", getProduct);
 
 productRouter.get("/get/filter", getProductByFilter);
 
-productRouter.get("/get/category/:id", getProductByCategory);
+// productRouter.get("/get/category/:id", getProductByCategory);
 
 productRouter.get("/get/:productId", getProductDetails);
 
@@ -46,7 +45,7 @@ productRouter.delete("/delete", auth, admin, deleteProduct);
 
 productRouter.post("/search", searchProduct);
 
-productRouter.get("/gender/:gender", getProductsByGender)
+productRouter.get("/category/:category", getProductsByCategory)
 
 productRouter.get("/reviews/:productId", getProductReviews)
 

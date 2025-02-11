@@ -6,6 +6,11 @@ import addressReducer from "./address-slice/addressSlice";
 import updatePassSlice from "./auth-slice/updatePasswordSlice";
 import productDetailsSlice from "./product-slice/productDetails";
 import otpSlice from "./auth-slice/otpSlice";
+import adminProductSlice from "./product-slice/AdminProduct";
+import cartReducer from "./add-to-cart/addToCart";
+import wishListReducer from "./add-to-wishList/addToWishList";
+import orderReducer from "./order-slice/order";
+import discountReducer from "./extra-slice/discount";
 
 const store = configureStore({
   reducer: {
@@ -15,7 +20,12 @@ const store = configureStore({
     address: addressReducer,
     updatePassword: updatePassSlice,
     productDetails: productDetailsSlice,
-    otp: otpSlice
+    otp: otpSlice,
+    adminProduct: adminProductSlice,
+    cart: cartReducer,
+    wishList: wishListReducer,
+    order: orderReducer,
+    discount: discountReducer,
   },
 });
 

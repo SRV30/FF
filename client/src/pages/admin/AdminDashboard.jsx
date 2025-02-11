@@ -4,7 +4,6 @@ import {
   Users,
   ShoppingBag,
   Package,
-  BarChart3,
   Settings,
   Menu,
   X,
@@ -15,9 +14,12 @@ import {
   DollarSign,
   ShoppingCart,
   Tag,
+  BadgeIndianRupee,
 } from "lucide-react";
 import AdminUsers from "./AdminUsers";
 import { useNavigate } from "react-router-dom";
+import AdminProducts from "./AdminProducts";
+import AdminDiscount from "./AdminDiscount";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -241,21 +243,17 @@ const AdminDashboard = () => {
       case "Customers":
         return <AdminUsers />;
       case "Products":
-        return (
-          <div className="p-4 lg:p-6 bg-white rounded-lg">
-            Products section content
-          </div>
-        );
+        return <AdminProducts />;
       case "Orders":
         return (
           <div className="p-4 lg:p-6 bg-white rounded-lg">
             Orders section content
           </div>
         );
-      case "Analytics":
+      case "Discount":
         return (
           <div className="p-4 lg:p-6 bg-white rounded-lg">
-            Analytics section content
+           <AdminDiscount />
           </div>
         );
       case "Settings":
@@ -288,7 +286,7 @@ const AdminDashboard = () => {
             { icon: Users, text: "Customers", path: "/admin/users" },
             { icon: ShoppingBag, text: "Products" },
             { icon: Package, text: "Orders" },
-            { icon: BarChart3, text: "Analytics" },
+            { icon: BadgeIndianRupee, text: "Discount" },
             { icon: Settings, text: "Settings" },
           ].map((item) => (
             <button

@@ -6,6 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getProductByFilter } from "@/store/product-slice/productSlice";
 import { Pagination } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { addToCart } from "@/store/add-to-cart/addToCart";
+import { addToWishList } from "@/store/add-to-wishList/addToWishList";
+import { toast } from "react-toastify";
 
 const Products = () => {
   const [priceRange, setPriceRange] = useState([0, 10000]);
@@ -14,6 +17,7 @@ const Products = () => {
   const [sortBy, setSortBy] = useState("relevant");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { product = [], totalPages } = useSelector((state) => state.product);
@@ -69,6 +73,15 @@ const Products = () => {
         priceRange,
       })
     );
+  };
+
+  const handleAddCart = (item) => {
+    dispatch(addToCart(item._id));
+    toast.success(`Successfully added to cart!`);
+  };
+  const handleAddWishList = (item) => {
+    dispatch(addToWishList(item._id));
+    toast.success(`Successfully added to WishList!`);
   };
 
   return (
@@ -232,7 +245,7 @@ const Products = () => {
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Categories</h3>
                 <div className="space-y-2">
-                  {["men", "women", "kids"].map((category) => (
+                  {["MEN", "WOMEN", "KIDS"].map((category) => (
                     <label
                       key={category}
                       className="flex items-center space-x-2"
@@ -290,12 +303,14 @@ const Products = () => {
                     <motion.button
                       whileTap={{ scale: 0.9 }}
                       className="absolute top-2 right-2 p-2 bg-white dark:bg-black rounded-full shadow hover:bg-gray-100 transition-colors"
+                      onClick={() => handleAddWishList(item)}
                     >
                       <Heart className="w-5 h-5" />
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.9 }}
                       className="absolute top-14 right-2 p-2 bg-white dark:bg-black rounded-full shadow hover:bg-gray-100 transition-colors"
+                      onClick={() => handleAddCart(item)}
                     >
                       <ShoppingCart className="w-5 h-5" />
                     </motion.button>
@@ -345,7 +360,6 @@ const Products = () => {
                 count={totalPages}
                 page={page}
                 onChange={handlePageChange}
-                color="yellow"
               />
             </div>
           </div>

@@ -35,17 +35,9 @@ const productSchema = new mongoose.Schema(
         },
       },
     ],
-    category: [
-      {
-        type: mongoose.Schema.ObjectId,
-        required: [true, "Please Enter Product Category"],
-        ref: "category",
-      },
-    ],
-    gender: {
+    category: {
       type: String,
-      enum: ["MEN", "WOMEN", "KIDS"],
-      required: [true, "Please specify the target gender for the product"],
+      required: [true, "Please specify the target category for the product"],
     },
     stock: {
       type: Number,
@@ -73,14 +65,6 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
       min: 0,
-    },
-    more_details: {
-      type: Object,
-      default: {},
-    },
-    publish: {
-      type: Boolean,
-      default: true,
     },
     user: {
       type: mongoose.Schema.ObjectId,

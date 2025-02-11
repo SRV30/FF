@@ -30,6 +30,7 @@ import SingleUser from "./pages/admin/AdminSingleUser";
 import AdminUsers from "./pages/admin/AdminUsers";
 import VerifyEmail from "./pages/auth-page/VerifyEmail";
 import useCheckTokenExpiry from "./pages/auth-page/AuthProvider";
+import DiscountHeader from "./pages/components/DiscountHeader";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -39,6 +40,7 @@ const App = () => {
   return (
     <div className="flex flex-col bg-white dark:bg-black text-black dark:text-white">
       <ToastContainer position="top-center" />
+      <DiscountHeader />
       <Header />
       <WhatsAppButton />
 

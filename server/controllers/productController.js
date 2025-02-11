@@ -13,11 +13,9 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
       price,
       discount,
       description,
-      more_details,
-      gender,
     } = req.body;
 
-    if (!name || !category || !category.length || !price || !description) {
+    if (!name || !category || !price || !description) {
       return res.status(400).json({
         message:
           "Please enter all required fields (name, category, price, description)",
@@ -49,10 +47,8 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
       description,
       price,
       category,
-      stock,
-      discount,
-      more_details,
-      gender,
+      stock: stock || 0,
+      discount: discount || 0,
       images: uploadedImages,
       user: req.user.id,
     });
@@ -111,34 +107,34 @@ export const getProduct = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const getProductByCategory = catchAsyncErrors(async (req, res) => {
-  try {
-    const { id } = req.params;
+// export const getProductByCategory = catchAsyncErrors(async (req, res) => {
+//   try {
+//     const { id } = req.params;
 
-    if (!id) {
-      return res.status(400).json({
-        message: "Provide category id",
-        error: true,
-        success: false,
-      });
-    }
+//     if (!id) {
+//       return res.status(400).json({
+//         message: "Provide category id",
+//         error: true,
+//         success: false,
+//       });
+//     }
 
-    const products = await ProductModel.find({ category: id }).limit(15);
+//     const products = await ProductModel.find({ category: id }).limit(15);
 
-    return res.json({
-      message: "Category product list",
-      data: products,
-      error: false,
-      success: true,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || error,
-      error: true,
-      success: false,
-    });
-  }
-});
+//     return res.json({
+//       message: "Category product list",
+//       data: products,
+//       error: false,
+//       success: true,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       message: error.message || error,
+//       error: true,
+//       success: false,
+//     });
+//   }
+// });
 
 export const getProductDetails = catchAsyncErrors(async (req, res) => {
   try {
@@ -202,11 +198,18 @@ export const updateProductDetails = catchAsyncErrors(async (req, res) => {
     let imageUploadResult = null;
 
     if (image) {
-      if (existingProduct.image?.public_id) {
-        await deleteImage(existingProduct.image.public_id);
+      if (existingProduct.images.length > 0) {
+        await Promise.all(
+          existingProduct.images.map((img) => deleteImage(img.public_id))
+        );
       }
-
-      imageUploadResult = await uploadImage(image);
+      const newImages = await Promise.all(
+        image.map(async (file) => {
+          const result = await uploadImage(file);
+          return { public_id: result.public_id, url: result.secure_url };
+        })
+      );
+      updateData.images = newImages;
     }
 
     const updateData = {
@@ -341,9 +344,7 @@ export const getProductByFilter = catchAsyncErrors(async (req, res) => {
     }
 
     if (category) {
-      query.category = {
-        $in: category.split(",").map((id) => new mongoose.Types.ObjectId(id)),
-      };
+      query.category = category;
     }
 
     query.price = { $gte: parseInt(minPrice), $lte: parseInt(maxPrice) };
@@ -376,17 +377,17 @@ export const getProductByFilter = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const getProductsByGender = catchAsyncErrors(async (req, res) => {
+export const getProductsByCategory = catchAsyncErrors(async (req, res) => {
   try {
-    const { gender } = req.params;
+    const { category } = req.params;
 
-    const validGenders = ["MEN", "WOMEN", "KIDS"];
-    if (!validGenders.includes(gender.toUpperCase())) {
+    const validCategory = ["MEN", "WOMEN", "KIDS"];
+    if (!validCategory.includes(category.toUpperCase())) {
       return next(new ErrorHandler("Invalid gender specified", 400));
     }
 
     const products = await ProductModel.find({
-      gender: gender.toUpperCase(),
+      category: category.toUpperCase(),
       publish: true,
     })
       .populate("category", "name")

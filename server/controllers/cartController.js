@@ -44,7 +44,7 @@ export const addToCartItemController = catchAsyncErrors(async (req, res) => {
       }
     );
 
-    if (!updateCartUser.nModified) {
+    if (updateCartUser.modifiedCount === 0) {
       return res.status(500).json({
         message: "Failed to update user cart",
         error: true,

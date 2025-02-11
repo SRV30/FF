@@ -1,7 +1,6 @@
 import DiscountModel from "../models/discountModel.js";
-import UserModel from "../models/userModel.js";
 
-// create discount - admin
+// Admin
 export const createDiscount = async (req, res) => {
   try {
     const {
@@ -14,11 +13,39 @@ export const createDiscount = async (req, res) => {
       endDate,
     } = req.body;
 
+    if (
+      !name ||
+      !discountType ||
+      !discountValue ||
+      !totalUsersAllowed ||
+      !startDate ||
+      !endDate
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+
+    if (!["FIXED", "PERCENTAGE"].includes(discountType)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid discount type" });
+    }
+
+    if (discountValue <= 0) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Discount value must be greater than 0",
+        });
+    }
+
     const newDiscount = new DiscountModel({
       name,
       discountType,
       discountValue,
-      applicableProducts: applicableProducts || [],
+      applicableProducts,
       totalUsersAllowed,
       startDate,
       endDate,
@@ -40,10 +67,19 @@ export const applyDiscount = async (req, res) => {
   try {
     const { userId, productId, originalPrice } = req.body;
 
+    if (!userId || !originalPrice) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "User ID and original price are required",
+        });
+    }
+
     const discount = await DiscountModel.findOne({
       $or: [
         { applicableProducts: productId },
-        { applicableProducts: { $size: 0 } },
+        { applicableProducts: { $eq: [] } },
       ],
       startDate: { $lte: new Date() },
       endDate: { $gte: new Date() },
@@ -70,21 +106,34 @@ export const applyDiscount = async (req, res) => {
         .json({ success: false, message: "Discount limit reached" });
     }
 
-    let discountAmount = 0;
-    if (discount.discountType === "FIXED") {
-      discountAmount = discount.discountValue;
-    } else if (discount.discountType === "PERCENTAGE") {
-      discountAmount = (originalPrice * discount.discountValue) / 100;
-    }
+    let discountAmount =
+      discount.discountType === "FIXED"
+        ? discount.discountValue
+        : (originalPrice * discount.discountValue) / 100;
 
+    discountAmount = Math.min(discountAmount, originalPrice);
     const newPrice = Math.max(originalPrice - discountAmount, 0);
 
-    discount.usedBy.push(userId);
-    await discount.save();
+    const updatedDiscount = await DiscountModel.findById(discount._id);
+    if (updatedDiscount.usedBy.length >= updatedDiscount.totalUsersAllowed) {
+      updatedDiscount.isActive = false;
+      await updatedDiscount.save();
+      return res
+        .status(400)
+        .json({ success: false, message: "Discount limit reached" });
+    }
+
+    updatedDiscount.usedBy.push(userId);
+    await updatedDiscount.save();
 
     return res.status(200).json({
       success: true,
       message: "Discount Applied Successfully!",
+      discount: {
+        name: updatedDiscount.name,
+        type: updatedDiscount.discountType,
+        value: updatedDiscount.discountValue,
+      },
       discountAmount,
       newPrice,
     });
@@ -94,10 +143,13 @@ export const applyDiscount = async (req, res) => {
   }
 };
 
-// get all discount - admin
+// Admin
 export const getAllDiscounts = async (req, res) => {
   try {
-    const discounts = await DiscountModel.find();
+    const discounts = await DiscountModel.find().populate(
+      "applicableProducts",
+      "name price"
+    );
     res.status(200).json({ success: true, discounts });
   } catch (error) {
     console.error("Error fetching discounts:", error);
@@ -105,10 +157,16 @@ export const getAllDiscounts = async (req, res) => {
   }
 };
 
-// DELETE DISCOUNT (Admin)
+// Admin
 export const deleteDiscount = async (req, res) => {
   try {
     const { discountId } = req.params;
+
+    if (!discountId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Discount ID is required" });
+    }
 
     const discount = await DiscountModel.findByIdAndDelete(discountId);
     if (!discount) {

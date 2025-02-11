@@ -59,8 +59,7 @@ export const deleteReview = createAsyncThunk(
         `/api/product/review/${productId}/${reviewId}`
       );
       console.log(response.data);
-      return { productId, reviewId }; 
-      
+      return { productId, reviewId };
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete review"
@@ -69,12 +68,13 @@ export const deleteReview = createAsyncThunk(
   }
 );
 
-// ✅ Fetch Similar Products by Gender
 export const getSimilarProducts = createAsyncThunk(
   "product/getSimilar",
-  async (gender, { rejectWithValue }) => {
+  async (category, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/api/product/gender/${gender}`);
+      const response = await axiosInstance.get(
+        `/api/product/category/${category}`
+      );
       return response.data.products;
     } catch (error) {
       return rejectWithValue(

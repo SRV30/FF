@@ -21,8 +21,4 @@ ProtectedRoute.propTypes = {
   isAdmin: PropTypes.bool,
 };
 
-ProtectedRoute.defaultProps = {
-  isAdmin: false,
-};
-
 export default ProtectedRoute;

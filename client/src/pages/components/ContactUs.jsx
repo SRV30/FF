@@ -11,7 +11,7 @@ const ContactUs = () => {
       contact_details: {
         email: "support@faithandfast.com",
         phone: "+91 9661492329",
-        whatsapp: "9304748651",
+        whatsapp: "9661492329",
         address: "35, Ujjain Tola, West Champaran-845438, Bettiah",
       },
       social_links: {

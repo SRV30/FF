@@ -111,8 +111,6 @@ const ProductDetails = ({ products }) => {
       <MetaData
         title={product?.name}
         description={product?.description}
-        keywords={product?.category?.join(", ")}
-        image={product?.images?.[0]?.url}
       />
 
       <AnimatePresence>

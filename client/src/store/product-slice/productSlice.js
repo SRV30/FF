@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@/api";
 
-// Fetch all products
 export const getProducts = createAsyncThunk(
   "products/getProducts",
   async (_, { rejectWithValue }) => {
@@ -16,7 +15,6 @@ export const getProducts = createAsyncThunk(
   }
 );
 
-// Fetch products by filter
 export const getProductByFilter = createAsyncThunk(
   "products/getProductByFilter",
   async (
@@ -53,13 +51,12 @@ export const getProductByFilter = createAsyncThunk(
   }
 );
 
-// Fetch products by gender
 export const getProductsByGender = createAsyncThunk(
   "products/getByGender",
-  async (gender, { rejectWithValue }) => {
+  async (category, { rejectWithValue }) => {
     try {
       const { data } = await axiosInstance.get(
-        `/api/product/gender/${gender}`
+        `/api/product/category/${category}`
       );
       return data;
     } catch (error) {
@@ -68,8 +65,6 @@ export const getProductsByGender = createAsyncThunk(
   }
 );
 
-
-// Initial state
 const initialState = {
   product: [],
   loading: false,
@@ -80,7 +75,7 @@ const initialState = {
 };
 
 const productSlice = createSlice({
-  name: "product", // Keep it "product" for consistency
+  name: "product",
   initialState,
   reducers: {
     clearProductErrors: (state) => {
@@ -89,7 +84,7 @@ const productSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Get Products
+     
       .addCase(getProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -103,7 +98,7 @@ const productSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Get Products by Filter
+
       .addCase(getProductByFilter.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -119,7 +114,7 @@ const productSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Get Products by Gender
+    
       .addCase(getProductsByGender.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -132,13 +127,13 @@ const productSlice = createSlice({
       .addCase(getProductsByGender.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        state.product = []; // Reset product list on error
+        state.product = [];
         state.count = 0;
       });
   },
 });
 
-// Export actions and selectors
+
 export const { clearProductErrors } = productSlice.actions;
 export const selectProducts = (state) => state.product.product;
 export const selectProductsLoading = (state) => state.product.loading;

@@ -23,8 +23,8 @@ cloudinary.config({
 });
 
 const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000,
+  max: 2000,
   message: "Too many requests, please try again later.",
 });
 
@@ -47,7 +47,8 @@ app.use(
 );
 
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ limit: "5mb", extended: true }));
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
@@ -72,6 +73,7 @@ import paymentRouter from "./route/paymentRoute.js";
 import productRouter from "./route/productRoute.js";
 import userRouter from "./route/userRoute.js";
 import webhookRouter from "./route/webhookRoutes.js";
+import wishListRouter from "./route/wishListRoute.js";
 
 app.use("/api/address", addressRouter);
 app.use("/api/cart", cartRouter);
@@ -82,6 +84,7 @@ app.use("/api/payment", paymentRouter);
 app.use("/api/product", productRouter);
 app.use("/api/user", userRouter);
 app.use("/api/webhook", webhookRouter);
+app.use("/api/wishlist", wishListRouter);
 
 connectDB().then(() => {
   app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

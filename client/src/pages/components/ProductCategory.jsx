@@ -12,8 +12,11 @@ import Typewriter from "typewriter-effect";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getProducts } from "@/store/product-slice/productSlice";
+import { toast } from "react-toastify";
+import { addToCart } from "@/store/add-to-cart/addToCart";
+import { addToWishList } from "@/store/add-to-wishList/addToWishList";
 
-const ProductCategory = ({ title, items, onToggleWishlist }) => {
+const ProductCategory = ({ title, items }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
   const [shuffledItems, setShuffledItems] = useState([]);
@@ -25,9 +28,8 @@ const ProductCategory = ({ title, items, onToggleWishlist }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    // Shuffle the items array when the component mounts or when items change
     const shuffleArray = (array) => {
-      return array.sort(() => Math.random() - 0.5); // Randomize order of items
+      return array.sort(() => Math.random() - 0.5);
     };
 
     setShuffledItems(shuffleArray(items));
@@ -59,6 +61,15 @@ const ProductCategory = ({ title, items, onToggleWishlist }) => {
 
   const prevItems = () => {
     setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  const handleAddCart = (item) => {
+    dispatch(addToCart(item._id));
+    toast.success(`Successfully added to cart!`);
+  };
+  const handleAddWishList = (item) => {
+    dispatch(addToWishList(item._id));
+    toast.success(`Successfully added to WishList!`);
   };
 
   return (
@@ -105,26 +116,21 @@ const ProductCategory = ({ title, items, onToggleWishlist }) => {
                 <img
                   src={item.images?.[0]?.url || "/placeholder-product.jpg"}
                   alt={item.name}
-                  className="w-full h-48 object-cover rounded-t-xl"
+                  className="w-full h-48 object-fit rounded-t-xl"
                   onClick={() => navigate(`/product/${item._id}`)}
                   loading="lazy"
                 />
                 <div className="absolute top-2 right-2 flex flex-col gap-2">
                   <button
                     className="p-2 bg-white/90 dark:bg-gray-700/90 rounded-full shadow-md hover:scale-110 transition-transform"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleWishlist(item._id);
-                    }}
+                    onClick={() => handleAddWishList(item)}
                     aria-label="Add to wishlist"
                   >
                     <Heart className="w-5 h-5" />
                   </button>
                   <button
                     className="p-2 bg-white/90 dark:bg-gray-700/90 rounded-full shadow-md hover:scale-110 transition-transform"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
+                    onClick={() => handleAddCart(item)}
                     aria-label="Add to cart"
                   >
                     <ShoppingCart className="w-5 h-5" />
@@ -156,10 +162,18 @@ const ProductCategory = ({ title, items, onToggleWishlist }) => {
                     ({item.reviews?.length || 0})
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold text-gray-900 dark:text-white">
-                    ₹{item.price?.toLocaleString()}
-                  </span>
+                <div className="flex justify-between items-center">
+                  <p className="text-xl font-bold bg-white dark:bg-gray-900 text-black dark:text-white">
+                    ₹
+                    {(item.price - item.price * (item.discount / 100)).toFixed(
+                      2
+                    )}
+                    {item.discount > 0 && (
+                      <span className="text-sm line-through ml-2 bg-white dark:bg-gray-900 text-black dark:text-white">
+                        ₹{item.price.toFixed(2)}
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
             </motion.div>
