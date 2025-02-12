@@ -26,45 +26,23 @@ const orderSchema = new mongoose.Schema(
         },
         price: {
           type: Number,
-          required: true,
         },
         totalPrice: {
           type: Number,
-          required: true,
         },
         images: [
           {
             public_id: {
               type: String,
-              required: true,
             },
             url: {
               type: String,
-              required: true,
             },
           },
         ],
       },
     ],
     totalAmount: {
-      type: Number,
-      required: true,
-    },
-    gst: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    shipping: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    totalAmountWithGST: {
-      type: Number,
-      required: true,
-    },
-    totalAmountWithShipping: {
       type: Number,
       required: true,
     },
@@ -112,7 +90,6 @@ const orderSchema = new mongoose.Schema(
     ],
     deliveryDate: {
       type: Date,
-      required: true,
     },
     trackingId: {
       type: String,

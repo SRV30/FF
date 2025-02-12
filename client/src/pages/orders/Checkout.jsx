@@ -3,9 +3,8 @@ import { userAddress } from "@/store/address-slice/addressSlice";
 import { getSingleDetail } from "@/store/auth-slice/user";
 import { createOrder } from "@/store/order-slice/order";
 import { getProducts } from "@/store/product-slice/productSlice";
-import { Phone } from "lucide-react";
-
-import React, { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -14,33 +13,41 @@ const CreateOrder = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const { discountValue } = useSelector((state) => state.discount);
   const { user, loading: authLoading } = useSelector((state) => state.auth);
   const { address } = useSelector((state) => state.address);
-  const { product: products = [], loading: productLoading } = useSelector((state) => state.product);
-  const { cartItems, loading: cartLoading } = useSelector((state) => state.cart);
-  const { loading: orderLoading, error, success } = useSelector((state) => state.order);
+  const { product: products = [], loading: productLoading } = useSelector(
+    (state) => state.product
+  );
+
+  const {
+    cartItems,
+    loading: cartLoading,
+    finalTotal,
+  } = useSelector((state) => state.cart);
+  const { loading: orderLoading, error } = useSelector((state) => state.order);
 
   const [orderData, setOrderData] = useState({
-    
     userId: "",
     addressId: "",
     products: [],
     paymentMethod: "COD",
-    shipping: 50,
-    gst: 18,
     totalAmount: 0,
-    
   });
 
-  // Fetch user, addresses, products, and cart items
+  const calculateShipping = (total) => {
+    if (total <= 500) return 100;
+    if (total > 500 && total <= 1000) return 50;
+    return 0;
+  };
+
   useEffect(() => {
     dispatch(userAddress());
     dispatch(getProducts());
     dispatch(getSingleDetail());
-    dispatch(getCartItems()); // Fetch cart items when component mounts
+    dispatch(getCartItems());
   }, [dispatch]);
 
-  // Set userId when user data is available
   useEffect(() => {
     if (user?._id) {
       setOrderData((prevData) => ({
@@ -50,34 +57,47 @@ const CreateOrder = () => {
     }
   }, [user]);
 
-  // Populate order with cart items
   useEffect(() => {
     if (cartItems.length > 0 && products.length > 0) {
+      // Calculate product totals properly
+      const productTotal = cartItems.reduce((acc, item) => {
+        const product = products.find((p) => p._id === item.productId._id);
+        return (
+          acc + product.price * item.quantity * (1 - product.discount / 100)
+        );
+      }, 0);
+
+      const shippingCost = calculateShipping(productTotal);
+      const subtotal = productTotal + shippingCost;
+
+      // Apply coupon discount if exists
+      const finalAmount = discountValue
+        ? subtotal * (1 - discountValue / 100)
+        : subtotal;
+
       const formattedProducts = cartItems.map((item) => {
-        const productDetails = products.find((p) => p._id === item.productId._id);
+        const product = products.find((p) => p._id === item.productId._id);
         return {
-          product: item.productId,
-          name: productDetails ? productDetails.name : "Unknown",
+          product: product._id,
+          name: product.name,
           quantity: item.quantity,
-          price: productDetails ? productDetails.price : 0, // Ensure price comes from products
-          totalPrice: item.quantity * (productDetails ? productDetails.price : 0),
+          price: product.price,
+          totalPrice: (
+            product.price *
+            item.quantity *
+            (1 - product.discount / 100)
+          ).toFixed(2),
         };
       });
-
-      const totalAmount = formattedProducts.reduce((sum, item) => sum + item.totalPrice, 0) + orderData.shipping + orderData.gst;
 
       setOrderData((prev) => ({
         ...prev,
         products: formattedProducts,
-        totalAmount,
+        totalAmount: finalAmount.toFixed(2),
       }));
     }
-  }, [cartItems, products]); 
+  }, [cartItems, products, discountValue]);
 
-  // Navigate on successful order creation
-  
-  
-  
   const handleChange = (e) => {
     setOrderData({ ...orderData, [e.target.name]: e.target.value });
   };
@@ -94,82 +114,205 @@ const CreateOrder = () => {
     }
     dispatch(createOrder(orderData));
     toast.success("Order created successfully!");
+    navigate("/order-success");
   };
 
   if (productLoading || orderLoading || authLoading || cartLoading) {
     return <p>Loading...</p>;
   }
 
+  const handleURLChange = (event) => {
+    if (event.target.value === "Online") {
+      navigate("/online/payment");
+    }
+  };
+
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
+    <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg">
       <h2 className="text-2xl font-semibold text-center mb-6">Create Order</h2>
 
-      {error && <p className="text-red-500">{typeof error === "object" ? error.message : error}</p>}
+      {error && (
+        <p className="text-red-500">
+          {typeof error === "object" ? error.message : error}
+        </p>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-2">
         {/* Address Selection */}
-        <div>
-          <label className="block text-sm font-medium">Select Address</label>
+        <div className="container mx-auto p-6">
+          <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+            Select Address
+          </label>
+
           {address.length === 0 ? (
-            <p className="text-red-500">No addresses available. Please add an address to continue.</p>
+            <p className="text-red-500">
+              No addresses available. Please add an address to continue.
+            </p>
           ) : (
             address.map((addr) => (
-              <div key={addr._id} className="flex items-center mt-2">
-                <input type="radio" name="addressId" value={addr._id} onChange={handleChange} className="mr-2" required />
-                <span>{`${addr.address_line}, ${addr.city}, ${addr.state}, ${addr.pincode},`}</span>
-                <span > {addr.mobile}</span>
-              </div>
+              <motion.div
+                key={addr._id}
+                className="flex items-center mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition duration-300 ease-in-out"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                whileHover={{ scale: 1.03 }}
+              >
+                <input
+                  type="radio"
+                  name="addressId"
+                  value={addr._id}
+                  onChange={handleChange}
+                  className="mr-4 rounded-full border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {`${addr.address_line}, ${addr.city}, ${addr.state}, ${addr.pincode}`}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {addr.mobile}
+                  </p>
+                </div>
+              </motion.div>
             ))
           )}
         </div>
 
         {/* Payment Method */}
-        <div>
-          <label className="block text-sm font-medium">Payment Method</label>
-          <select name="paymentMethod" value={orderData.paymentMethod} onChange={handleChange} className="w-full p-2 border rounded-lg">
-            <option value="COD">Cash on Delivery</option>
-            <option value="Online">Online Payment</option>
-          </select>
+        <div className="container mx-auto p-6">
+          <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+            Payment Method
+          </label>
+
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+          >
+            <select
+              name="paymentMethod"
+              value={orderData.paymentMethod}
+              onChange={(e) => {
+                handleChange(e);
+                handleURLChange(e);
+              }}
+              className="w-full p-3 pl-4 pr-10 border rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-700 transition duration-300 ease-in-out"
+            >
+              <option value="COD">Cash on Delivery</option>
+              <option value="Online">Online Payment through Razorpay</option>
+            </select>
+          </motion.div>
         </div>
 
-        {/* Shipping & GST */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium">Shipping</label>
-            <input type="number" name="shipping" value={orderData.shipping} onChange={handleChange} className="w-full p-2 border rounded-lg" required />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">GST</label>
-            <input type="number" name="gst" value={orderData.gst} onChange={handleChange} className="w-full p-2 border rounded-lg" required />
-          </div>
+        <div className="p-4">
+          <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
+            Your Items
+          </label>
+
+          <AnimatePresence>
+            {cartItems?.length > 0 ? (
+              cartItems.map((item) => (
+                <motion.div
+                  key={item._id}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all border border-gray-200 dark:border-gray-700 my-3"
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <motion.img
+                      src={item.productId.images[0]?.url || "/placeholder.jpg"}
+                      alt={item.productId.name}
+                      className="w-24 h-24 object-cover rounded-lg shadow-md"
+                      whileHover={{ scale: 1.1 }}
+                    />
+
+                    <div>
+                      <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        {item.productId.name}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Quantity: {item.quantity}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right: Price & Actions */}
+                  <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 sm:mt-0">
+                    {/* Price with discount effect */}
+                    <div className="flex flex-col items-center">
+                      <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                        ₹
+                        {(
+                          item.productId.price *
+                          (1 - item.productId.discount / 100)
+                        ).toFixed(2)}
+                      </p>
+                      {item.productId.discount > 0 && (
+                        <p className="text-sm line-through text-gray-500 dark:text-gray-400">
+                          ₹{item.productId.price}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-gray-500 dark:text-gray-400 mt-4 text-center"
+              >
+                No items.
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Total Amount */}
-        <div>
-          <label className="block text-sm font-medium">Total Amount</label>
-          <input type="number" name="totalAmount" value={orderData.totalAmount} className="w-full p-2 border rounded-lg" readOnly />
+        <div className="container mx-auto p-6">
+          <label
+            className="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4"
+            htmlFor="totalAmount"
+          >
+            Total Amount
+          </label>
+
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center border rounded-lg bg-white dark:bg-gray-800">
+              <span className="text-xl text-gray-800 dark:text-gray-200 mx-3">
+                ₹
+              </span>
+              <input
+                id="totalAmount"
+                type="number"
+                name="totalAmount"
+                value={orderData.totalAmount || 0}
+                className="w-full p-3 pl-0 text-xl text-gray-800 dark:text-gray-200 bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-700 transition duration-300 ease-in-out"
+                readOnly
+                aria-label="Total Amount"
+              />
+            </div>
+          </motion.div>
         </div>
 
-        {/* Products (Pre-filled from Cart) */}
-        <div>
-          <label className="block text-sm font-medium">Products</label>
-          {orderData.products.length > 0 ? (
-            orderData.products.map((item, index) => (
-              <div key={index} className="grid grid-cols-3 gap-4 mt-2">
-                <input type="text" value={item.name} className="p-2 border rounded-lg bg-gray-100" readOnly />
-                <input type="number" value={item.quantity} className="p-2 border rounded-lg bg-gray-100" readOnly />
-                <input type="text" value={`₹${item.price}`} className="p-2 border rounded-lg bg-gray-100" readOnly />
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No items in cart.</p>
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <button type="submit" className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+        <motion.button
+          type="submit"
+          className="w-full bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-700 focus:outline-none transition-all duration-300 ease-in-out transform dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
+          whileHover={{ scale: 1.05 }} // Animate on hover
+          whileTap={{ scale: 0.98 }} // Animate on tap
+          aria-label="Place Order" // SEO Optimization (Accessible label)
+        >
           Place Order
-        </button>
+        </motion.button>
       </form>
     </div>
   );

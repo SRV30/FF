@@ -17,7 +17,7 @@ export const getSingleOrder = createAsyncThunk(
   "order/getSingleOrder",
   async (orderId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/api/order/${orderId}`);
+      const response = await axiosInstance.get(`/api/order/get/${orderId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -42,7 +42,7 @@ export const cancelOrder = createAsyncThunk(
   async (orderId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put(`/api/order/cancel/${orderId}`);
-      return response.data;
+      return response.data; // Ensure this returns the updated order
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -113,7 +113,10 @@ export const orderSlice = createSlice({
         state.orders = state.orders.map((order) =>
           order._id === action.payload.order._id ? action.payload.order : order
         );
+        state.loading = false; // Optionally set loading to false
+        state.error = null; // Optionally clear any previous errors
       })
+
       .addCase(deleteOrder.fulfilled, (state, action) => {
         state.orders = state.orders.filter(
           (order) => order._id !== action.meta.arg

@@ -35,13 +35,13 @@ productRouter.get("/get/filter", getProductByFilter);
 productRouter.get("/get/:productId", getProductDetails);
 
 productRouter.put(
-  "/update",
+  "/update/:_id",  // Dynamic URL parameter for _id
   auth,
   upload.array("images", 5),
   updateProductDetails
 );
 
-productRouter.delete("/delete", auth, admin, deleteProduct);
+productRouter.delete("/delete/:deleteId", auth, admin, deleteProduct);
 
 productRouter.post("/search", searchProduct);
 

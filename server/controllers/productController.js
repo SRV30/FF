@@ -6,14 +6,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 // Admin
 export const createProduct = catchAsyncErrors(async (req, res, next) => {
   try {
-    const {
-      name,
-      category,
-      stock,
-      price,
-      discount,
-      description,
-    } = req.body;
+    const { name, category, stock, price, discount, description } = req.body;
 
     if (!name || !category || !price || !description) {
       return res.status(400).json({
@@ -176,7 +169,8 @@ export const getProductDetails = catchAsyncErrors(async (req, res) => {
 // Admin
 export const updateProductDetails = catchAsyncErrors(async (req, res) => {
   try {
-    const { _id, image } = req.body;
+    const { images } = req.body;
+    const { _id } = req.params;
 
     if (!_id) {
       return res.status(400).json({
@@ -195,30 +189,33 @@ export const updateProductDetails = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    let imageUploadResult = null;
+    let newImages = existingProduct.images; // Start with existing images if no new ones are uploaded.
 
-    if (image) {
+    if (images && images.length > 0) {
+      // Delete old images from cloud (if any)
       if (existingProduct.images.length > 0) {
         await Promise.all(
           existingProduct.images.map((img) => deleteImage(img.public_id))
         );
       }
-      const newImages = await Promise.all(
-        image.map(async (file) => {
+
+      // Upload new images
+      newImages = await Promise.all(
+        images.map(async (file) => {
           const result = await uploadImage(file);
           return { public_id: result.public_id, url: result.secure_url };
         })
       );
-      updateData.images = newImages;
     }
 
     const updateData = {
       ...req.body,
-      image: imageUploadResult ? imageUploadResult : existingProduct.image,
+      images: newImages, // Only update the images field
       _id: undefined,
       createdAt: undefined,
     };
 
+    // Update product details
     const updatedProduct = await ProductModel.findByIdAndUpdate(
       _id,
       updateData,
@@ -246,17 +243,17 @@ export const updateProductDetails = catchAsyncErrors(async (req, res) => {
 // Admin
 export const deleteProduct = catchAsyncErrors(async (req, res) => {
   try {
-    const { _id } = req.body;
+    const { deleteId } = req.params;
 
-    if (!_id) {
+    if (!deleteId) {
       return res.status(400).json({
-        message: "provide _id ",
+        message: "provide deleteId ",
         error: true,
         success: false,
       });
     }
 
-    const product = await ProductModel.findByIdAndDelete(_id, {
+    const product = await ProductModel.findByIdAndDelete(deleteId, {
       returnDocument: "before",
     });
     if (!product) {
@@ -383,7 +380,7 @@ export const getProductsByCategory = catchAsyncErrors(async (req, res) => {
 
     const validCategory = ["MEN", "WOMEN", "KIDS"];
     if (!validCategory.includes(category.toUpperCase())) {
-      return next(new ErrorHandler("Invalid gender specified", 400));
+      return next(new ErrorHandler("Invalid category specified", 400));
     }
 
     const products = await ProductModel.find({

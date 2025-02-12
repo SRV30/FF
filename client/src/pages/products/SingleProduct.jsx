@@ -15,6 +15,7 @@ import { Button, Rating } from "@mui/material";
 import { ShoppingCartIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
+import { addToCart } from "@/store/add-to-cart/addToCart";
 
 const ProductDetails = ({ products }) => {
   const { productId } = useParams();
@@ -106,12 +107,18 @@ const ProductDetails = ({ products }) => {
     visible: { y: 0, opacity: 1 },
   };
 
+  const handleAddCart = (item) => {
+    if (!item) {
+      toast.error("Error: Item not found!");
+      return;
+    }
+    dispatch(addToCart(item._id));
+    toast.success(`"${item.name}" added to cart!`);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <MetaData
-        title={product?.name}
-        description={product?.description}
-      />
+      <MetaData title={product?.name} description={product?.description} />
 
       <AnimatePresence>
         {loading ? (
@@ -195,6 +202,7 @@ const ProductDetails = ({ products }) => {
                   <Button
                     fullWidth
                     className="bg-yellow-500 dark:bg-red-600 text-white px-8 py-3 rounded-lg font-medium disabled:opacity-50 gap-5 flex items-center justify-center"
+                    onClick={() => handleAddCart(product)}
                   >
                     <ShoppingCartIcon className="text-yellow-500 dark:text-red-600 " />
                     <span className="font-semibold text-yellow-500 dark:text-red-600">

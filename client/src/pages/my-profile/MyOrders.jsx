@@ -1,121 +1,86 @@
-import { useState } from "react";
-import { FaEllipsisV } from "react-icons/fa";
-import { motion } from "framer-motion";
-
-const ordersData = [
-  {
-    id: "#576",
-    number: "228-3844-931-7689",
-    time: "02:26 PM",
-    status: "On Delivery",
-    shipping: false,
-    amount: "$250",
-  },
-  {
-    id: "#577",
-    number: "123-4567-890-1234",
-    time: "10:27 PM",
-    status: "Cancelled",
-    shipping: true,
-    amount: "$687",
-  },
-];
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { myOrders } from "@/store/order-slice/order";
+import { Alert, CircularProgress } from "@mui/material";
 
 const MyOrders = () => {
-  const [search, setSearch] = useState("");
+  const dispatch = useDispatch();
+  const { orders, loading, error } = useSelector((state) => state.order);
+
+  useEffect(() => {
+    dispatch(myOrders());
+  }, [dispatch]);
+
+  const handleStatus = (status) => {
+    switch (status) {
+      case "DELIVERED":
+        return "bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100 px-2 py-1 rounded-md font-semibold";
+      case "PENDING":
+        return "bg-orange-200 dark:bg-orange-800 text-orange-900 dark:text-orange-100 px-2 py-1 rounded-md font-semibold";
+      case "SHIPPED":
+        return "bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 px-2 py-1 rounded-md font-semibold";
+      case "CANCELLED":
+        return "bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 px-2 py-1 rounded-md font-semibold";
+      default:
+        return "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-1 rounded-md font-semibold";
+    }
+  };
 
   return (
-    <div className="min-h-screen p-4 bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="shadow-lg rounded-lg p-6 bg-white dark:bg-gray-800"
-      >
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Search order ID..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full md:w-1/3 p-3 border rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          />
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-yellow-500 dark:bg-red-600 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-all"
-          >
-            New Order
-          </motion.button>
-        </div>
-
+    <div className="container mx-auto p-6">
+      <h2 className="text-2xl font-semibold mb-4">My Orders</h2>
+      {loading ? (
+        <CircularProgress />
+      ) : error ? (
+        <Alert variant="danger">{error}</Alert>
+      ) : orders.length === 0 ? (
+        <Alert variant="info">No orders found</Alert>
+      ) : (
         <div className="overflow-x-auto">
-          <motion.table
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="w-full border-collapse border border-gray-200 rounded-lg shadow-md"
-          >
+          <table className="min-w-full bg-white border border-gray-200">
             <thead>
-              <tr className="bg-gray-200 dark:bg-gray-700">
-                <th className="p-3 border">Order ID</th>
-                <th className="p-3 border">Order Number</th>
-                <th className="p-3 border">Order Date</th>
-                <th className="p-3 border">Status</th>
-                <th className="p-3 border">Free Shipping</th>
-                <th className="p-3 border">Amount</th>
-                <th className="p-3 border">Action</th>
+              <tr className="bg-gray-100">
+                <th className="py-2 px-4 border">Order ID</th>
+                <th className="py-2 px-4 border">Date</th>
+                <th className="py-2 px-4 border">Total</th>
+                <th className="py-2 px-4 border">Status</th>
+                <th className="py-2 px-4 border">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {ordersData
-                .filter((order) => order.id.includes(search))
-                .map((order) => (
-                  <motion.tr
-                    key={order.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-                  >
-                    <td className="p-3 border">{order.id}</td>
-                    <td className="p-3 border">{order.number}</td>
-                    <td className="p-3 border">{order.time}</td>
-                    <td
-                      className={`p-3 border font-semibold ${
-                        order.status === "On Delivery"
-                          ? "text-blue-600 dark:text-blue-400"
-                          : order.status === "Cancelled"
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-green-600 dark:text-green-400"
-                      }`}
+              {orders.map((order) => (
+                <tr key={order._id} className="border-t">
+                  <td className="py-2 px-4 border">{order._id}</td>
+                  <td className="py-2 px-4 border">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="py-2 px-4 border">
+                    ₹{order.totalAmount}
+                  </td>
+                  <td className="py-2 px-4 border">
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold ${handleStatus(
+                        order.orderStatus
+                      )}`}
                     >
-                      {order.status}
-                    </td>
-                    <td className="p-3 border">
-                      <input
-                        type="checkbox"
-                        checked={order.shipping}
-                        readOnly
-                        className="w-5 h-5 accent-yellow-500"
-                      />
-                    </td>
-                    <td className="p-3 border">{order.amount}</td>
-                    <td className="p-3 border">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="p-2 text-gray-500 hover:text-gray-700"
-                      >
-                        <FaEllipsisV className="w-5 h-5" />
-                      </motion.button>
-                    </td>
-                  </motion.tr>
-                ))}
+                      {order.orderStatus}
+                    </span>
+                  </td>
+                  <td className="py-2 px-4 border">
+                    <Link
+                      to={`/order/${order._id}`}
+                      className="text-blue-500 hover:underline"
+                    >
+                      View Details
+                    </Link>
+                  </td>
+                </tr>
+              ))}
             </tbody>
-          </motion.table>
+          </table>
         </div>
-      </motion.div>
+      )}
     </div>
   );
 };

@@ -70,14 +70,47 @@ export const deleteCartItem = createAsyncThunk(
   }
 );
 
+const calculateFinalTotal = (cartItems) => {
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + (item.productId?.price || 0) * item.quantity,
+    0
+  );
+
+  const totalDiscount = cartItems.reduce(
+    (total, item) =>
+      total +
+      ((item.productId?.price * (item.productId?.discount || 0)) / 100) *
+        item.quantity, // Fixed parentheses
+    0
+  );
+
+  const shipping =
+    totalPrice <= 500 ? 100 : totalPrice > 500 && totalPrice <= 1000 ? 50 : 0;
+
+  return totalPrice - totalDiscount + shipping;
+};
+
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
     cartItems: [],
     loading: false,
     error: null,
+    finalTotal: 0,
   },
-  reducers: {},
+  reducers: {
+    setCartItems: (state, action) => {
+      state.cartItems = action.payload;
+      state.finalTotal = calculateFinalTotal(action.payload);
+    },
+    updateQuantity: (state, action) => {
+      const { _id, quantity } = action.payload;
+      state.cartItems = state.cartItems.map((item) =>
+        item._id === _id ? { ...item, quantity } : item
+      );
+      state.finalTotal = calculateFinalTotal(state.cartItems);
+    },
+  },
   extraReducers: (builder) => {
     builder
 
@@ -100,6 +133,7 @@ const cartSlice = createSlice({
       .addCase(getCartItems.fulfilled, (state, action) => {
         state.loading = false;
         state.cartItems = action.payload.data;
+        state.finalTotal = calculateFinalTotal(action.payload.data);
       })
       .addCase(getCartItems.rejected, (state, action) => {
         state.loading = false;
@@ -117,6 +151,7 @@ const cartSlice = createSlice({
             ? { ...item, quantity: updatedItem.quantity }
             : item
         );
+        state.finalTotal = calculateFinalTotal(state.cartItems);
       })
       .addCase(updateCartItemQty.rejected, (state, action) => {
         state.loading = false;
@@ -131,6 +166,7 @@ const cartSlice = createSlice({
         state.cartItems = state.cartItems.filter(
           (item) => item._id !== action.meta.arg
         );
+        state.finalTotal = calculateFinalTotal(state.cartItems);
       })
       .addCase(deleteCartItem.rejected, (state, action) => {
         state.loading = false;
@@ -139,4 +175,5 @@ const cartSlice = createSlice({
   },
 });
 
+export const { setCartItems, updateQuantity } = cartSlice.actions;
 export default cartSlice.reducer;

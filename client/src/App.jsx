@@ -10,7 +10,6 @@ import Review from "./pages/products/Review";
 import Cart from "./pages/orders/Cart";
 import Wishlist from "./pages/orders/Wishlist";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import MyOrders from "./pages/my-profile/MyOrders";
 import UpdatePassword from "./pages/my-profile/UpdatePassword";
 import UpdateProfile from "./pages/my-profile/UpdateProfile";
 import SavedAddress from "./pages/my-profile/SavedAddress";
@@ -30,7 +29,11 @@ import SingleUser from "./pages/admin/AdminSingleUser";
 import AdminUsers from "./pages/admin/AdminUsers";
 import VerifyEmail from "./pages/auth-page/VerifyEmail";
 import useCheckTokenExpiry from "./pages/auth-page/AuthProvider";
-import DiscountHeader from "./pages/components/DiscountHeader";
+import MyOrders from "./pages/my-profile/MyOrders";
+import OrderDetails from "./pages/my-profile/OrderDetails";
+import CreateOrder from "./pages/orders/Checkout";
+import PaymentPage from "./pages/orders/OnlinePaymentPage";
+import ProductUpdatePage from "./pages/admin/AdminUpdateProduct";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -40,7 +43,7 @@ const App = () => {
   return (
     <div className="flex flex-col bg-white dark:bg-black text-black dark:text-white">
       <ToastContainer position="top-center" />
-      <DiscountHeader />
+      {/* <DiscountHeader /> */}
       <Header />
       <WhatsAppButton />
 
@@ -65,6 +68,38 @@ const App = () => {
           element={
             <ProtectedRoute>
               <MyOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/order/:Id"
+          element={
+            <ProtectedRoute>
+              <OrderDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <CreateOrder />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/online/payment"
+          element={
+            <ProtectedRoute>
+              <PaymentPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/order-success"
+          element={
+            <ProtectedRoute>
+              <OrderSuccess />
             </ProtectedRoute>
           }
         />
@@ -94,19 +129,26 @@ const App = () => {
         />
         <Route path="/products" element={<Products />} />
         <Route path="/product/:productId" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/About" element={<About />} />
-        <Route path="/ContactUs" element={<ContactUs />} />
-        <Route path="/Review" element={<Review />} />
         <Route
-          path="/OrderSuccess"
+          path="/cart"
           element={
             <ProtectedRoute>
-              <OrderSuccess />
+              <Cart />
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/wishlist"
+          element={
+            <ProtectedRoute>
+              <Wishlist />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/About" element={<About />} />
+        <Route path="/ContactUs" element={<ContactUs />} />
+        <Route path="/Review" element={<Review />} />
+
         <Route path="/signup" element={<SignUp />} />
 
         {/* Admin routes */}
@@ -141,6 +183,14 @@ const App = () => {
               element={
                 <ProtectedRoute isAdmin={true}>
                   <SingleUser />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/admin/product/update/:id"
+              element={
+                <ProtectedRoute isAdmin={true}>
+                  <ProductUpdatePage />
                 </ProtectedRoute>
               }
             />

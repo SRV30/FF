@@ -11,6 +11,8 @@ import cartReducer from "./add-to-cart/addToCart";
 import wishListReducer from "./add-to-wishList/addToWishList";
 import orderReducer from "./order-slice/order";
 import discountReducer from "./extra-slice/discount";
+import onlineReducer from "./order-slice/order";
+import adminOrdersReducer from "./order-slice/AdminOrderSlice";
 
 const store = configureStore({
   reducer: {
@@ -26,6 +28,8 @@ const store = configureStore({
     wishList: wishListReducer,
     order: orderReducer,
     discount: discountReducer,
+    online: onlineReducer,
+    adminOrders: adminOrdersReducer
   },
 });
 

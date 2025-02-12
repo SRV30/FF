@@ -33,12 +33,10 @@ export const createDiscount = async (req, res) => {
     }
 
     if (discountValue <= 0) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Discount value must be greater than 0",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Discount value must be greater than 0",
+      });
     }
 
     const newDiscount = new DiscountModel({
@@ -65,45 +63,43 @@ export const createDiscount = async (req, res) => {
 
 export const applyDiscount = async (req, res) => {
   try {
-    const { userId, productId, originalPrice } = req.body;
+    const { userId, couponCode, originalPrice } = req.body;
 
-    if (!userId || !originalPrice) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "User ID and original price are required",
-        });
+    if (!userId || !couponCode || !originalPrice) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID, coupon code, and original price are required",
+      });
     }
 
     const discount = await DiscountModel.findOne({
-      $or: [
-        { applicableProducts: productId },
-        { applicableProducts: { $eq: [] } },
-      ],
+      name: couponCode,
       startDate: { $lte: new Date() },
       endDate: { $gte: new Date() },
       isActive: true,
     });
 
     if (!discount) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No active discount found" });
+      return res.status(400).json({
+        success: false,
+        message: "No active discount found with this coupon code",
+      });
     }
 
     if (discount.usedBy.includes(userId)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already used this discount" });
+      return res.status(400).json({
+        success: false,
+        message: "User already used this discount",
+      });
     }
 
     if (discount.usedBy.length >= discount.totalUsersAllowed) {
       discount.isActive = false;
       await discount.save();
-      return res
-        .status(400)
-        .json({ success: false, message: "Discount limit reached" });
+      return res.status(400).json({
+        success: false,
+        message: "Discount limit reached",
+      });
     }
 
     let discountAmount =
@@ -114,25 +110,16 @@ export const applyDiscount = async (req, res) => {
     discountAmount = Math.min(discountAmount, originalPrice);
     const newPrice = Math.max(originalPrice - discountAmount, 0);
 
-    const updatedDiscount = await DiscountModel.findById(discount._id);
-    if (updatedDiscount.usedBy.length >= updatedDiscount.totalUsersAllowed) {
-      updatedDiscount.isActive = false;
-      await updatedDiscount.save();
-      return res
-        .status(400)
-        .json({ success: false, message: "Discount limit reached" });
-    }
-
-    updatedDiscount.usedBy.push(userId);
-    await updatedDiscount.save();
+    discount.usedBy.push(userId);
+    await discount.save();
 
     return res.status(200).json({
       success: true,
       message: "Discount Applied Successfully!",
       discount: {
-        name: updatedDiscount.name,
-        type: updatedDiscount.discountType,
-        value: updatedDiscount.discountValue,
+        name: discount.name,
+        type: discount.discountType,
+        value: discount.discountValue,
       },
       discountAmount,
       newPrice,

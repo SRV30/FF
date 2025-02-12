@@ -7,28 +7,14 @@ import generateReceiptHTML from "../utils/generateReceipt.js";
 
 export const createOrder = catchAsyncErrors(async (req, res) => {
   try {
-    const {
-      userId,
-      addressId,
-      products,
-      paymentMethod,
-      shipping,
-      gst,
-      totalAmount,
-    } = req.body;
-
-    const totalAmountWithGST = totalAmount + gst;
-    const totalAmountWithShipping = totalAmountWithGST + shipping;
+    const { userId, addressId, products, paymentMethod, totalAmount } =
+      req.body;
 
     const newOrder = new OrderModel({
       user: userId,
       address: addressId,
       products,
       totalAmount,
-      gst,
-      shipping,
-      totalAmountWithGST,
-      totalAmountWithShipping,
       paymentMethod,
       orderStatus: "PENDING",
       paymentStatus: "PENDING",
@@ -355,12 +341,6 @@ export const deleteOrder = catchAsyncErrors(async (req, res) => {
         success: false,
         message: "Unauthorized to delete this order",
       });
-    }
-
-    if (order.orderStatus !== "CANCELLED") {
-      for (const item of order.products) {
-        await updateCancelStock(item.product._id, item.quantity);
-      }
     }
 
     await order.deleteOne();

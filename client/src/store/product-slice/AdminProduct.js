@@ -33,7 +33,7 @@ export const updateProduct = createAsyncThunk(
   async ({ id, productData }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put(
-        `/admin/product/${id}`,
+        `/api/product/update/${id}`,
         productData
       );
       return response.data.success;
@@ -51,7 +51,7 @@ export const deleteProduct = createAsyncThunk(
   "products/deleteProduct",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/admin/product/${id}`);
+      const response = await axiosInstance.delete(`/api/product/delete/${id}`);
       console.log(response);
       return id;
     } catch (error) {

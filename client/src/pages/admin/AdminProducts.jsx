@@ -4,13 +4,24 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getProductByFilter } from "@/store/product-slice/productSlice";
 import MetaData from "../extras/MetaData";
-import { CircularProgress, Pagination } from "@mui/material";
+import {
+  CircularProgress,
+  Pagination,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
 import { Search } from "lucide-react";
 import { debounce } from "lodash";
+import { deleteProduct } from "@/store/product-slice/AdminProduct";
 
 const AdminProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [deleteProductId, setDeleteProductId] = useState(null);
+  const [productData, setProductData] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -21,6 +32,8 @@ const AdminProducts = () => {
     error,
     totalPages,
   } = useSelector((state) => state.product);
+
+  const { products = [] } = useSelector((state) => state.adminProduct);
 
   const debouncedSearch = debounce((query) => {
     dispatch(getProductByFilter({ page: 1, limit: 10, searchQuery: query }));
@@ -34,6 +47,34 @@ const AdminProducts = () => {
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     debouncedSearch(e.target.value);
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteProduct(id))
+      .unwrap()
+      .then(() => {
+        setOpenDeleteDialog(false);
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.log("Error deleting product:", err);
+      });
+  };
+
+  const handleUpdate = (id) => {
+    // You can set product data for editing
+    setProductData(product.find((p) => p._id === id));
+    navigate(`/admin/product/update/${id}`);
+  };
+
+  const handleDialogClose = () => {
+    setOpenDeleteDialog(false);
+    setDeleteProductId(null);
+  };
+
+  const handleDeleteDialogOpen = (id) => {
+    setDeleteProductId(id);
+    setOpenDeleteDialog(true);
   };
 
   return (
@@ -124,12 +165,16 @@ const AdminProducts = () => {
                       <td className="p-4 text-blue-500">{prod.stock}</td>
                       <td className="p-4 text-center">
                         <Link
-                          to={`/admin/product/edit/${prod._id}`}
+                          to={`/admin/product/update/${prod._id}`}
                           className="text-blue-500 hover:underline mr-4"
+                          onClick={() => handleUpdate(prod._id)}
                         >
                           Edit
                         </Link>
-                        <button className="text-red-500 hover:underline">
+                        <button
+                          onClick={() => handleDeleteDialogOpen(prod._id)}
+                          className="text-red-500 hover:underline"
+                        >
                           Delete
                         </button>
                       </td>
@@ -156,6 +201,25 @@ const AdminProducts = () => {
           </motion.div>
         </>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={openDeleteDialog} onClose={handleDialogClose}>
+        <DialogTitle>Delete Product</DialogTitle>
+        <DialogContent>
+          <p>Are you sure you want to delete this product?</p>
+        </DialogContent>
+        <DialogActions>
+          <button onClick={handleDialogClose} className="text-gray-600">
+            Cancel
+          </button>
+          <button
+            onClick={() => handleDelete(deleteProductId)}
+            className="text-red-600"
+          >
+            Delete
+          </button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

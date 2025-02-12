@@ -9,23 +9,28 @@ import {
   updateCartItemQty,
 } from "@/store/add-to-cart/addToCart";
 import MetaData from "../extras/MetaData";
-import { CircularProgress, Button, IconButton } from "@mui/material";
+import { Button, IconButton, Skeleton } from "@mui/material";
 import { ShoppingCartCheckout } from "@mui/icons-material";
 
 const Cart = () => {
-  const [couponCode, setCouponCode] = useState("");
+  // eslint-disable-next-line no-unused-vars
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { cartItems, loading, error } = useSelector((state) => state.cart);
+
+  const { discounts } = useSelector((state) => state.discount);
+
+  useEffect(() => {
+    setAppliedCoupon(null);
+  }, []);
 
   useEffect(() => {
     dispatch(getCartItems());
   }, [dispatch]);
 
   if (loading)
-    return (
-      <CircularProgress className="flex justify-center items-center mt-20" />
-    );
+    return <Skeleton variant="rectangular" width="100%" height={300} />;
 
   const handleUpdateQty = (id, qty) => {
     if (qty > 0) {
@@ -60,7 +65,18 @@ const Cart = () => {
     0
   );
 
-  const priceWithDiscount = totalPrice - totalDiscount;
+  const finalTotal = () => {
+    const finaltotalprice = totalPrice - totalDiscount;
+
+    return finaltotalprice + shipping();
+  };
+  const appliedCouponAmount = () => {
+    const total = finalTotal();
+    if (discounts?.discountValue) {
+      return Math.max(total * (1 - discounts.discountValue / 100), 0);
+    }
+    return total;
+  };
 
   return (
     <>
@@ -124,7 +140,11 @@ const Cart = () => {
                           Discount
                         </p>
                         <p className="text-red-500 font-medium">
-                          -₹{totalDiscount / item.quantity.toFixed(2)}
+                          -₹
+                          {(
+                            item.productId.price *
+                            (item.productId.discount / 100)
+                          ).toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -192,33 +212,18 @@ const Cart = () => {
                   </p>
                 </div>
 
-                <div className="flex justify-between border-t pt-3 items-center gap-1 flex-wrap">
-                  <p className="text-lg font-bold text-gray-800 dark:text-white">
-                    Coupon Code
-                  </p>
-                  <p className="text-lg font-bold text-gray-800 dark:text-white">
-                    <input
-                      type="text"
-                      placeholder="Enter coupon code"
-                      className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                    />
-                  </p>
-                </div>
-
-                <div className="flex justify-between border-t pt-3">
+                <div className="flex justify-between border-t pt-3 items-center">
                   <p className="text-lg font-bold text-gray-800 dark:text-white">
                     Total
                   </p>
                   <p className="text-lg font-bold text-gray-800 dark:text-white">
-                    ₹{(priceWithDiscount + shipping()).toFixed(2)}
+                    ₹{appliedCouponAmount().toFixed(2)}
                   </p>
                 </div>
               </div>
 
               <button
-                className="bg-yellow-500 hover:bg-yellow-700 dark:bg-red-600 dark:hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 m-auto"
+                className="bg-yellow-500 hover:bg-yellow-700 dark:bg-red-600 dark:hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 m-auto mt-4"
                 onClick={() => navigate("/checkout")}
               >
                 <ShoppingCartCheckout /> Proceed to Checkout
