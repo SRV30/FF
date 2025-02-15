@@ -9,7 +9,7 @@ import {
 
 const addressRouter = express.Router();
 
-addressRouter.post("/create", addAddress);
+addressRouter.post("/create", auth, addAddress);
 
 addressRouter.get("/get", getAddress);
 

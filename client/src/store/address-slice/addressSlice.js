@@ -5,6 +5,7 @@ export const userAddress = createAsyncThunk(
   "auth/userAddress",
   async (_, { rejectWithValue }) => {
     try {
+      // const token = localStorage.getItem("token");
       const response = await axiosInstance.get("/api/address/get");
       return response.data.data;
     } catch (error) {
@@ -19,7 +20,16 @@ export const addUserAddress = createAsyncThunk(
   "address/add",
   async (address, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/api/address/create", address);
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.post(
+        "/api/address/create",
+        address,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(

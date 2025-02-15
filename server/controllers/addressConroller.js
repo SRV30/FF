@@ -4,7 +4,7 @@ import UserModel from "../models/userModel.js";
 
 export const addAddress = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
     const { address_line, city, state, pincode, country, mobile } = req.body;
 
     const user = await UserModel.findById(userId);
