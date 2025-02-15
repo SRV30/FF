@@ -43,18 +43,18 @@ const productSchema = new mongoose.Schema(
       type: String,
     },
     color: {
-      type: String,
+      type: [String],
       required: [true, "Please specify the target color for the product"],
     },
     coloroptions: {
-      type: String,
+      type: [String],
     },
     size: {
-      type: String,
+      type: [String],
       required: [true, "Please specify the target size for the product"],
     },
     sizeoptions: {
-      type: String,
+      type: [String],
     },
     stock: {
       type: Number,

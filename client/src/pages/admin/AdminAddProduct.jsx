@@ -4,10 +4,12 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { createProduct } from "@/store/product-slice/AdminProduct";
 import MetaData from "../extras/MetaData";
+import { XCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AdminAddProduct = () => {
-  const [images, setImages] = useState([]);
-  const [imagesPreview, setImagesPreview] = useState([]);
+  const [images, setImages] = useState(Array(5).fill(null));
+  const [imagesPreview, setImagesPreview] = useState(Array(5).fill(null));
   const [isFormValid, setIsFormValid] = useState(false);
 
   const categories = [
@@ -98,10 +100,10 @@ const AdminAddProduct = () => {
     name: "",
     category: "MEN",
     subcategory: "T-Shirts & Polos",
-    color: "Solid Colors",
-    coloroptions: "Red",
-    size: "Standard Sizes",
-    sizeoptions: "XS",
+    color: [],
+    coloroptions: [],
+    size: [],
+    sizeoptions: [],
     stock: 0,
     price: 0,
     discount: 0,
@@ -119,42 +121,76 @@ const AdminAddProduct = () => {
         productData.stock >= 0 &&
         productData.category &&
         productData.subcategory &&
-        productData.color &&
-        productData.coloroptions &&
-        productData.size &&
-        productData.sizeoptions &&
-        images.length > 0
+        productData.color?.length > 0 &&
+        productData.coloroptions?.length > 0 &&
+        productData.size?.length > 0 &&
+        productData.sizeoptions?.length > 0 &&
+        images.some((img) => img !== null)
     );
   }, [productData, images]);
 
   const handleInputChange = (e) => {
-    setProductData({ ...productData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+
+    setProductData((prevData) => {
+      if (type === "checkbox") {
+        return {
+          ...prevData,
+          [name]: checked
+            ? [...(prevData[name] || []), value]
+            : prevData[name].filter((item) => item !== value),
+        };
+      } else if (type === "select-multiple") {
+        return {
+          ...prevData,
+          [name]: Array.from(
+            e.target.selectedOptions,
+            (option) => option.value
+          ),
+        };
+      } else {
+        return { ...prevData, [name]: value };
+      }
+    });
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setImages([]);
-    setImagesPreview([]);
+  const handleImageChange = (e, index) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-    files.forEach((file) => {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size should be less than 5MB");
-        return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size should be less than 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        const newPreview = [...imagesPreview];
+        newPreview[index] = reader.result;
+        setImagesPreview(newPreview);
+
+        const newImages = [...images];
+        newImages[index] = file;
+        setImages(newImages);
       }
+    };
+    reader.readAsDataURL(file);
+  };
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          setImagesPreview((old) => [...old, reader.result]);
-          setImages((old) => [...old, file]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+  const handleImageDelete = (index) => {
+    const newImages = [...imagesPreview];
+    newImages[index] = null;
+    setImagesPreview(newImages);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (images.every((img) => img === null)) {
+      toast.error("Please upload at least one product image");
+      return;
+    }
 
     if (
       !productData.name ||
@@ -177,36 +213,53 @@ const AdminAddProduct = () => {
         description: "",
         category: "",
         subcategory: "",
-        color: "",
-        coloroptions: "",
-        size: "",
-        sizeoptions: "",
+        color: [],
+        coloroptions: [],
+        size: [],
+        sizeoptions: [],
         discount: "",
         stock: "",
       });
-      setImages([]);
-      setImagesPreview([]);
+
+      setImages(Array(5).fill(null));
+      setImagesPreview(Array(5).fill(null));
     } catch (error) {
       toast.error(error || "An error occurred while creating the product.");
     }
   };
 
+  const toggleOption = (field, option) => {
+    setProductData((prevData) => {
+      if (prevData[field].includes(option)) {
+        return {
+          ...prevData,
+          [field]: prevData[field].filter((item) => item !== option),
+        };
+      } else {
+        return {
+          ...prevData,
+          [field]: [...prevData[field], option],
+        };
+      }
+    });
+  };
+
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-white shadow-lg rounded-xl mt-5 mb-5">
+    <div className="max-w-3xl mx-auto p-8 bg-white dark:bg-gray-900 shadow-lg rounded-xl mt-5 mb-5">
       <MetaData title="Create New Product" />
       <Link to="/admin/dashboard">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-6">
+        <button className="bg-yellow-500 dark:bg-red-600 text-white px-4 py-2 rounded-lg mb-6">
           Back to Dashboard
         </button>
       </Link>
-      <h2 className="text-3xl font-semibold text-blue-500 mb-6">
+      <h2 className="text-3xl font-semibold text-yellow-500 dark:text-red-500 mb-6">
         Create New Product
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="mb-4">
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-white"
           >
             Product Name
           </label>
@@ -216,7 +269,7 @@ const AdminAddProduct = () => {
             name="name"
             value={productData.name}
             onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
             required
             placeholder="Enter product name"
           />
@@ -224,7 +277,7 @@ const AdminAddProduct = () => {
         <div className="mb-4">
           <label
             htmlFor="price"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-white"
           >
             Price
           </label>
@@ -234,7 +287,7 @@ const AdminAddProduct = () => {
             name="price"
             value={productData.price}
             onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
             required
             placeholder="Enter product price"
           />
@@ -243,7 +296,7 @@ const AdminAddProduct = () => {
         <div className="mb-4">
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-white"
           >
             Description/ProductId
           </label>
@@ -252,7 +305,7 @@ const AdminAddProduct = () => {
             name="description"
             value={productData.description}
             onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
             required
             placeholder="Enter product description"
           />
@@ -261,7 +314,7 @@ const AdminAddProduct = () => {
         <div className="mb-4">
           <label
             htmlFor="category"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-white"
           >
             Category
           </label>
@@ -270,7 +323,7 @@ const AdminAddProduct = () => {
             name="category"
             value={productData.category}
             onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
             required
           >
             <option value="" disabled>
@@ -287,7 +340,7 @@ const AdminAddProduct = () => {
         <div className="mb-4">
           <label
             htmlFor="category"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-white"
           >
             SubCategory
           </label>
@@ -296,7 +349,7 @@ const AdminAddProduct = () => {
             name="subcategory"
             value={productData.subcategory}
             onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
             required
           >
             <option value="" disabled>
@@ -311,113 +364,110 @@ const AdminAddProduct = () => {
         </div>
 
         <div className="mb-4">
-          <label
-            htmlFor="category"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
             Colors
           </label>
-          <select
-            id="colors"
-            name="color"
-            value={productData.color}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
-            required
-          >
-            <option value="" disabled>
-              Select Color
-            </option>
+          <div className="flex flex-wrap gap-2 mt-2">
             {colors.map((category) => (
-              <option key={category} value={category}>
+              <button
+                key={category}
+                type="button"
+                onClick={() => toggleOption("color", category)}
+                className={`px-4 py-2 rounded-lg border transition-colors duration-200 
+            ${
+              productData.color.includes(category)
+                ? "bg-yellow-600 text-white border-yellow-600"
+                : "bg-white text-gray-700 dark:bg-gray-800 dark:text-white border-gray-300"
+            }`}
+              >
                 {category}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
+          <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
+            Selected: {productData.color.join(", ")}
+          </div>
         </div>
 
         <div className="mb-4">
-          <label
-            htmlFor="category"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
             Color Options
           </label>
-          <select
-            id="colorOptions"
-            name="colorOptions"
-            value={productData.coloroptions}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
-            required
-          >
-            <option value="" disabled>
-              Select Color Options
-            </option>
-            {colorOptionss.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {colorOptionss.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => toggleOption("coloroptions", option)}
+                className={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
+                  productData.coloroptions.includes(option)
+                    ? "bg-yellow-600 text-white border-yellow-600"
+                    : "bg-white text-gray-700 dark:bg-gray-800 dark:text-white border-gray-300"
+                }`}
+              >
+                {option}
+              </button>
             ))}
-          </select>
+          </div>
+          <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
+            Selected: {productData.coloroptions.join(", ")}
+          </div>
         </div>
 
         <div className="mb-4">
-          <label
-            htmlFor="size"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
             Size
           </label>
-          <select
-            id="size"
-            name="size"
-            value={productData.size}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
-            required
-          >
-            <option value="" disabled>
-              Select Size
-            </option>
-            {sizes.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {sizes.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => toggleOption("size", option)}
+                className={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
+                  productData.size.includes(option)
+                    ? "bg-yellow-600 text-white border-yellow-600"
+                    : "bg-white text-gray-700 dark:bg-gray-800 dark:text-white border-gray-300"
+                }`}
+              >
+                {option}
+              </button>
             ))}
-          </select>
+          </div>
+          <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
+            Selected: {productData.size.join(", ")}
+          </div>
         </div>
 
         <div className="mb-4">
-          <label
-            htmlFor="sizeOptions"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">
             Size Options
           </label>
-          <select
-            id="sizeOptions"
-            name="sizeOptions"
-            value={productData.sizeoptions}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
-            required
-          >
-            <option value="" disabled>
-              Select Size Option
-            </option>
-            {sizeOptionss.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {sizeOptionss.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => toggleOption("sizeoptions", option)}
+                className={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
+                  productData.sizeoptions.includes(option)
+                    ? "bg-yellow-600 text-white border-yellow-600"
+                    : "bg-white text-gray-700 dark:bg-gray-800 dark:text-white border-gray-300"
+                }`}
+              >
+                {option}
+              </button>
             ))}
-          </select>
+          </div>
+          <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
+            Selected: {productData.sizeoptions.join(", ")}
+          </div>
         </div>
 
         <div className="mb-4">
           <label
             htmlFor="stock"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-white"
           >
             Stock Quantity
           </label>
@@ -427,7 +477,7 @@ const AdminAddProduct = () => {
             name="stock"
             value={productData.stock}
             onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
             required
             placeholder="Enter the product quantity"
           />
@@ -435,7 +485,7 @@ const AdminAddProduct = () => {
         <div className="mb-4">
           <label
             htmlFor="discount"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-white"
           >
             Discount
           </label>
@@ -445,39 +495,82 @@ const AdminAddProduct = () => {
             name="discount"
             value={productData.discount}
             onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
             placeholder="Enter the product discount"
           />
         </div>
 
-        <div className="mb-6">
-          <label
-            htmlFor="images"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Product Images
+        <div className="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full max-w-2xl mx-auto">
+          <label className="block text-lg font-semibold text-gray-800 dark:text-white">
+            Upload Product Images
           </label>
-          <input
-            type="file"
-            id="images"
-            name="images"
-            multiple
-            onChange={handleImageChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
-            accept="image/*"
-            required
-          />
-        </div>
 
-        <div className="flex gap-4 mb-6">
-          {imagesPreview.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`Preview ${index}`}
-              className="w-24 h-24 object-cover rounded-lg shadow-md"
-            />
+          {[0, 1, 2, 3, 4].map((index) => (
+            <div key={index} className="mt-3 flex flex-col items-center">
+              <input
+                type="file"
+                onChange={(e) => handleImageChange(e, index)}
+                className="block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition duration-200 file:cursor-pointer file:px-4 file:py-2 file:rounded-md file:border-none file:bg-yellow-500 file:text-white file:font-semibold hover:file:bg-yellow-600"
+                accept="image/*"
+                {...(index === 0 ? { required: true } : {})}
+              />
+
+              <AnimatePresence>
+                {imagesPreview[index] && (
+                  <motion.div
+                    className="relative mt-3"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <img
+                      src={imagesPreview[index]}
+                      alt={`Preview ${index}`}
+                      className="w-24 h-24 object-cover rounded-lg shadow-md border border-gray-300"
+                    />
+                    <button
+                      onClick={() => handleImageDelete(index)}
+                      className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700 transition duration-200"
+                    >
+                      <XCircle size={18} />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           ))}
+
+          {/* Preview Grid */}
+          <div className="flex gap-4 mt-6 flex-wrap justify-center">
+            <AnimatePresence>
+              {imagesPreview.map(
+                (image, index) =>
+                  image && (
+                    <motion.div
+                      key={index}
+                      className="relative"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <img
+                        src={image}
+                        alt={`Preview ${index}`}
+                        className="w-24 h-24 object-cover rounded-lg shadow-md border border-gray-300"
+                      />
+                      <button
+                        onClick={() => handleImageDelete(index)}
+                        className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700 transition duration-200"
+                      >
+                        <XCircle size={18} />
+                      </button>
+                    </motion.div>
+                  )
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <button

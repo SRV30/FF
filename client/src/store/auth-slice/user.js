@@ -57,7 +57,13 @@ export const getSingleDetail = createAsyncThunk(
   "auth/getSingleDetail",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/api/user/me");
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.get("/api/user/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       localStorage.setItem("verifyEmail", response.data.data.verifyEmail);
 
       return response.data;
@@ -77,7 +83,12 @@ export const updateProfile = createAsyncThunk(
     try {
       const response = await axiosInstance.put(
         "/api/user/update-user",
-        formData
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       const { token, user } = response.data || {};
 
@@ -98,6 +109,7 @@ export const uploadAvatar = createAsyncThunk(
   "auth/uploadAvatar",
   async (avatarFile, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const formData = new FormData();
       formData.append("avatar", avatarFile);
 
@@ -105,7 +117,11 @@ export const uploadAvatar = createAsyncThunk(
         "/api/user/upload-avatar",
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+
+            Authorization: `Bearer ${token}`,
+          },
           withCredentials: true,
         }
       );
@@ -122,10 +138,16 @@ export const getAllUsers = createAsyncThunk(
   "auth/fetchusers",
   async ({ page = 1, limit = 10, search = "" }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const { data } = await axiosInstance.get(
         `/api/user/admin/get?page=${page}&limit=${limit}&search=${search}`,
         {
           withCredentials: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       return data;
@@ -142,9 +164,18 @@ export const getSingleUser = createAsyncThunk(
   "auth/getSingle",
   async (id, { rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.get(`/api/user/admin/get/${id}`, {
-        withCredentials: true,
-      });
+      const token = localStorage.getItem("token");
+      const { data } = await axiosInstance.get(
+        `/api/user/admin/get/${id}`,
+        {
+          withCredentials: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -159,9 +190,15 @@ export const updateUserStatus = createAsyncThunk(
   "auth/updateUserStatus",
   async ({ userId, status }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.patch(
         `/api/user/admin/${userId}/status`,
-        { status }
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -175,10 +212,16 @@ export const updateUserRole = createAsyncThunk(
   "admin/updateUserRole",
   async ({ email, role }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.put(
         "/api/user/admin/update",
         { email, role },
-        { withCredentials: true }
+        { withCredentials: true },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -192,9 +235,18 @@ export const deleteUser = createAsyncThunk(
   "auth/deleteUser",
   async (userId, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/api/user/admin/delete/${userId}`, {
-        withCredentials: true,
-      });
+      const token = localStorage.getItem("token");
+      await axiosInstance.delete(
+        `/api/user/admin/delete/${userId}`,
+        {
+          withCredentials: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return userId;
     } catch (error) {
       return rejectWithValue(error.response.data);

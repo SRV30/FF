@@ -18,7 +18,13 @@ import upload from "../middleware/multer.js";
 
 const productRouter = express.Router();
 
-productRouter.post("/new", upload.array("images", 5), createProduct);
+productRouter.post(
+  "/new",
+  auth,
+  admin,
+  upload.array("images", 5),
+  createProduct
+);
 
 productRouter.get("/get", getProduct);
 
@@ -30,11 +36,13 @@ productRouter.get("/get/:productId", getProductDetails);
 
 productRouter.put(
   "/update/:_id",
+  auth,
+  admin,
   upload.array("images", 5),
   updateProductDetails
 );
 
-productRouter.delete("/delete/:deleteId", deleteProduct);
+productRouter.delete("/delete/:deleteId", auth, admin, deleteProduct);
 
 productRouter.post("/search", searchProduct);
 
@@ -42,10 +50,12 @@ productRouter.get("/category/:category", getProductsByCategory);
 
 productRouter.get("/reviews/:productId", getProductReviews);
 
-productRouter.post("/review/:productId", postProductReview);
+productRouter.post("/review/:productId", auth, postProductReview);
 
 productRouter.delete(
   "/review/:productId/:reviewId",
+  auth,
+  admin,
   deleteProductReview
 );
 
