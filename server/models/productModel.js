@@ -39,6 +39,23 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please specify the target category for the product"],
     },
+    subcategory: {
+      type: String,
+    },
+    color: {
+      type: String,
+      required: [true, "Please specify the target color for the product"],
+    },
+    coloroptions: {
+      type: String,
+    },
+    size: {
+      type: String,
+      required: [true, "Please specify the target size for the product"],
+    },
+    sizeoptions: {
+      type: String,
+    },
     stock: {
       type: Number,
       required: [true, "Please Enter Product Stock"],
@@ -69,7 +86,6 @@ const productSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
-      required: true,
     },
   },
 

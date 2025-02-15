@@ -1,31 +1,31 @@
-import UserModel from "../models/userModel.js";
+import jwt from "jsonwebtoken";
 
-export const admin = async (req, res, next) => {
+const admin = async (req, res, next) => {
   try {
-    if (!req.user) {
-      return res.status(400).json({
-        message: "User not found in request",
-        error: true,
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.json({
         success: false,
+        message: "Not Authorized Login Again",
       });
     }
 
-    const { role } = req.user;
+    const decodedData = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (role !== "ADMIN") {
-      return res.status(403).json({
-        message: "Permission denied. Admins only.",
-        error: true,
+    if (decodedData.role !== "ADMIN") {
+      return res.status(401).json({
         success: false,
+        message: "Not Authorized Login Again",
       });
     }
+
+    req.user = decodedData;
 
     next();
   } catch (error) {
-    return response.status(500).json({
-      message: "Server error while verifying admin permissions",
-      error: true,
-      success: false,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
 };
+
+export default admin;

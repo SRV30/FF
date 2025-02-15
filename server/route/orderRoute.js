@@ -9,22 +9,22 @@ import {
   myOrders,
   updateOrderStatus,
 } from "../controllers/orderController.js";
-import { admin } from "../middleware/Admin.js";
+import admin from "../middleware/Admin.js";
 
 const orderRouter = express.Router();
 
-orderRouter.post("/create", auth, createOrder);
+orderRouter.post("/create", createOrder);
 
-orderRouter.get("/myorder", auth, myOrders);
+orderRouter.get("/myorder", myOrders);
 
-orderRouter.get("/get/admin", auth, admin, getAllOrders);
+orderRouter.get("/get/admin", getAllOrders);
 
-orderRouter.get("/get/:orderId", auth, getSingleOrder);
+orderRouter.get("/get/:orderId", getSingleOrder);
 
-orderRouter.put("/admin/update/:orderId", auth, admin, updateOrderStatus);
+orderRouter.put("/admin/update/:orderId", updateOrderStatus);
 
-orderRouter.put("/cancel/:orderId", auth, cancelOrder);
+orderRouter.put("/cancel/:orderId", cancelOrder);
 
-orderRouter.delete("/admin/delete/:orderId", auth, admin, deleteOrder);
+orderRouter.delete("/admin/delete/:orderId", deleteOrder);
 
 export default orderRouter;

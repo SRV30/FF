@@ -40,9 +40,8 @@ const Login = () => {
       const isEmailVerified = localStorage.getItem("verifyEmail") === "true";
       if (!verifyEmail && !isEmailVerified) {
         navigate("/verify-email");
-      }
-      else{
-        navigate("/")
+      } else {
+        navigate("/");
       }
     }
   }, [isAuthenticated, error, navigate, redirect, verifyEmail, dispatch]);

@@ -6,12 +6,24 @@ import ErrorHandler from "../utils/errorHandler.js";
 // Admin
 export const createProduct = catchAsyncErrors(async (req, res, next) => {
   try {
-    const { name, category, stock, price, discount, description } = req.body;
+    const {
+      name,
+      category,
+      subcategory,
+      color,
+      coloroptions,
+      size,
+      sizeoptions,
+      stock,
+      price,
+      discount,
+      description,
+    } = req.body;
 
-    if (!name || !category || !price || !description) {
+    if (!name ) {
       return res.status(400).json({
         message:
-          "Please enter all required fields (name, category, price, description)",
+          "Please enter all required fields (name,)",
         error: true,
         success: false,
       });
@@ -40,10 +52,14 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
       description,
       price,
       category,
+      subcategory,
+      color,
+      coloroptions,
+      size,
+      sizeoptions,
       stock: stock || 0,
       discount: discount || 0,
       images: uploadedImages,
-      user: req.user.id,
     });
 
     const savedProduct = await product.save();
@@ -99,35 +115,6 @@ export const getProduct = catchAsyncErrors(async (req, res) => {
     });
   }
 });
-
-// export const getProductByCategory = catchAsyncErrors(async (req, res) => {
-//   try {
-//     const { id } = req.params;
-
-//     if (!id) {
-//       return res.status(400).json({
-//         message: "Provide category id",
-//         error: true,
-//         success: false,
-//       });
-//     }
-
-//     const products = await ProductModel.find({ category: id }).limit(15);
-
-//     return res.json({
-//       message: "Category product list",
-//       data: products,
-//       error: false,
-//       success: true,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       message: error.message || error,
-//       error: true,
-//       success: false,
-//     });
-//   }
-// });
 
 export const getProductDetails = catchAsyncErrors(async (req, res) => {
   try {
@@ -189,17 +176,15 @@ export const updateProductDetails = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    let newImages = existingProduct.images; // Start with existing images if no new ones are uploaded.
+    let newImages = existingProduct.images;
 
     if (images && images.length > 0) {
-      // Delete old images from cloud (if any)
       if (existingProduct.images.length > 0) {
         await Promise.all(
           existingProduct.images.map((img) => deleteImage(img.public_id))
         );
       }
 
-      // Upload new images
       newImages = await Promise.all(
         images.map(async (file) => {
           const result = await uploadImage(file);
@@ -210,12 +195,11 @@ export const updateProductDetails = catchAsyncErrors(async (req, res) => {
 
     const updateData = {
       ...req.body,
-      images: newImages, // Only update the images field
+      images: newImages,
       _id: undefined,
       createdAt: undefined,
     };
 
-    // Update product details
     const updatedProduct = await ProductModel.findByIdAndUpdate(
       _id,
       updateData,
@@ -329,9 +313,14 @@ export const getProductByFilter = catchAsyncErrors(async (req, res) => {
       limit = 10,
       search = "",
       category = "",
+      subcategory = "",
+      color = "",
+      coloroptions = "",
+      size = "",
+      sizeoptions = "",
       sortBy = "relevant",
       minPrice = 0,
-      maxPrice = 100000,
+      maxPrice = 20000,
     } = req.query;
 
     const query = {};
@@ -341,7 +330,27 @@ export const getProductByFilter = catchAsyncErrors(async (req, res) => {
     }
 
     if (category) {
-      query.category = category;
+      query.category = { $in: category.split(",") };
+    }
+
+    if (subcategory) {
+      query.subcategory = { $in: subcategory.split(",") };
+    }
+
+    if (color) {
+      query.color = { $in: color.split(",") };
+    }
+
+    if (coloroptions) {
+      query.coloroptions = { $in: coloroptions.split(",") };
+    }
+
+    if (size) {
+      query.size = { $in: size.split(",") };
+    }
+
+    if (sizeoptions) {
+      query.sizeoptions = { $in: sizeoptions.split(",") };
     }
 
     query.price = { $gte: parseInt(minPrice), $lte: parseInt(maxPrice) };

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, ShoppingCart, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Typewriter from "typewriter-effect";
@@ -9,11 +9,49 @@ import { useNavigate } from "react-router-dom";
 import { addToCart } from "@/store/add-to-cart/addToCart";
 import { addToWishList } from "@/store/add-to-wishList/addToWishList";
 import { toast } from "react-toastify";
+import categories from "./Categories";
+import colors from "../extras/Colors";
+import sizes from "../extras/Size";
+import PropTypes from "prop-types";
+
+const FilterSection = ({ title, items, selected, onSelect, children }) => (
+  <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+    <h3 className="font-semibold mb-3 text-lg text-gray-800 dark:text-gray-200">
+      {title}
+    </h3>
+    <div className="space-y-2">
+      {items.map((item) => (
+        <div
+          key={item.title}
+          className="flex items-center justify-between p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+        >
+          <label className="flex items-center space-x-3 flex-1 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selected.includes(item.title)}
+              onChange={() => onSelect(item.title)}
+              className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <span className="text-gray-700 dark:text-gray-300 capitalize">
+              {item.title}
+            </span>
+          </label>
+          {children && children(item)}
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 const Products = () => {
-  const [priceRange, setPriceRange] = useState([0, 10000]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState([]);
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedColorOptions, setSelectedColorOptions] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [selectedSizeOptions, setSelectedSizeOptions] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 20000]);
   const [sortBy, setSortBy] = useState("relevant");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -21,59 +59,70 @@ const Products = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { product = [], totalPages } = useSelector((state) => state.product);
-
   const [shuffledProducts, setShuffledProducts] = useState([]);
-  const hasShuffled = useRef(false);
+
+  const handleFilterChange = (setter, value) => {
+    setter((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  };
+
+  const getActiveSubcategories = () => {
+    const category = categories.find((c) =>
+      selectedCategories.includes(c.title)
+    );
+    return category?.subcategories || [];
+  };
+
+  const getActiveColorOptions = () => {
+    const color = colors.find((c) => selectedColors.includes(c.title));
+    return color?.colorOptions || [];
+  };
+
+  const getActiveSizeOptions = () => {
+    const size = sizes.find((s) => selectedSizes.includes(s.title));
+    return size?.sizeOptions || [];
+  };
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      dispatch(
+        getProductByFilter({
+          page,
+          limit: 50,
+          searchQuery,
+          selectedCategories,
+          selectedSubcategories,
+          selectedColors,
+          selectedColorOptions,
+          selectedSizes,
+          selectedSizeOptions,
+          sortBy,
+          priceRange,
+        })
+      );
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [
+    dispatch,
+    page,
+    searchQuery,
+    selectedCategories,
+    selectedSubcategories,
+    selectedColors,
+    selectedColorOptions,
+    selectedSizes,
+    selectedSizeOptions,
+    sortBy,
+    priceRange,
+  ]);
 
   useEffect(() => {
     if (product.length > 0) {
-      if (!hasShuffled.current) {
-        const shuffled = [...product].sort(() => Math.random() - 0.5);
-        setShuffledProducts(shuffled);
-        hasShuffled.current = true;
-      } else {
-        setShuffledProducts(product);
-      }
+      setShuffledProducts([...product].sort(() => Math.random() - 0.5));
     }
   }, [product]);
-
-  useEffect(() => {
-    dispatch(
-      getProductByFilter({
-        page,
-        limit: 10,
-        searchQuery,
-        selectedCategories,
-        sortBy,
-        priceRange,
-      })
-    );
-  }, [dispatch, searchQuery, selectedCategories, sortBy, priceRange, page]);
-
-  const handlePageChange = (value) => {
-    setPage(value);
-  };
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
-
-    dispatch(
-      getProductByFilter({
-        page: 1,
-        limit: 10,
-        searchQuery,
-        selectedCategories: selectedCategories.includes(category)
-          ? selectedCategories.filter((c) => c !== category)
-          : [...selectedCategories, category],
-        sortBy,
-        priceRange,
-      })
-    );
-  };
 
   const handleAddCart = (item) => {
     dispatch(addToCart(item._id));
@@ -85,55 +134,55 @@ const Products = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-2"
-          >
-            <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full ml-2 bg-transparent focus:outline-none text-black dark:text-white"
-            />
-            <div className="absolute pointer-events-none ml-8">
-              {!searchQuery && (
-                <Typewriter
-                  options={{
-                    strings: [
-                      "Search for products...",
-                      "Find your favorite items...",
-                      "Explore the collection...",
-                    ],
-                    autoStart: true,
-                    loop: true,
-                    delay: 50,
-                    deleteSpeed: 30,
-                  }}
-                />
-              )}
-            </div>
-          </motion.div>
-        </div>
+        {/* Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-2"
+        >
+          <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full ml-2 bg-transparent focus:outline-none text-black dark:text-white"
+          />
+          <div className="absolute pointer-events-none ml-8">
+            {!searchQuery && (
+              <Typewriter
+                options={{
+                  strings: [
+                    "Search for products...",
+                    "Find your favorite items...",
+                    "Explore the collection...",
+                  ],
+                  autoStart: true,
+                  loop: true,
+                  delay: 50,
+                  deleteSpeed: 30,
+                }}
+              />
+            )}
+          </div>
+        </motion.div>
 
-        <div className="md:hidden mb-4 flex justify-between items-center">
+        {/* Mobile Filters Button */}
+        <div className="md:hidden mb-6 flex justify-between items-center">
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-            className="px-4 py-2 bg-black text-white rounded-lg flex items-center gap-2"
+            onClick={() => setIsFiltersOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg"
           >
             <Search className="w-4 h-4" />
             Filters
           </motion.button>
           <select
-            className="p-2 border rounded-lg bg-white dark:bg-black text-black dark:text-white"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
+            className="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
           >
             <option value="relevant">Sort by: Relevant</option>
             <option value="price-low-high">Price: Low to High</option>
@@ -142,135 +191,200 @@ const Products = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
+          {/* Mobile Filters Panel */}
           <AnimatePresence>
             {isFiltersOpen && (
               <motion.div
-                initial={{ x: -300, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -300, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 100 }}
-                className="fixed inset-0 z-50 bg-white dark:bg-black overflow-y-auto md:hidden"
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "tween" }}
+                className="fixed inset-0 z-50 bg-white dark:bg-gray-800 overflow-y-auto p-4"
               >
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="font-bold text-lg">Filters</h2>
-                    <button onClick={() => setIsFiltersOpen(false)}>
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  <div className="mb-6">
-                    <h3 className="font-semibold mb-2">Price Range</h3>
-                    <div className="space-y-2">
-                      <motion.input
-                        type="range"
-                        min="0"
-                        max="10000"
-                        value={priceRange[1]}
-                        onChange={(e) =>
-                          setPriceRange([
-                            priceRange[0],
-                            parseInt(e.target.value),
-                          ])
-                        }
-                        className="w-full"
-                        whileHover={{ scale: 1.02 }}
-                      />
-                      <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                        <span>₹{priceRange[0]}</span>
-                        <span>₹{priceRange[1]}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <h3 className="font-semibold mb-2">Categories</h3>
-                    <div className="space-y-2">
-                      {["men", "women", "kids"].map((category) => (
-                        <label
-                          key={category}
-                          className="flex items-center space-x-2"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedCategories.includes(category)}
-                            onChange={() => handleCategoryChange(category)}
-                            className="rounded"
-                          />
-                          <span className="capitalize">{category}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold">Filters</h2>
+                  <button
                     onClick={() => setIsFiltersOpen(false)}
-                    className="w-full py-2 bg-yellow-500 dark:bg-red-600 text-white rounded-lg"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
                   >
-                    Apply Filters
-                  </motion.button>
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
+
+                {/* Price Filter */}
+                <div className="mb-8">
+                  <h3 className="font-semibold mb-4">Price Range</h3>
+                  <div className="px-4">
+                    <input
+                      type="range"
+                      min="0"
+                      max="20000"
+                      value={priceRange[1]}
+                      onChange={(e) =>
+                        setPriceRange([0, Number(e.target.value)])
+                      }
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-gray-600 dark:text-gray-400 mt-2">
+                      <span>₹0</span>
+                      <span>₹{priceRange[1]}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filters */}
+                <FilterSection
+                  title="Categories"
+                  items={categories}
+                  selected={selectedCategories}
+                  onSelect={(cat) =>
+                    handleFilterChange(setSelectedCategories, cat)
+                  }
+                />
+
+                {getActiveSubcategories().length > 0 && (
+                  <FilterSection
+                    title="Subcategories"
+                    items={getActiveSubcategories().map((sc) => ({
+                      title: sc,
+                    }))}
+                    selected={selectedSubcategories}
+                    onSelect={(sc) =>
+                      handleFilterChange(setSelectedSubcategories, sc)
+                    }
+                  />
+                )}
+
+                <FilterSection
+                  title="Colors"
+                  items={colors}
+                  selected={selectedColors}
+                  onSelect={(col) => handleFilterChange(setSelectedColors, col)}
+                />
+
+                {getActiveColorOptions().length > 0 && (
+                  <FilterSection
+                    title="Color Options"
+                    items={getActiveColorOptions().map((co) => ({ title: co }))}
+                    selected={selectedColorOptions}
+                    onSelect={(co) =>
+                      handleFilterChange(setSelectedColorOptions, co)
+                    }
+                  />
+                )}
+
+                <FilterSection
+                  title="Sizes"
+                  items={sizes}
+                  selected={selectedSizes}
+                  onSelect={(sz) => handleFilterChange(setSelectedSizes, sz)}
+                />
+
+                {getActiveSizeOptions().length > 0 && (
+                  <FilterSection
+                    title="Size Options"
+                    items={getActiveSizeOptions().map((so) => ({ title: so }))}
+                    selected={selectedSizeOptions}
+                    onSelect={(so) =>
+                      handleFilterChange(setSelectedSizeOptions, so)
+                    }
+                  />
+                )}
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="hidden md:block md:w-64 md:shrink-0">
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow md:sticky md:top-4">
-              <div className="mb-4">
-                <h2 className="font-bold text-lg">FILTERS</h2>
-              </div>
+          {/* Desktop Filters */}
+          <div className="hidden md:block w-72 shrink-0">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sticky top-4">
+              <h2 className="text-xl font-bold mb-6">Filters</h2>
 
+              {/* Price Filter */}
               <div className="mb-6">
-                <h3 className="font-semibold mb-2">Price Range</h3>
-                <div className="space-y-2">
-                  <motion.input
+                <h3 className="font-semibold mb-4">Price Range</h3>
+                <div className="px-2">
+                  <input
                     type="range"
                     min="0"
-                    max="100"
+                    max="20000"
                     value={priceRange[1]}
-                    onChange={(e) =>
-                      setPriceRange([priceRange[0], parseInt(e.target.value)])
-                    }
+                    onChange={(e) => setPriceRange([0, Number(e.target.value)])}
                     className="w-full"
-                    whileHover={{ scale: 1.02 }}
                   />
-                  <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                    <span>₹{priceRange[0]}</span>
+                  <div className="flex justify-between text-gray-600 dark:text-gray-400 mt-2">
+                    <span>₹0</span>
                     <span>₹{priceRange[1]}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mb-6">
-                <h3 className="font-semibold mb-2">Categories</h3>
-                <div className="space-y-2">
-                  {["MEN", "WOMEN", "KIDS"].map((category) => (
-                    <label
-                      key={category}
-                      className="flex items-center space-x-2"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(category)}
-                        onChange={() => handlePageChange(category)}
-                        className="rounded"
-                      />
-                      <span className="capitalize">{category}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              {/* Filter Sections */}
+              <FilterSection
+                title="Categories"
+                items={categories}
+                selected={selectedCategories}
+                onSelect={(cat) =>
+                  handleFilterChange(setSelectedCategories, cat)
+                }
+              />
+
+              {getActiveSubcategories().length > 0 && (
+                <FilterSection
+                  title="Subcategories"
+                  items={getActiveSubcategories().map((sc) => ({ title: sc }))}
+                  selected={selectedSubcategories}
+                  onSelect={(sc) =>
+                    handleFilterChange(setSelectedSubcategories, sc)
+                  }
+                />
+              )}
+
+              <FilterSection
+                title="Colors"
+                items={colors}
+                selected={selectedColors}
+                onSelect={(col) => handleFilterChange(setSelectedColors, col)}
+              />
+
+              {getActiveColorOptions().length > 0 && (
+                <FilterSection
+                  title="Color Options"
+                  items={getActiveColorOptions().map((co) => ({ title: co }))}
+                  selected={selectedColorOptions}
+                  onSelect={(co) =>
+                    handleFilterChange(setSelectedColorOptions, co)
+                  }
+                />
+              )}
+
+              <FilterSection
+                title="Sizes"
+                items={sizes}
+                selected={selectedSizes}
+                onSelect={(sz) => handleFilterChange(setSelectedSizes, sz)}
+              />
+
+              {getActiveSizeOptions().length > 0 && (
+                <FilterSection
+                  title="Size Options"
+                  items={getActiveSizeOptions().map((so) => ({ title: so }))}
+                  selected={selectedSizeOptions}
+                  onSelect={(so) =>
+                    handleFilterChange(setSelectedSizeOptions, so)
+                  }
+                />
+              )}
             </div>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="hidden md:flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">ALL COLLECTIONS</h2>
+          {/* Product Grid */}
+          <div className="flex-1">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold">All Products</h2>
               <select
-                className="p-2 border rounded-lg bg-white dark:bg-black"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
               >
                 <option value="relevant">Sort by: Relevant</option>
                 <option value="price-low-high">Price: Low to High</option>
@@ -280,86 +394,74 @@ const Products = () => {
 
             <motion.div
               layout
-              className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-4"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             >
               {shuffledProducts.map((item) => (
                 <motion.div
                   key={item._id}
                   layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-white dark:bg-black rounded-lg shadow overflow-hidden group hover:shadow-lg transition-shadow"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden group"
                 >
-                  <div className="relative">
+                  <div className="relative aspect-square">
                     <img
                       src={item.images[0]?.url}
                       alt={item.name}
-                      className="w-full h-48 sm:h-56 lg:h-64 object-fit cursor-pointer"
+                      className="w-full h-full object-cover cursor-pointer"
                       onClick={() => navigate(`/product/${item._id}`)}
                     />
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      className="absolute top-2 right-2 p-2 bg-white dark:bg-black rounded-full shadow hover:bg-gray-100 transition-colors"
-                      onClick={() => handleAddWishList(item)}
-                    >
-                      <Heart className="w-5 h-5" />
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      className="absolute top-14 right-2 p-2 bg-white dark:bg-black rounded-full shadow hover:bg-gray-100 transition-colors"
-                      onClick={() => handleAddCart(item)}
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                    </motion.button>
+                    <div className="absolute top-2 right-2 flex flex-col gap-2">
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        className="p-2 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm rounded-full shadow hover:bg-white dark:hover:bg-gray-600"
+                        onClick={() => handleAddWishList(item)}
+                      >
+                        <Heart className="w-5 h-5" />
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        className="p-2 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm rounded-full shadow hover:bg-white dark:hover:bg-gray-600"
+                        onClick={() => handleAddCart(item)}
+                      >
+                        <ShoppingCart className="w-5 h-5" />
+                      </motion.button>
+                    </div>
                   </div>
-                  <div
-                    className="p-4 cursor-pointer"
-                    onClick={() => navigate(`/product/${item._id}`)}
-                  >
-                    <h3 className="font-semibold mb-2 line-clamp-2 capitalize">
+                  <div className="p-4">
+                    <h3 className="font-medium mb-2 line-clamp-2">
                       {item.name}
                     </h3>
-                    <div className="flex justify-between items-center">
-                      <p className="text-xl font-bold bg-white dark:bg-gray-900 text-black dark:text-white">
-                        ₹
-                        {(
-                          item.price -
-                          item.price * (item.discount / 100)
-                        ).toFixed(2)}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold">
+                          ₹
+                          {(
+                            item.price -
+                            item.price * (item.discount / 100)
+                          ).toFixed(2)}
+                        </span>
                         {item.discount > 0 && (
-                          <span className="text-sm line-through ml-2 bg-white dark:bg-gray-900 text-black dark:text-white">
+                          <span className="text-sm line-through text-gray-500">
                             ₹{item.price.toFixed(2)}
                           </span>
                         )}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
               ))}
             </motion.div>
 
-            <AnimatePresence>
-              {product.length === 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-center py-8 text-gray-500 dark:text-gray-100"
-                >
-                  No products match your selected filters.
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <div className="flex justify-center mt-6">
+            <div className="mt-8 flex justify-center">
               <Pagination
                 count={totalPages}
                 page={page}
-                onChange={handlePageChange}
+                onChange={(e, value) => setPage(value)}
+                color="primary"
+                className="[&>.MuiPagination-ul]:gap-2"
               />
             </div>
           </div>
@@ -367,6 +469,19 @@ const Products = () => {
       </div>
     </div>
   );
+};
+
+FilterSection.propTypes = {
+  title: PropTypes.string.isRequired,
+  items: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selected: PropTypes.string,
+  onSelect: PropTypes.func.isRequired,
+  children: PropTypes.node,
+};
+
+FilterSection.defaultProps = {
+  selected: "",
+  children: null,
 };
 
 export default Products;

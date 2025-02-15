@@ -9,12 +9,12 @@ import {
 
 const wishListRouter = express.Router();
 
-wishListRouter.post("/create", auth, addToWishListItemController);
+wishListRouter.post("/create", addToWishListItemController);
 
-wishListRouter.get("/get", auth, getWishListItemController);
+wishListRouter.get("/get", getWishListItemController);
 
-wishListRouter.put("/update", auth, updateWishListItemQtyController);
+wishListRouter.put("/update", updateWishListItemQtyController);
 
-wishListRouter.delete("/delete", auth, deleteWishListItemQtyController);
+wishListRouter.delete("/delete", deleteWishListItemQtyController);
 
 export default wishListRouter;

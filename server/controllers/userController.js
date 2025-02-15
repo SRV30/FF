@@ -1,14 +1,12 @@
-import User from "../models/userModel.js";
+import UserModel from "../models/userModel.js";
 import bcryptjs from "bcryptjs";
 import sendEmail from "../config/sendEmail.js";
 import verifyEmailTemplate from "../utils/verifyEmailTemplate.js";
-import jwt from "jsonwebtoken";
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
-import generatedAccessToken from "../utils/generatedAccessToken.js";
-import generatedRefreshToken from "../utils/generatedRefreshToken.js";
 import { deleteImage, uploadImage } from "../utils/cloudinary.js";
 import forgotPasswordTemplate from "../utils/forgotPasswordTemplate.js";
 import generatedOtp from "../utils/generatedOtp.js";
+import sendToken from "../utils/jwtToken.js";
 
 export const registerUser = catchAsyncErrors(async (req, res) => {
   try {
@@ -22,7 +20,7 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await UserModel.findOne({ email });
 
     if (existingUser) {
       return res.status(400).json({
@@ -53,7 +51,7 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const newUser = new User({
+    const newUser = new UserModel({
       name,
       email,
       password: hashPassword,
@@ -92,7 +90,7 @@ export const verifyEmailOtp = catchAsyncErrors(async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await UserModel.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
@@ -102,11 +100,9 @@ export const verifyEmailOtp = catchAsyncErrors(async (req, res) => {
       });
     }
     if (user.login_expiry < new Date()) {
-
       const newOtp = generatedOtp();
       const newExpiry = new Date();
       newExpiry.setMinutes(newExpiry.getMinutes() + 15);
-
 
       const emailResponse = await sendEmail({
         sendTo: email,
@@ -121,7 +117,6 @@ export const verifyEmailOtp = catchAsyncErrors(async (req, res) => {
           success: false,
         });
       }
-
 
       user.login_otp = newOtp;
       user.login_expiry = newExpiry;
@@ -138,7 +133,7 @@ export const verifyEmailOtp = catchAsyncErrors(async (req, res) => {
       return res.status(401).json({ message: "Invalid OTP", error: true });
     }
 
-    await User.findByIdAndUpdate(user._id, {
+    await UserModel.findByIdAndUpdate(user._id, {
       verifyEmail: true,
       login_otp: null,
       login_expiry: null,
@@ -162,7 +157,7 @@ export const resendOtp = catchAsyncErrors(async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await UserModel.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
@@ -209,111 +204,58 @@ export const resendOtp = catchAsyncErrors(async (req, res) => {
 });
 
 export const loginUser = catchAsyncErrors(async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({
-        message: "Please provide email and password",
-        error: true,
-        success: false,
-      });
-    }
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({
-        message: "User is not registered",
-        error: true,
-        success: false,
-      });
-    }
-
-    if (user.status !== "Active") {
-      return res.status(400).json({
-        message: "Your account is not active. Please contact the admin.",
-        error: true,
-        success: false,
-      });
-    }
-
-    const checkPassword = await bcryptjs.compare(password, user.password);
-
-    if (!checkPassword) {
-      return res.status(400).json({
-        message: "Incorrect email or password",
-        error: true,
-        success: false,
-      });
-    }
-
-    const accessToken = await generatedAccessToken(user._id);
-    const refreshToken = await generatedRefreshToken(user._id);
-
-    user.lastLogin = new Date();
-    await user.save();
-
-    const cookiesOption = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-    };
-    res.cookie("accessToken", accessToken, cookiesOption);
-    res.cookie("refreshToken", refreshToken, cookiesOption);
-
-    return res.status(200).json({
-      message: "Login successful",
-      error: false,
-      success: true,
-      data: {
-        accessToken,
-        refreshToken,
-        user,
-        verifyEmail: user.verifyEmail
-      },
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || "Internal Server Error",
-      error: true,
+  if (!email || !password) {
+    return res.status(400).json({
       success: false,
+      message: "Please provide email and password",
+      error: true,
     });
   }
+
+  const user = await UserModel.findOne({ email })
+
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "User is not registered",
+      error: true,
+    });
+  }
+
+  if (user.status !== "Active") {
+    return res.status(400).json({
+      success: false,
+      message: "Your account is not active. Please contact the admin.",
+      error: true,
+    });
+  }
+
+  const checkPassword = await bcryptjs.compare(password, user.password);
+
+  if (!checkPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Incorrect email or password",
+      error: true,
+    });
+  }
+
+  user.lastLogin = new Date();
+  await user.save();
+
+  sendToken(user, 200, res);
 });
 
 export const logoutUser = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.user;
-
-    if (!userId) {
-      return res.status(400).json({
-        message: "User not authenticated",
-        error: true,
-        success: false,
-      });
-    }
-
-    const cookiesOption = {
+    res.cookie("token", null, {
+      expires: new Date(Date.now()),
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-    };
+    });
 
-    res.clearCookie("accessToken", cookiesOption);
-    res.clearCookie("refreshToken", cookiesOption);
-
-    const user = await User.findByIdAndUpdate(userId, { refreshToken: "" });
-
-    if (!user) {
-      return res.status(400).json({
-        message: "User not found",
-        error: true,
-        success: false,
-      });
-    }
-
-    return res.json({
+    return res.status(200).json({
       message: "Logout successful",
       error: false,
       success: true,
@@ -350,7 +292,7 @@ export const uploadAvatar = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
+    const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       {
         avatar: upload.url,
@@ -388,7 +330,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await UserModel.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
@@ -401,7 +343,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res) => {
     const otp = generatedOtp();
     const expireTime = new Date(new Date().getTime() + 10 * 60 * 1000);
 
-    const update = await User.findByIdAndUpdate(user._id, {
+    const update = await UserModel.findByIdAndUpdate(user._id, {
       forgot_password_otp: otp,
       forgot_password_expiry: new Date(expireTime).toISOString(),
     });
@@ -450,7 +392,7 @@ export const verifyOtp = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await UserModel.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
@@ -478,7 +420,7 @@ export const verifyOtp = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    await User.findByIdAndUpdate(user._id, {
+    await UserModel.findByIdAndUpdate(user._id, {
       forgot_password_otp: "",
       forgot_password_expiry: "",
     });
@@ -526,7 +468,7 @@ export const resetPassword = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await UserModel.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
@@ -539,7 +481,7 @@ export const resetPassword = catchAsyncErrors(async (req, res) => {
     const salt = await bcryptjs.genSalt(10);
     const hashPassword = await bcryptjs.hash(newPassword, salt);
 
-    const updatedUser = await User.findByIdAndUpdate(
+    const updatedUser = await UserModel.findByIdAndUpdate(
       user._id,
       {
         password: hashPassword,
@@ -570,89 +512,22 @@ export const resetPassword = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const refreshToken = catchAsyncErrors(async (req, res) => {
-  try {
-    const refreshToken =
-      req.cookies.refreshToken || req?.headers?.authorization?.split(" ")[1];
-
-    if (!refreshToken) {
-      return res.status(401).json({
-        message: "Refresh token is missing",
-        error: true,
-        success: false,
-      });
-    }
-
-    let verifyToken;
-    try {
-      verifyToken = jwt.verify(
-        refreshToken,
-        process.env.SECRET_KEY_REFRESH_TOKEN
-      );
-    } catch (error) {
-      return res.status(403).json({
-        message: "Invalid or expired refresh token",
-        error: true,
-        success: false,
-      });
-    }
-
-    const userId = verifyToken?.id;
-
-    const newAccessToken = await generatedAccessToken(userId);
-
-    const cookiesOption = {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-    };
-
-    res.cookie("accessToken", newAccessToken, cookiesOption);
-
-    return res.json({
-      message: "New Access token generated",
-      error: false,
-      success: true,
-      data: {
-        accessToken: newAccessToken,
-      },
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || "Server error while refreshing token",
-      error: true,
-      success: false,
-    });
-  }
-});
-
 export const getUserDetails = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.user;
+    console.log("Checking User model:", UserModel);
 
-    if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized access. Please log in.",
-        error: true,
-        success: false,
-      });
-    }
-
-    const user = await User.findById(userId).select("-password");
+    const user = await UserModel.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
-        error: true,
         success: false,
+        message: "User not found",
       });
     }
 
-    return res.status(200).json({
-      message: "User details fetched successfully",
-      error: false,
+    res.status(200).json({
       success: true,
-      data: user,
+      user,
     });
   } catch (error) {
     return res.status(500).json({
@@ -690,7 +565,7 @@ export const updateUserDetails = catchAsyncErrors(async (req, res) => {
         });
       }
 
-      const user = await User.findById(userId);
+      const user = await UserModel.findById(userId);
 
       if (user.avatar) {
         const publicId = user.avatar.split("/").pop().split(".")[0];
@@ -710,7 +585,7 @@ export const updateUserDetails = catchAsyncErrors(async (req, res) => {
       updateFields.avatar = uploadResult.url;
     }
 
-    const updateUser = await User.findByIdAndUpdate(userId, updateFields, {
+    const updateUser = await UserModel.findByIdAndUpdate(userId, updateFields, {
       new: true,
     });
 
@@ -758,9 +633,9 @@ export const getAllUsers = catchAsyncErrors(async (req, res) => {
       ],
     };
 
-    const totalUsers = await User.countDocuments(query);
+    const totalUsers = await UserModel.countDocuments(query);
 
-    const users = await User.find(query)
+    const users = await UserModel.find(query)
       .select("-password")
       .skip(skip)
       .limit(Number(limit));
@@ -796,7 +671,7 @@ export const getSingleUser = catchAsyncErrors(async (req, res) => {
 
     const userId = req.params.id;
 
-    const user = await User.findById(userId).select("-password");
+    const user = await UserModel.findById(userId).select("-password");
 
     if (!user) {
       return res.status(404).json({
@@ -842,7 +717,7 @@ export const updateUserRole = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await UserModel.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
@@ -883,7 +758,7 @@ export const deleteUser = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const user = await User.findById(userId);
+    const user = await UserModel.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -899,7 +774,7 @@ export const deleteUser = catchAsyncErrors(async (req, res) => {
       await deleteImage(`ff/${publicId}`);
     }
 
-    await User.findByIdAndDelete(userId);
+    await UserModel.findByIdAndDelete(userId);
 
     return res.json({
       message: "User and avatar deleted successfully",
@@ -926,7 +801,7 @@ export const updateUserStatus = catchAsyncErrors(async (req, res) => {
       return res.status(400).json({ error: "Invalid status provided" });
     }
 
-    const user = await User.findById(id);
+    const user = await UserModel.findById(id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }

@@ -7,7 +7,6 @@ import {
   getUserDetails,
   loginUser,
   logoutUser,
-  refreshToken,
   registerUser,
   resetPassword,
   updateUserDetails,
@@ -19,7 +18,7 @@ import {
 } from "../controllers/userController.js";
 import auth from "../middleware/auth.js";
 import upload from "../middleware/multer.js";
-import { admin } from "../middleware/Admin.js";
+import admin from "../middleware/Admin.js";
 
 const userRouter = express.Router();
 
@@ -31,9 +30,9 @@ userRouter.post("/resend-otp", verifyEmailOtp);
 
 userRouter.post("/login", loginUser);
 
-userRouter.get("/logout", auth, logoutUser);
+userRouter.get("/logout", logoutUser);
 
-userRouter.put("/upload-avatar", auth, upload.single("avatar"), uploadAvatar);
+userRouter.put("/upload-avatar", upload.single("avatar"), uploadAvatar);
 
 userRouter.put("/forgot-password", forgotPassword);
 
@@ -41,25 +40,23 @@ userRouter.put("/verify-otp", verifyOtp);
 
 userRouter.put("/reset-password", resetPassword);
 
-userRouter.put("/refresh-token", refreshToken);
-
-userRouter.get("/me", auth, getUserDetails);
+userRouter.get("/me", getUserDetails);
 
 userRouter.put(
   "/update-user",
-  auth,
+
   upload.single("avatar"),
   updateUserDetails
 );
 
-userRouter.get("/admin/get", auth, admin, getAllUsers);
+userRouter.get("/admin/get", getAllUsers);
 
-userRouter.get("/admin/get/:id", auth, admin, getSingleUser);
+userRouter.get("/admin/get/:id", getSingleUser);
 
-userRouter.put("/admin/update", auth, admin, updateUserRole);
+userRouter.put("/admin/update", updateUserRole);
 
-userRouter.delete("/admin/delete/:id", auth, admin, deleteUser);
+userRouter.delete("/admin/delete/:id", deleteUser);
 
-userRouter.patch("/admin/:id/status", auth, admin, updateUserStatus);
+userRouter.patch("/admin/:id/status", updateUserStatus);
 
 export default userRouter;

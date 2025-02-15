@@ -1,15 +1,20 @@
 import express from "express";
 import auth from "../middleware/auth.js";
-import { addAddress, deleteAddress, getAddress, updateAddress } from "../controllers/addressConroller.js";
+import {
+  addAddress,
+  deleteAddress,
+  getAddress,
+  updateAddress,
+} from "../controllers/addressConroller.js";
 
 const addressRouter = express.Router();
 
-addressRouter.post("/create", auth, addAddress);
+addressRouter.post("/create", addAddress);
 
-addressRouter.get("/get", auth, getAddress);
+addressRouter.get("/get", getAddress);
 
-addressRouter.put("/update", auth, updateAddress);
+addressRouter.put("/update", updateAddress);
 
-addressRouter.delete("/delete", auth, deleteAddress);
+addressRouter.delete("/delete", deleteAddress);
 
 export default addressRouter;

@@ -23,8 +23,13 @@ export const getProductByFilter = createAsyncThunk(
       limit = 10,
       searchQuery = "",
       selectedCategories = [],
+      selectedSubcategories = [],
+      selectedColors = [],
+      selectedColorOptions = [],
+      selectedSizes = [],
+      selectedSizeOptions = [],
       sortBy = "relevant",
-      priceRange = [0, 100000],
+      priceRange = [0, 20000],
     },
     { rejectWithValue }
   ) => {
@@ -38,9 +43,24 @@ export const getProductByFilter = createAsyncThunk(
             selectedCategories.length > 0
               ? selectedCategories.join(",")
               : undefined,
+          subcategory:
+            selectedSubcategories.length > 0
+              ? selectedSubcategories.join(",")
+              : undefined,
+          color:
+            selectedColors.length > 0 ? selectedColors.join(",") : undefined,
+          coloroptions:
+            selectedColorOptions.length > 0
+              ? selectedColorOptions.join(",")
+              : undefined,
+          size: selectedSizes.length > 0 ? selectedSizes.join(",") : undefined,
+          sizeoptions:
+            selectedSizeOptions.length > 0
+              ? selectedSizeOptions.join(",")
+              : undefined,
           sortBy,
           minPrice: priceRange?.[0] ?? 0,
-          maxPrice: priceRange?.[1] ?? 100000,
+          maxPrice: priceRange?.[1] ?? 20000,
         },
       });
 
@@ -80,11 +100,11 @@ const productSlice = createSlice({
   reducers: {
     clearProductErrors: (state) => {
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
-     
+
       .addCase(getProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -97,7 +117,6 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
 
       .addCase(getProductByFilter.pending, (state) => {
         state.loading = true;
@@ -114,7 +133,6 @@ const productSlice = createSlice({
         state.error = action.payload;
       })
 
-    
       .addCase(getProductsByGender.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -132,7 +150,6 @@ const productSlice = createSlice({
       });
   },
 });
-
 
 export const { clearProductErrors } = productSlice.actions;
 export const selectProducts = (state) => state.product.product;

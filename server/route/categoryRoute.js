@@ -1,8 +1,13 @@
 import express from "express";
 import auth from "../middleware/auth.js";
-import { admin } from "../middleware/Admin.js";
 import upload from "../middleware/multer.js";
-import { AddCategory, deleteCategory, getCategory, updateCategory } from "../controllers/categoryController.js";
+import {
+  AddCategory,
+  deleteCategory,
+  getCategory,
+  updateCategory,
+} from "../controllers/categoryController.js";
+import admin from "../middleware/Admin.js";
 
 const categoryRouter = express.Router();
 
@@ -14,10 +19,10 @@ categoryRouter.post(
   AddCategory
 );
 
-categoryRouter.get('/get',getCategory)
+categoryRouter.get("/get", getCategory);
 
-categoryRouter.put('/update',auth, admin,updateCategory)
+categoryRouter.put("/update", updateCategory);
 
-categoryRouter.delete("/delete",auth, admin,deleteCategory)
+categoryRouter.delete("/delete", deleteCategory);
 
 export default categoryRouter;

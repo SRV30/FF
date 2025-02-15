@@ -6,25 +6,16 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/api/user/login", credentials);
-      const { accessToken, refreshToken, user, verifyEmail } =
-        response.data.data;
 
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("user", JSON.stringify(user));
+      const { token, user, verifyEmail } = response.data;
+
       localStorage.setItem("verifyEmail", verifyEmail);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
 
-      console.log("Retrieved User:", user);
-      console.log("User:", JSON.parse(localStorage.getItem("user")));
-      console.log("Access Token:", localStorage.getItem("accessToken"));
-      console.log("Refresh Token:", localStorage.getItem("refreshToken"));
-      console.log("Is Authenticated:", !!localStorage.getItem("accessToken"));
-
-      return { accessToken, refreshToken, user };
+      return { user, token, verifyEmail };
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data || { message: "Invalid email or password!" }
-      );
+      return rejectWithValue(error.response?.data);
     }
   }
 );
@@ -33,13 +24,10 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { rejectWithValue }) => {
     try {
-      await axiosInstance.get("/api/user/logout");
-
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      const response = await axiosInstance.get("/api/user/logout");
       localStorage.removeItem("user");
-
-      return {};
+      localStorage.removeItem("token");
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Logout failed!" }
@@ -53,11 +41,10 @@ export const signupUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/api/user/register", userData);
-      const { accessToken, user } = response.data.data;
-
-      localStorage.setItem("accessToken", accessToken);
+      const { token, user } = response.data;
       localStorage.setItem("user", JSON.stringify(user));
-      return { accessToken, user };
+      localStorage.setItem("token", token);
+      return { token, user };
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Signup failed!" }
@@ -73,7 +60,7 @@ export const getSingleDetail = createAsyncThunk(
       const response = await axiosInstance.get("/api/user/me");
       localStorage.setItem("verifyEmail", response.data.data.verifyEmail);
 
-      return response.data.data;
+      return response.data;
     } catch (error) {
       console.error(error);
       return rejectWithValue(
@@ -92,13 +79,13 @@ export const updateProfile = createAsyncThunk(
         "/api/user/update-user",
         formData
       );
-      const { accessToken, user } = response.data?.data || {};
+      const { token, user } = response.data || {};
 
-      if (accessToken && user) {
-        localStorage.setItem("accessToken", accessToken);
+      if (token && user) {
         localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", token);
       }
-      return { accessToken, user };
+      return { token, user };
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Profile update failed!" }
@@ -216,11 +203,12 @@ export const deleteUser = createAsyncThunk(
 );
 
 const storedUser = localStorage.getItem("user");
+const storedToken = localStorage.getItem("token") || null;
+
 const initialState = {
   user: storedUser ? JSON.parse(storedUser) : null,
-  isAuthenticated: !!localStorage.getItem("accessToken"),
-  accessToken: localStorage.getItem("accessToken") || null,
-  refreshToken: localStorage.getItem("refreshToken") || null,
+  isAuthenticated: !!storedToken,
+  token: storedToken,
   loading: false,
   error: null,
   users: [],
@@ -252,16 +240,11 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        const { accessToken, refreshToken, user } = action.payload;
         state.loading = false;
-        state.user = user;
+        state.user = action.payload.user;
         state.isAuthenticated = true;
-        state.accessToken = accessToken;
-        state.refreshToken = refreshToken;
+        state.token = action.payload.token;
         state.verifyEmail = action.payload.verifyEmail;
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -275,13 +258,8 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.token = null;
         state.verifyEmail = false;
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
-        localStorage.removeItem("verifyEmail");
-
-        localStorage.removeItem("user");
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
@@ -295,6 +273,8 @@ const authSlice = createSlice({
       .addCase(signupUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;

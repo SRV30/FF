@@ -28,7 +28,6 @@ import ProductDetails from "./pages/products/SingleProduct";
 import SingleUser from "./pages/admin/AdminSingleUser";
 import AdminUsers from "./pages/admin/AdminUsers";
 import VerifyEmail from "./pages/auth-page/VerifyEmail";
-import useCheckTokenExpiry from "./pages/auth-page/AuthProvider";
 import MyOrders from "./pages/my-profile/MyOrders";
 import OrderDetails from "./pages/my-profile/OrderDetails";
 import CreateOrder from "./pages/orders/Checkout";
@@ -37,8 +36,6 @@ import ProductUpdatePage from "./pages/admin/AdminUpdateProduct";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-
-  useCheckTokenExpiry();
 
   return (
     <div className="flex flex-col bg-white dark:bg-black text-black dark:text-white">
@@ -154,45 +151,13 @@ const App = () => {
         {/* Admin routes */}
         {isAuthenticated && user?.role === "ADMIN" && (
           <>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/create/product" element={<AdminAddProduct />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/users/:id" element={<SingleUser />} />
             <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute isAdmin={true}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/create/product"
-              element={
-                <ProtectedRoute isAdmin={true}>
-                  <AdminAddProduct />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute isAdmin={true}>
-                  <AdminUsers />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/users/:id"
-              element={
-                <ProtectedRoute isAdmin={true}>
-                  <SingleUser />
-                </ProtectedRoute>
-              }
-            />
-             <Route
               path="/admin/product/update/:id"
-              element={
-                <ProtectedRoute isAdmin={true}>
-                  <ProductUpdatePage />
-                </ProtectedRoute>
-              }
+              element={<ProductUpdatePage />}
             />
           </>
         )}

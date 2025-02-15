@@ -10,11 +10,98 @@ const AdminAddProduct = () => {
   const [imagesPreview, setImagesPreview] = useState([]);
   const [isFormValid, setIsFormValid] = useState(false);
 
-  const categories = ["MEN", "WOMEN", "KIDS"];
+  const categories = [
+    "MEN",
+    "WOMEN",
+    "KIDS",
+    "CLOTHING",
+    "FOOTWEAR",
+    "SEASONAL WEAR",
+    "SPECIAL CATEGORIES",
+  ];
+
+  const subcategories = [
+    "T-Shirts & Polos",
+    "Shirts",
+    "Hoodies & Sweatshirts",
+    "Jackets & Coats",
+    "Sweaters & Cardigans",
+    "Pants & Trousers",
+    "Jeans",
+    "Shorts",
+    "Ethnic Wear (Kurtas, Sarees, Lehengas, etc.)",
+    "Innerwear & Loungewear",
+    "Activewear",
+    "Winter Wear (Thermals, Woolen Caps, Gloves, etc.)",
+    "Summer Wear (Cotton Clothes, Sleeveless Tops, etc.)",
+    "Rainwear (Raincoats, Waterproof Shoes)",
+    "Party Wear",
+    "Office/Formal Wear",
+    "Streetwear",
+    "Sportswear",
+    "Luxury/Fashion Brands",
+    "Sneakers",
+    "Formal Shoes",
+    "Casual Shoes",
+    "Sandals & Slippers",
+    "Boots",
+    "Sports Shoes",
+  ];
+
+  const colors = [
+    "Solid Colors",
+    "Gradient Colors",
+    "Patterned Colors",
+    "Multi-Colored",
+    "Customizable Colors",
+    "Textured Colors",
+    "Limited Edition Colors",
+    "Neon Colors",
+    "Neutral & Earthy Tones",
+  ];
+
+  const colorOptionss = [
+    "Red",
+    "Blue",
+    "Green",
+    "Black",
+    "White",
+    "Yellow",
+    "Purple",
+    "Pink",
+    "Orange",
+    "Rainbow",
+    "Color Block (Red, Blue, Green)",
+    "Neon Mix (Neon Green, Pink)",
+    "Beige",
+    "Grey",
+    "Brown",
+    "Olive",
+    "Cream",
+  ];
+
+  const sizes = [
+    "Standard Sizes",
+    "Kids Sizes",
+    "Footwear Sizes",
+    "Plus Sizes",
+    "Custom Sizes",
+    "Tall & Petite Sizes",
+    "Swimwear Sizes",
+    "Sleepwear Sizes",
+    "Maternity Sizes",
+  ];
+
+  const sizeOptionss = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "4XL", "5XL"];
 
   const [productData, setProductData] = useState({
     name: "",
     category: "MEN",
+    subcategory: "T-Shirts & Polos",
+    color: "Solid Colors",
+    coloroptions: "Red",
+    size: "Standard Sizes",
+    sizeoptions: "XS",
     stock: 0,
     price: 0,
     discount: 0,
@@ -31,6 +118,11 @@ const AdminAddProduct = () => {
         productData.price &&
         productData.stock >= 0 &&
         productData.category &&
+        productData.subcategory &&
+        productData.color &&
+        productData.coloroptions &&
+        productData.size &&
+        productData.sizeoptions &&
         images.length > 0
     );
   }, [productData, images]);
@@ -84,6 +176,11 @@ const AdminAddProduct = () => {
         price: "",
         description: "",
         category: "",
+        subcategory: "",
+        color: "",
+        coloroptions: "",
+        size: "",
+        sizeoptions: "",
         discount: "",
         stock: "",
       });
@@ -180,6 +277,136 @@ const AdminAddProduct = () => {
               Select Category
             </option>
             {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-gray-700"
+          >
+            SubCategory
+          </label>
+          <select
+            id="subcategory"
+            name="subcategory"
+            value={productData.subcategory}
+            onChange={handleInputChange}
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            required
+          >
+            <option value="" disabled>
+              Select SubCategory
+            </option>
+            {subcategories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Colors
+          </label>
+          <select
+            id="colors"
+            name="color"
+            value={productData.color}
+            onChange={handleInputChange}
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            required
+          >
+            <option value="" disabled>
+              Select Color
+            </option>
+            {colors.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Color Options
+          </label>
+          <select
+            id="colorOptions"
+            name="colorOptions"
+            value={productData.coloroptions}
+            onChange={handleInputChange}
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            required
+          >
+            <option value="" disabled>
+              Select Color Options
+            </option>
+            {colorOptionss.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="size"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Size
+          </label>
+          <select
+            id="size"
+            name="size"
+            value={productData.size}
+            onChange={handleInputChange}
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            required
+          >
+            <option value="" disabled>
+              Select Size
+            </option>
+            {sizes.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="sizeOptions"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Size Options
+          </label>
+          <select
+            id="sizeOptions"
+            name="sizeOptions"
+            value={productData.sizeoptions}
+            onChange={handleInputChange}
+            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-200"
+            required
+          >
+            <option value="" disabled>
+              Select Size Option
+            </option>
+            {sizeOptionss.map((category) => (
               <option key={category} value={category}>
                 {category}
               </option>

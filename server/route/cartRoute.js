@@ -9,12 +9,12 @@ import {
 
 const cartRouter = express.Router();
 
-cartRouter.post("/create", auth, addToCartItemController);
+cartRouter.post("/create", addToCartItemController);
 
-cartRouter.get("/get", auth, getCartItemController);
+cartRouter.get("/get", getCartItemController);
 
-cartRouter.put("/update", auth, updateCartItemQtyController);
+cartRouter.put("/update", updateCartItemQtyController);
 
-cartRouter.delete("/delete", auth, deleteCartItemQtyController);
+cartRouter.delete("/delete", deleteCartItemQtyController);
 
 export default cartRouter;

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import b1 from "../../assets/banner/1.png";
-import b2 from "../../assets/banner/2.png";
-import b3 from "../../assets/banner/3.png";
-import b4 from "../../assets/banner/4.png";
-import b5 from "../../assets/banner/5.png";
+import b1 from "../../assets/slider/1.png";
+import b2 from "../../assets/slider/2.png";
+import b3 from "../../assets/slider/3.png";
+import b4 from "../../assets/slider/4.png";
+import b5 from "../../assets/slider/5.png";
 import { FaAngleRight, FaAngleLeft } from "react-icons/fa6";
 import { motion } from "framer-motion";
 

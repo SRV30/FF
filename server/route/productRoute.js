@@ -12,19 +12,13 @@ import {
   searchProduct,
   updateProductDetails,
 } from "../controllers/productController.js";
-import { admin } from "../middleware/Admin.js";
+import admin from "../middleware/Admin.js";
 import auth from "../middleware/auth.js";
 import upload from "../middleware/multer.js";
 
 const productRouter = express.Router();
 
-productRouter.post(
-  "/new",
-  auth,
-  admin,
-  upload.array("images", 5),
-  createProduct
-);
+productRouter.post("/new", upload.array("images", 5), createProduct);
 
 productRouter.get("/get", getProduct);
 
@@ -35,22 +29,24 @@ productRouter.get("/get/filter", getProductByFilter);
 productRouter.get("/get/:productId", getProductDetails);
 
 productRouter.put(
-  "/update/:_id",  // Dynamic URL parameter for _id
-  auth,
+  "/update/:_id",
   upload.array("images", 5),
   updateProductDetails
 );
 
-productRouter.delete("/delete/:deleteId", auth, admin, deleteProduct);
+productRouter.delete("/delete/:deleteId", deleteProduct);
 
 productRouter.post("/search", searchProduct);
 
-productRouter.get("/category/:category", getProductsByCategory)
+productRouter.get("/category/:category", getProductsByCategory);
 
-productRouter.get("/reviews/:productId", getProductReviews)
+productRouter.get("/reviews/:productId", getProductReviews);
 
-productRouter.post("/review/:productId", auth, postProductReview)
+productRouter.post("/review/:productId", postProductReview);
 
-productRouter.delete("/review/:productId/:reviewId", auth, admin, deleteProductReview)
+productRouter.delete(
+  "/review/:productId/:reviewId",
+  deleteProductReview
+);
 
 export default productRouter;
