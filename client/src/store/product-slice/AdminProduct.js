@@ -5,6 +5,7 @@ export const createProduct = createAsyncThunk(
   "products/createProduct",
   async (productData, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const formData = new FormData();
 
       Object.keys(productData).forEach((key) => {
@@ -18,7 +19,10 @@ export const createProduct = createAsyncThunk(
       });
 
       const response = await axiosInstance.post("/api/product/new", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       return response.data.data;
@@ -32,9 +36,15 @@ export const updateProduct = createAsyncThunk(
   "products/updateProduct",
   async ({ id, productData }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.put(
         `/api/product/update/${id}`,
-        productData
+        productData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data.success;
     } catch (error) {
@@ -51,7 +61,12 @@ export const deleteProduct = createAsyncThunk(
   "products/deleteProduct",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/api/product/delete/${id}`);
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.delete(`/api/product/delete/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log(response);
       return id;
     } catch (error) {

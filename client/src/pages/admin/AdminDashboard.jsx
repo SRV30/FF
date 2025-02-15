@@ -80,7 +80,7 @@ const AdminDashboard = () => {
               className={`flex items-center w-full px-3 py-2 rounded-lg text-left space-x-3 text-gray-800 dark:text-gray-200
                 ${
                   activeSection === item.text
-                    ? "bg-blue-50 dark:bg-blue-800 text-blue-600 dark:text-blue-200"
+                    ? "bg-yellow-400 dark:bg-red-600"
                     : "hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
             >
