@@ -20,7 +20,6 @@ const admin = async (req, res, next) => {
     }
 
     req.user = decodedData;
-
     next();
   } catch (error) {
     console.log(error);
