@@ -117,16 +117,17 @@ const SavedAddress = () => {
       .catch((err) => toast.error(err.message || "Failed to update address"));
   };
 
-  const handleDelete = (_id) => {
-    if (!_id) {
+  const handleDelete = (id) => {
+    if (!id) {
       toast.error("Address ID is missing. Cannot delete.");
       return;
     }
 
-    dispatch(deleteUserAddress(_id))
+    dispatch(deleteUserAddress(id))
       .unwrap()
       .then(() => toast.success("Address deleted successfully!"))
       .catch((err) => toast.error(err.message || "Failed to delete address"));
+    window.location.reload();
   };
 
   const handleAddAddress = (e) => {

@@ -5,8 +5,12 @@ export const userAddress = createAsyncThunk(
   "auth/userAddress",
   async (_, { rejectWithValue }) => {
     try {
-      // const token = localStorage.getItem("token");
-      const response = await axiosInstance.get("/api/address/get");
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.get("/api/address/get", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -43,7 +47,12 @@ export const updateUserAddress = createAsyncThunk(
   "address/update",
   async (address, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put("/api/address/update", address);
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.put("/api/address/update", address, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -55,10 +64,14 @@ export const updateUserAddress = createAsyncThunk(
 
 export const deleteUserAddress = createAsyncThunk(
   "address/delete",
-  async (_id, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete("/api/address/delete", {
-        data: { _id },
+      const token = localStorage.getItem("token");
+      console.log("Deleting address with ID:", id);
+      const response = await axiosInstance.delete(`/api/address/delete/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       return response.data;
     } catch (error) {

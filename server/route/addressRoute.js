@@ -11,10 +11,10 @@ const addressRouter = express.Router();
 
 addressRouter.post("/create", auth, addAddress);
 
-addressRouter.get("/get", getAddress);
+addressRouter.get("/get", auth, getAddress);
 
-addressRouter.put("/update", updateAddress);
+addressRouter.put("/update", auth, updateAddress);
 
-addressRouter.delete("/delete", deleteAddress);
+addressRouter.delete("/delete/:id", auth, deleteAddress);
 
 export default addressRouter;

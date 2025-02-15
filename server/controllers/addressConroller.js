@@ -1,6 +1,7 @@
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
 import AddressModel from "../models/addressModel.js";
 import UserModel from "../models/userModel.js";
+import mongoose from "mongoose";
 
 export const addAddress = catchAsyncErrors(async (req, res) => {
   try {
@@ -66,7 +67,7 @@ export const addAddress = catchAsyncErrors(async (req, res) => {
 
 export const getAddress = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
 
     if (!userId) {
       return res.status(400).json({
@@ -106,7 +107,7 @@ export const getAddress = catchAsyncErrors(async (req, res) => {
 
 export const updateAddress = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
     const { _id, address_line, city, state, country, pincode, mobile } =
       req.body;
 
@@ -149,19 +150,37 @@ export const updateAddress = catchAsyncErrors(async (req, res) => {
 
 export const deleteAddress = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.user;
-    const { _id } = req.body;
+    const userId = req.user._id;
+    const { id } = req.params;
 
-    if (!_id) {
+    console.log("User ID:", userId);
+    console.log("Address ID to Delete:", id);
+
+
+    if (!id) {
       return res.status(400).json({
         message: "Address ID is required",
         error: true,
         success: false,
       });
     }
+    const address = await AddressModel.findOne({ 
+      _id: new mongoose.Types.ObjectId(id), 
+      userId: new mongoose.Types.ObjectId(userId) 
+    });
+    
+
+    console.log("Address Found in DB:", address);
+    if (!address) {
+      return res.status(404).json({
+        message: "Address not found or unauthorized",
+        error: true,
+        success: false,
+      });
+    }
 
     const deleteAddress = await AddressModel.deleteOne({
-      _id,
+      _id: id,
       userId,
     });
 
@@ -177,7 +196,7 @@ export const deleteAddress = catchAsyncErrors(async (req, res) => {
       message: "Address removed successfully",
       error: false,
       success: true,
-      data: { _id },
+      data: { id },
     });
   } catch (error) {
     return res.status(500).json({
