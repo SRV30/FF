@@ -7,6 +7,7 @@ import {
 } from "@/store/order-slice/onlinePayment";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const PaymentPage = () => {
   const dispatch = useDispatch();
@@ -20,18 +21,32 @@ const PaymentPage = () => {
   );
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!window.Razorpay) {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => console.log("Razorpay SDK loaded successfully");
+      script.onerror = () =>
+        console.error("Failed to load Razorpay SDK. Check your connection.");
+      document.body.appendChild(script);
+    }
+  }, []);
+
   const handleAddressChange = (e) => {
-    setSelectedAddress(e.target.value); // Store selected address ID
+    setSelectedAddress(e.target.value);
   };
 
   const handlePayment = async () => {
     if (!user || cartItems.length === 0 || !selectedAddress) {
-      alert("Please select an address and ensure your cart is not empty.");
+      toast.error(
+        "Please select an address and ensure your cart is not empty."
+      );
       return;
     }
 
     const orderData = {
-      userId: user._id,
+      userId: user.id,
       address: selectedAddress,
       products: cartItems.map((item) => ({
         product: item.productId._id,
@@ -44,15 +59,25 @@ const PaymentPage = () => {
       deliveryDate: new Date().toISOString().split("T")[0],
     };
 
+    console.log("Creating Order with data:", orderData);
     dispatch(createOrder(orderData));
-    navigate("/order-success");
   };
 
   useEffect(() => {
     if (order) {
+      console.log("Received Razorpay order:", order);
+
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      if (!razorpayKey) {
+        console.error(
+          "Razorpay Key ID is not defined in environment variables."
+        );
+        return;
+      }
+
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: order.finalTotal * 100, // Convert to paisa
+        amount: order.amount,
         currency: "INR",
         name: "Faith & Fast",
         description: "Purchase",
@@ -78,12 +103,14 @@ const PaymentPage = () => {
 
       const razor = new window.Razorpay(options);
       razor.open();
+    } else {
+      alert("Razorpay SDK failed to load. Please check your connection.");
     }
   }, [order, orderId, dispatch, user]);
 
   useEffect(() => {
     if (paymentSuccess) {
-      alert("Payment Successful!");
+      toast.success("Payment Successful!");
       dispatch(resetOrder());
       navigate("/order-success");
     }
@@ -114,7 +141,7 @@ const PaymentPage = () => {
                 type="radio"
                 name="addressId"
                 value={addr._id}
-                onChange={handleAddressChange} // Use the correct handler
+                onChange={handleAddressChange}
                 className="mr-4 rounded-full border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
                 required
               />

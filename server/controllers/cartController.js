@@ -4,7 +4,7 @@ import UserModel from "../models/userModel.js";
 
 export const addToCartItemController = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
     const { productId } = req.body;
 
     if (!productId) {
@@ -69,7 +69,7 @@ export const addToCartItemController = catchAsyncErrors(async (req, res) => {
 
 export const getCartItemController = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
 
     const cartItems = await CartProductModel.find({
       userId: userId,
@@ -100,7 +100,7 @@ export const getCartItemController = catchAsyncErrors(async (req, res) => {
 export const updateCartItemQtyController = catchAsyncErrors(
   async (req, res) => {
     try {
-      const userId = req.user;
+      const userId = req.user._id;
       const { _id, qty } = req.body;
 
       if (!_id || !qty) {
@@ -149,7 +149,7 @@ export const updateCartItemQtyController = catchAsyncErrors(
 export const deleteCartItemQtyController = catchAsyncErrors(
   async (req, res) => {
     try {
-      const userId = req.user;
+      const userId = req.user._id;
       const { _id } = req.body;
 
       if (!_id) {

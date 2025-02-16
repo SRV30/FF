@@ -7,7 +7,7 @@ import {
   getProductByFilter,
   getProductDetails,
   getProductReviews,
-  getProductsByCategory,
+  getSimilarProducts,
   postProductReview,
   searchProduct,
   updateProductDetails,
@@ -46,7 +46,7 @@ productRouter.delete("/delete/:deleteId", auth, admin, deleteProduct);
 
 productRouter.post("/search", searchProduct);
 
-productRouter.get("/category/:category", getProductsByCategory);
+productRouter.get("/similar", getSimilarProducts);
 
 productRouter.get("/reviews/:productId", getProductReviews);
 

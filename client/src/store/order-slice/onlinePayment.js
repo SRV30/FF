@@ -5,7 +5,16 @@ export const createOrder = createAsyncThunk(
   "order/createOrder",
   async (orderData, { rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.post("/api/payment/razorpay/order", orderData);
+      const token = localStorage.getItem("token");
+      const { data } = await axiosInstance.post(
+        "/api/payment/razorpay/order",
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -17,7 +26,16 @@ export const verifyPayment = createAsyncThunk(
   "order/verifyPayment",
   async (paymentData, { rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.post("/api/payment/razorpay/verify", paymentData);
+      const token = localStorage.getItem("token");
+      const { data } = await axiosInstance.post(
+        "/api/payment/razorpay/verify",
+        paymentData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return data;
     } catch (error) {
       return rejectWithValue(error.response.data);

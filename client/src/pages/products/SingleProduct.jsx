@@ -174,10 +174,10 @@ const ProductDetails = ({ products }) => {
                       {(
                         product?.price -
                         product?.price * (product?.discount / 100)
-                      ).toLocaleString()}
+                      ).toLocaleString()}{" "}
                     </span>
 
-                    <span className="text-2xl font-bold text-gray-600 line-through">
+                    <span className="text-2xl font-bold text-gray-500  line-through">
                       ₹{product?.price?.toLocaleString()}
                     </span>
                   </div>
@@ -213,7 +213,129 @@ const ProductDetails = ({ products }) => {
               </div>
             </motion.div>
 
-            {/* Reviews Section */}
+            <motion.div
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              className="mb-16 bg-white dark:bg-gray-900 shadow-lg rounded-2xl p-6"
+            >
+              <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-6 border-b-2 pb-2">
+                Product Details
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Category */}
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-center gap-2"
+                >
+                  <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                    Category:
+                  </span>
+                  <span className="text-lg font-semibold text-gray-700 dark:text-gray-400">
+                    {product?.category}
+                  </span>
+                </motion.div>
+
+                {/* Subcategory */}
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-center gap-2"
+                >
+                  <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                    Collection:
+                  </span>
+                  <span className="text-lg font-semibold text-gray-700 dark:text-gray-400">
+                    {product?.subcategory}
+                  </span>
+                </motion.div>
+                {Array.isArray(product?.color) && product.color.length > 0 && (
+                  <motion.div
+                    variants={itemVariants}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                      Color Collection:
+                    </span>
+                    <div className="flex gap-2">
+                      {product.color.map((clr, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 font-semibold shadow-md"
+                        >
+                          {clr}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {Array.isArray(product?.coloroptions) &&
+                  product.coloroptions.length > 0 && (
+                    <motion.div
+                      variants={itemVariants}
+                      className="flex items-center gap-2"
+                    >
+                      <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                        Available Color Options:
+                      </span>
+                      <div className="flex gap-2">
+                        {product.coloroptions.map((clr, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 rounded-md bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-gray-200 font-semibold shadow-md"
+                          >
+                            {clr}
+                          </span>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                {product?.size?.length > 0 && (
+                  <motion.div
+                    variants={itemVariants}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                      All Sizes Collection:
+                    </span>
+                    <div className="flex gap-2">
+                      {product.size.map((sz, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 font-semibold shadow-md"
+                        >
+                          {sz}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {product?.sizeoptions?.length > 0 && (
+                  <motion.div
+                    variants={itemVariants}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                      Available Size Options:
+                    </span>
+                    <div className="flex gap-2">
+                      {product.sizeoptions.map((sz, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 rounded-md bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-gray-200 font-semibold shadow-md"
+                        >
+                          {sz}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+
             <motion.section
               variants={itemVariants}
               className="mb-16 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg"

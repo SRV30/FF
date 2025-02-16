@@ -5,10 +5,16 @@ export const addToWishList = createAsyncThunk(
   "wishList/addToWishList",
   async (productId, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.post(
         "/api/wishlist/create",
         { productId },
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
       );
       return response.data;
     } catch (error) {
@@ -23,7 +29,12 @@ export const getWishListItems = createAsyncThunk(
   "wishList/getWishListItems",
   async (_, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.get("/api/wishList/get", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+
         withCredentials: true,
       });
       return response.data;
@@ -39,10 +50,16 @@ export const updateWishListItemQty = createAsyncThunk(
   "wishList/updateWishListItemQty",
   async ({ _id, qty }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.put(
         "/api/wishList/update",
         { _id, qty },
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
       );
       return response.data;
     } catch (error) {
@@ -57,7 +74,12 @@ export const deleteWishListItem = createAsyncThunk(
   "wishList/deleteWishListItem",
   async (_id, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.delete("/api/wishList/delete", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+
         data: { _id },
         withCredentials: true,
       });

@@ -20,10 +20,9 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
       description,
     } = req.body;
 
-    if (!name ) {
+    if (!name) {
       return res.status(400).json({
-        message:
-          "Please enter all required fields (name,)",
+        message: "Please enter all required fields (name,)",
         error: true,
         success: false,
       });
@@ -383,26 +382,26 @@ export const getProductByFilter = catchAsyncErrors(async (req, res) => {
   }
 });
 
-export const getProductsByCategory = catchAsyncErrors(async (req, res) => {
+export const getSimilarProducts = catchAsyncErrors(async (req, res) => {
   try {
-    const { category } = req.params;
+    const { category, subcategory, color, coloroptions } = req.query;
 
-    const validCategory = ["MEN", "WOMEN", "KIDS"];
-    if (!validCategory.includes(category.toUpperCase())) {
-      return next(new ErrorHandler("Invalid category specified", 400));
-    }
+    let filter = { $or: [] };
 
-    const products = await ProductModel.find({
-      category: category.toUpperCase(),
-      publish: true,
-    })
-      .populate("category", "name")
-      .populate("user", "name email");
+    if (category) filter.$or.push({ category });
+    if (subcategory) filter.$or.push({ subcategory });
+    if (color) filter.$or.push({ color });
+    if (coloroptions)
+      filter.$or.push({ coloroptions: { $in: coloroptions.split(",") } });
+
+    if (filter.$or.length === 0) filter = {};
+
+    const similarProducts = await ProductModel.find(filter).limit(10);
 
     res.status(200).json({
       success: true,
-      products,
-      count: products.length,
+      count: similarProducts.length,
+      similarProducts,
     });
   } catch (error) {
     return res.status(500).json({

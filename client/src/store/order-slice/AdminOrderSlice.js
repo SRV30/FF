@@ -1,14 +1,17 @@
-// src/store/adminOrdersSlice.js
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axiosInstance from '@/api';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axiosInstance from "@/api";
 
-// Fetch all orders (Admin)
 export const getAllOrders = createAsyncThunk(
-  'adminOrders/getAllOrders',
+  "adminOrders/getAllOrders",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get('/api/order/get/admin', { withCredentials: true });
-      // Assuming the backend returns { success: true, totalOrders: ..., orders: [...] }
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.get("/api/order/get/admin", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
       return response.data.orders;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -16,17 +19,21 @@ export const getAllOrders = createAsyncThunk(
   }
 );
 
-// Update order status (Admin)
 export const updateOrderStatus = createAsyncThunk(
-  'adminOrders/updateOrderStatus',
+  "adminOrders/updateOrderStatus",
   async ({ orderId, orderStatus, trackingId, notes }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.put(
         `/api/order/admin/update/${orderId}`,
         { orderStatus, trackingId, notes },
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
       );
-      // Assuming the response contains the updated order in response.data.order
       return response.data.order;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -34,12 +41,17 @@ export const updateOrderStatus = createAsyncThunk(
   }
 );
 
-// Delete order (Admin)
 export const deleteOrder = createAsyncThunk(
-  'adminOrders/deleteOrder',
+  "adminOrders/deleteOrder",
   async (orderId, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/api/order/admin/delete/${orderId}`, { withCredentials: true });
+      const token = localStorage.getItem("token");
+      await axiosInstance.delete(`/api/order/admin/delete/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
       return orderId;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -47,12 +59,17 @@ export const deleteOrder = createAsyncThunk(
   }
 );
 
-// (Optional) Get single order details
 export const getSingleOrder = createAsyncThunk(
-  'adminOrders/getSingleOrder',
+  "adminOrders/getSingleOrder",
   async (orderId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/api/order/get/${orderId}`, { withCredentials: true });
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.get(`/api/order/get/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
       return response.data.order;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -61,7 +78,7 @@ export const getSingleOrder = createAsyncThunk(
 );
 
 const adminOrdersSlice = createSlice({
-  name: 'adminOrders',
+  name: "adminOrders",
   initialState: {
     orders: [],
     singleOrder: null,
@@ -75,7 +92,6 @@ const adminOrdersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Get All Orders
       .addCase(getAllOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -88,14 +104,14 @@ const adminOrdersSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Update Order Status
+
       .addCase(updateOrderStatus.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
         state.loading = false;
-        // Replace the updated order in the orders array
+
         state.orders = state.orders.map((order) =>
           order._id === action.payload._id ? action.payload : order
         );
@@ -104,20 +120,22 @@ const adminOrdersSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Delete Order
+
       .addCase(deleteOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(deleteOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = state.orders.filter((order) => order._id !== action.payload);
+        state.orders = state.orders.filter(
+          (order) => order._id !== action.payload
+        );
       })
       .addCase(deleteOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // Get Single Order
+
       .addCase(getSingleOrder.pending, (state) => {
         state.loading = true;
         state.error = null;

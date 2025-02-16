@@ -16,6 +16,8 @@ export default function Header() {
   const location = useLocation();
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart);
+  const { WishListItems } = useSelector((state) => state.wishList);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -93,12 +95,22 @@ export default function Header() {
           <Search className="w-6 h-6 cursor-pointer hover:text-red-600 transition-colors" />
         </a>
 
-        <a href="/wishlist">
+        <a href="/wishlist" className="relative">
           <Heart className="w-6 h-6 cursor-pointer hover:text-red-600 transition-colors" />
+          {WishListItems.length > 0 && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-xs font-semibold flex items-center justify-center rounded-full">
+              {WishListItems.length}
+            </span>
+          )}
         </a>
 
-        <a href="/cart">
+        <a href="/cart" className="relative">
           <ShoppingCart className="w-6 h-6 cursor-pointer hover:text-red-600 transition-colors" />
+          {cartItems.length > 0 && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-xs font-semibold flex items-center justify-center rounded-full">
+              {cartItems.length}
+            </span>
+          )}
         </a>
 
         <div onClick={toggleDarkMode} className="cursor-pointer text-white">

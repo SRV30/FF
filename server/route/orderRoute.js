@@ -13,18 +13,18 @@ import admin from "../middleware/Admin.js";
 
 const orderRouter = express.Router();
 
-orderRouter.post("/create", createOrder);
+orderRouter.post("/create", auth, createOrder);
 
-orderRouter.get("/myorder", myOrders);
+orderRouter.get("/myorder", auth, myOrders);
 
-orderRouter.get("/get/admin", getAllOrders);
+orderRouter.get("/get/admin", auth, admin, getAllOrders);
 
-orderRouter.get("/get/:orderId", getSingleOrder);
+orderRouter.get("/get/:orderId", auth, getSingleOrder);
 
-orderRouter.put("/admin/update/:orderId", updateOrderStatus);
+orderRouter.put("/admin/update/:orderId", auth, admin, updateOrderStatus);
 
-orderRouter.put("/cancel/:orderId", cancelOrder);
+orderRouter.put("/cancel/:orderId", auth, cancelOrder);
 
-orderRouter.delete("/admin/delete/:orderId", deleteOrder);
+orderRouter.delete("/admin/delete/:orderId", auth, admin, deleteOrder);
 
 export default orderRouter;

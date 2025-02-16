@@ -30,13 +30,14 @@ const MyOrders = () => {
   return (
     <div className="container mx-auto p-6">
       <h2 className="text-2xl font-semibold mb-4">My Orders</h2>
+
       {loading ? (
         <CircularProgress />
       ) : error ? (
-        <Alert variant="danger">{error}</Alert>
-      ) : orders.length === 0 ? (
-        <Alert variant="info">No orders found</Alert>
-      ) : (
+        <Alert severity="error">{typeof error === "string" ? error : "No Orders Available"}</Alert>
+      ) : Array.isArray(orders) && orders.length === 0 ? (
+        <Alert severity="info">No orders found</Alert>
+      ) : Array.isArray(orders) ? (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-200">
             <thead>
@@ -55,9 +56,7 @@ const MyOrders = () => {
                   <td className="py-2 px-4 border">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="py-2 px-4 border">
-                    ₹{order.totalAmount}
-                  </td>
+                  <td className="py-2 px-4 border">₹{order.totalAmount}</td>
                   <td className="py-2 px-4 border">
                     <span
                       className={`px-2 py-1 text-xs font-semibold ${handleStatus(
@@ -80,6 +79,10 @@ const MyOrders = () => {
             </tbody>
           </table>
         </div>
+      ) : (
+        <Alert severity="error">
+          {orders?.message || "Something went wrong"}
+        </Alert>
       )}
     </div>
   );

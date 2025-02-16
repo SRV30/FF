@@ -1,8 +1,6 @@
 import axiosInstance from "@/api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-
-
 export const updatePassword = createAsyncThunk(
   "updatePassword/reset",
   async (userData, { rejectWithValue }) => {

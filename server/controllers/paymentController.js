@@ -5,15 +5,17 @@ import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
 
 export const createOrder = catchAsyncErrors(async (req, res) => {
   try {
-    const { userId, address, products, totalAmount, deliveryDate } = req.body;
+    console.log("Authenticated user:", req.user);
+    const userId = req.user && req.user._id ? req.user._id.toString() : undefined;
+    const { address, products, totalAmount, deliveryDate } = req.body;
 
-    if (!userId ) {
+    if (!userId) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required user field" });
     }
 
-    if (!address ) {
+    if (!address) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required address field" });

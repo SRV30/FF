@@ -64,7 +64,7 @@ export const getSingleDetail = createAsyncThunk(
         },
       });
 
-      localStorage.setItem("verifyEmail", response.data.data.verifyEmail);
+      localStorage.setItem("verifyEmail", response.data.user.verifyEmail);
 
       return response.data;
     } catch (error) {

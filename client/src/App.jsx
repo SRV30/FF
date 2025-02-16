@@ -21,7 +21,7 @@ import ResetPassword from "./pages/auth-page/ResetPassword";
 import SignUp from "./pages/auth-page/Signup";
 import WhatsAppButton from "./pages/extras/Whatsapp";
 import AdminAddProduct from "./pages/admin/AdminAddProduct";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ProtectedRoute from "./pages/extras/ProtectedRoute";
 import ScrollToTop from "./pages/extras/ScrollToTop";
 import ProductDetails from "./pages/products/SingleProduct";
@@ -33,9 +33,19 @@ import OrderDetails from "./pages/my-profile/OrderDetails";
 import CreateOrder from "./pages/orders/Checkout";
 import PaymentPage from "./pages/orders/OnlinePaymentPage";
 import ProductUpdatePage from "./pages/admin/AdminUpdateProduct";
+import { useEffect } from "react";
+import { getCartItems } from "./store/add-to-cart/addToCart";
+import { getWishListItems } from "./store/add-to-wishList/addToWishList";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getCartItems());
+    dispatch(getWishListItems());
+  }, [dispatch]);
 
   return (
     <div className="flex flex-col bg-white dark:bg-black text-black dark:text-white">

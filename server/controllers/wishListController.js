@@ -5,7 +5,7 @@ import UserModel from "../models/userModel.js";
 export const addToWishListItemController = catchAsyncErrors(
   async (req, res) => {
     try {
-      const userId = req.user;
+      const userId = req.user._id;
       const { productId } = req.body;
 
       if (!productId) {
@@ -29,7 +29,6 @@ export const addToWishListItemController = catchAsyncErrors(
         });
       }
 
-      // Creating a new wishlist entry
       const newWishListItem = new wishListProductModel({
         productId,
         userId,
@@ -37,7 +36,6 @@ export const addToWishListItemController = catchAsyncErrors(
 
       const savedWishListItem = await newWishListItem.save();
 
-      // Updating user's wishlist array
       const updateWishListUser = await UserModel.updateOne(
         { _id: userId },
         { $addToSet: { shopping_WishList: productId } }
@@ -70,7 +68,7 @@ export const addToWishListItemController = catchAsyncErrors(
 
 export const getWishListItemController = catchAsyncErrors(async (req, res) => {
   try {
-    const userId = req.user;
+    const userId = req.user._id;
 
     const WishListItems = await wishListProductModel
       .find({
@@ -103,7 +101,7 @@ export const getWishListItemController = catchAsyncErrors(async (req, res) => {
 export const updateWishListItemQtyController = catchAsyncErrors(
   async (req, res) => {
     try {
-      const userId = req.user;
+      const userId = req.user._id;
       const { _id, qty } = req.body;
 
       if (!_id || !qty) {
@@ -152,7 +150,7 @@ export const updateWishListItemQtyController = catchAsyncErrors(
 export const deleteWishListItemQtyController = catchAsyncErrors(
   async (req, res) => {
     try {
-      const userId = req.user;
+      const userId = req.user._id;
       const { _id } = req.body;
 
       if (!_id) {

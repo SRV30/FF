@@ -5,10 +5,16 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async (productId, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.post(
         "/api/cart/create",
         { productId },
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
       );
       return response.data;
     } catch (error) {
@@ -23,7 +29,12 @@ export const getCartItems = createAsyncThunk(
   "cart/getCartItems",
   async (_, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.get("/api/cart/get", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+
         withCredentials: true,
       });
       return response.data;
@@ -39,10 +50,16 @@ export const updateCartItemQty = createAsyncThunk(
   "cart/updateCartItemQty",
   async ({ _id, qty }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.put(
         "/api/cart/update",
         { _id, qty },
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
       );
       return response.data;
     } catch (error) {
@@ -57,9 +74,14 @@ export const deleteCartItem = createAsyncThunk(
   "cart/deleteCartItem",
   async (_id, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.delete("/api/cart/delete", {
         data: { _id },
         withCredentials: true,
+
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       return response.data;
     } catch (error) {
@@ -71,6 +93,8 @@ export const deleteCartItem = createAsyncThunk(
 );
 
 const calculateFinalTotal = (cartItems) => {
+  if (!Array.isArray(cartItems)) return 0;
+
   const totalPrice = cartItems.reduce(
     (total, item) => total + (item.productId?.price || 0) * item.quantity,
     0
@@ -80,12 +104,12 @@ const calculateFinalTotal = (cartItems) => {
     (total, item) =>
       total +
       ((item.productId?.price * (item.productId?.discount || 0)) / 100) *
-        item.quantity, // Fixed parentheses
+        item.quantity,
     0
   );
 
   const shipping =
-    totalPrice <= 500 ? 100 : totalPrice > 500 && totalPrice <= 1000 ? 50 : 0;
+    totalPrice <= 500 ? 1 : totalPrice > 500 && totalPrice <= 1000 ? 50 : 0;
 
   return totalPrice - totalDiscount + shipping;
 };

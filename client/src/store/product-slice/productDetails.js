@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@/api";
 
-// ✅ Fetch Product Details
 export const getProductDetails = createAsyncThunk(
   "product/getDetails",
   async (productId, { rejectWithValue }) => {
@@ -16,7 +15,6 @@ export const getProductDetails = createAsyncThunk(
   }
 );
 
-// ✅ Fetch Reviews
 export const getProductReviews = createAsyncThunk(
   "product/getReviews",
   async (productId, { rejectWithValue }) => {
@@ -33,14 +31,19 @@ export const getProductReviews = createAsyncThunk(
   }
 );
 
-// ✅ Post Review
 export const postReview = createAsyncThunk(
   "product/postReview",
   async ({ productId, reviewData }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.post(
         `/api/product/review/${productId}`,
-        reviewData
+        reviewData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -55,8 +58,14 @@ export const deleteReview = createAsyncThunk(
   "product/deleteReview",
   async ({ productId, reviewId }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.delete(
-        `/api/product/review/${productId}/${reviewId}`
+        `/api/product/review/${productId}/${reviewId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       console.log(response.data);
       return { productId, reviewId };
@@ -70,12 +79,10 @@ export const deleteReview = createAsyncThunk(
 
 export const getSimilarProducts = createAsyncThunk(
   "product/getSimilar",
-  async (category, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(
-        `/api/product/category/${category}`
-      );
-      return response.data.products;
+      const response = await axiosInstance.get("/api/product/similar");
+      return response.data.similarProducts;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch similar products"

@@ -5,7 +5,16 @@ export const createOrder = createAsyncThunk(
   "order/createOrder",
   async (orderData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/api/order/create", orderData);
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.post(
+        "/api/order/create",
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -17,7 +26,12 @@ export const getSingleOrder = createAsyncThunk(
   "order/getSingleOrder",
   async (orderId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/api/order/get/${orderId}`);
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.get(`/api/order/get/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -29,7 +43,12 @@ export const myOrders = createAsyncThunk(
   "order/myOrders",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/api/order/myorder");
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.get("/api/order/myorder", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -41,8 +60,13 @@ export const cancelOrder = createAsyncThunk(
   "order/cancelOrder",
   async (orderId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/api/order/cancel/${orderId}`);
-      return response.data; // Ensure this returns the updated order
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.put(`/api/order/cancel/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -53,8 +77,14 @@ export const deleteOrder = createAsyncThunk(
   "order/deleteOrder",
   async (orderId, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axiosInstance.delete(
-        `/api/order/delete/${orderId}`
+        `/api/order/delete/${orderId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {

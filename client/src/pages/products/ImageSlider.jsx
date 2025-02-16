@@ -1,4 +1,4 @@
-import PropTypes from "prop-types"; // ✅ Import PropTypes
+import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
@@ -54,10 +54,12 @@ const ImageSlider = ({ images }) => {
             >
               <img
                 src={image}
-                alt={`Product showcase ${index + 1} - High quality product visual`}
-                className="w-full h-auto rounded-lg object-cover"
+                alt={`Product showcase ${
+                  index + 1
+                } - High quality product visual`}
+                className="w-full h-120 rounded-lg object-fit"
                 loading="lazy"
-                width={800}
+                width={1000}
                 height={450}
                 onError={(e) => (e.target.src = "/fallback-image.jpg")}
               />
@@ -69,7 +71,6 @@ const ImageSlider = ({ images }) => {
     </motion.div>
   );
 };
-
 
 ImageSlider.propTypes = {
   images: PropTypes.arrayOf(PropTypes.string).isRequired,

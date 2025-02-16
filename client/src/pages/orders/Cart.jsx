@@ -17,7 +17,7 @@ const Cart = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { cartItems, loading, error } = useSelector((state) => state.cart);
+  const { cartItems = [], loading, error } = useSelector((state) => state.cart);
 
   const { discounts } = useSelector((state) => state.discount);
 
@@ -121,7 +121,7 @@ const Cart = () => {
                 >
                   <div className="flex items-center gap-4 flex-1">
                     <img
-                      src={item.productId.images[0]?.url}
+                      src={item.productId.images[0].url}
                       alt={item.productId.name}
                       className="w-20 h-20 object-cover rounded-md"
                     />
