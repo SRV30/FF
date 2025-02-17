@@ -26,15 +26,9 @@ export const verifyPayment = createAsyncThunk(
   "order/verifyPayment",
   async (paymentData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token");
       const { data } = await axiosInstance.post(
         "/api/payment/razorpay/verify",
         paymentData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
       );
       return data;
     } catch (error) {
@@ -62,7 +56,7 @@ const onlineSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Handle Order Creation
+
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -76,7 +70,7 @@ const onlineSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Handle Payment Verification
+
       .addCase(verifyPayment.pending, (state) => {
         state.loading = true;
         state.error = null;

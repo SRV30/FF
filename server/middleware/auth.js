@@ -5,7 +5,9 @@ const auth = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    return res.json({ success: false, message: "Please login again" });
+    return res
+      .status(401)
+      .json({ success: false, message: "Please login again" });
   }
 
   try {
@@ -15,11 +17,23 @@ const auth = async (req, res, next) => {
     if (!req.user) {
       return res.status(404).json({ message: "User not found" });
     }
-    
+
     next();
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message });
+    if (error.name === "JsonWebTokenError") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Malformed token" });
+    }
+
+    if (error.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ success: false, message: "Token expired, please login again" });
+    }
+
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

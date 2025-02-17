@@ -1,7 +1,5 @@
-// src/components/AdminOrdersPage.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 import {
@@ -17,6 +15,7 @@ import {
   getAllOrders,
   updateOrderStatus,
 } from "@/store/order-slice/AdminOrderSlice";
+import { Link } from "react-router-dom";
 
 const AdminOrdersPage = () => {
   const dispatch = useDispatch();
@@ -33,7 +32,6 @@ const AdminOrdersPage = () => {
     dispatch(getAllOrders());
   }, [dispatch]);
 
-  // Update Order Dialog handlers
   const handleUpdateClick = (order) => {
     setSelectedOrder(order);
     setUpdateStatus(order.orderStatus);
@@ -55,7 +53,6 @@ const AdminOrdersPage = () => {
     }
   };
 
-  // Delete Order Dialog handlers
   const handleDeleteClick = (orderId) => {
     setDeleteOrderId(orderId);
     setOpenDeleteDialog(true);
@@ -101,6 +98,7 @@ const AdminOrdersPage = () => {
                 <th className="p-4 text-left">Date</th>
                 <th className="p-4 text-left">Status</th>
                 <th className="p-4 text-left">Total</th>
+                <th className="p-4 text-center">View</th>
                 <th className="p-4 text-center">Actions</th>
               </tr>
             </thead>
@@ -118,10 +116,9 @@ const AdminOrdersPage = () => {
                       {order._id}
                     </td>
                     <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
-                      {order.user?.name} <br />
-                      <span className="text-xs text-gray-500">
-                        {order.user?.email}
-                      </span>
+                      {order.user?.name}
+                      <br />
+                      {order.user?.email}
                     </td>
                     <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
                       {order.paymentMethod}
@@ -142,6 +139,14 @@ const AdminOrdersPage = () => {
                     </td>
                     <td className="p-4 text-sm text-green-600 font-bold">
                       ₹{order.totalAmount.toFixed(2)}
+                    </td>
+                    <td className="p-4 text-sm text-green-600 font-bold">
+                    <Link
+                      to={`/order/${order._id}`}
+                      className="text-blue-500 hover:underline"
+                    >
+                      View Details
+                    </Link>
                     </td>
                     <td className="p-4 text-center space-x-2">
                       <button
@@ -165,7 +170,6 @@ const AdminOrdersPage = () => {
         </div>
       )}
 
-      {/* Update Order Status Dialog */}
       <Dialog
         open={openUpdateDialog}
         onClose={() => setOpenUpdateDialog(false)}
@@ -226,7 +230,6 @@ const AdminOrdersPage = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}

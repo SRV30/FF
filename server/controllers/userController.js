@@ -516,7 +516,10 @@ export const getUserDetails = catchAsyncErrors(async (req, res) => {
   try {
     console.log("Checking User model:", UserModel);
 
-    const user = await UserModel.findById(req.user.id);
+    console.log('User ID:', req.user?._id);
+
+
+    const user = await UserModel.findById(req.user._id);
 
     if (!user) {
       return res.status(404).json({

@@ -30,7 +30,7 @@ export const getWishListItems = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axiosInstance.get("/api/wishList/get", {
+      const response = await axiosInstance.get("/api/wishlist/get", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

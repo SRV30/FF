@@ -79,8 +79,8 @@ const PaymentPage = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: "INR",
-        name: "Faith & Fast",
-        description: "Purchase",
+        name: "Faith AND Fast",
+        description: "Online clothing Store",
         image:
           "https://res.cloudinary.com/dngcas6v3/image/upload/v1739307851/Faith___Fast__square_shape_pgoni3.png",
         order_id: order.id,
@@ -104,7 +104,7 @@ const PaymentPage = () => {
       const razor = new window.Razorpay(options);
       razor.open();
     } else {
-      alert("Razorpay SDK failed to load. Please check your connection.");
+      console.log("Razorpay SDK failed to load. Please check your connection.");
     }
   }, [order, orderId, dispatch, user]);
 

@@ -39,6 +39,9 @@ const MyProfile = () => {
     visible: { y: 0, opacity: 1 },
   };
 
+  console.log("User data from Redux:", user);
+
+
   return (
     <motion.div
       className="min-h-screen p-4 transition-all bg-white dark:bg-gray-900 text-white dark:text-black"

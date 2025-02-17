@@ -16,8 +16,8 @@ export default function Header() {
   const location = useLocation();
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.cart);
-  const { WishListItems } = useSelector((state) => state.wishList);
+  const { cartItems = []} = useSelector((state) => state.cart);
+  const { WishListItems = []} = useSelector((state) => state.wishList);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

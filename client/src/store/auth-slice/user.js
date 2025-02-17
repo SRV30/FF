@@ -63,8 +63,7 @@ export const getSingleDetail = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
-
-      localStorage.setItem("verifyEmail", response.data.user.verifyEmail);
+      console.log("API Response:", response.data);
 
       return response.data;
     } catch (error) {
@@ -81,6 +80,10 @@ export const updateProfile = createAsyncThunk(
   "auth/updateProfile",
   async (formData, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return rejectWithValue("User is not authenticated");
+      }
       const response = await axiosInstance.put(
         "/api/user/update-user",
         formData,
@@ -90,13 +93,19 @@ export const updateProfile = createAsyncThunk(
           },
         }
       );
-      const { token, user } = response.data || {};
 
-      if (token && user) {
+      const { token: newToken, user } = response.data || {};
+
+      if (user) {
         localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("token", token);
       }
-      return { token, user };
+      if (newToken) {
+        localStorage.setItem("token", newToken);
+      }
+
+      console.log("Response Data:", response.data);
+
+      return { token: newToken, user };
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Profile update failed!" }
@@ -327,8 +336,7 @@ const authSlice = createSlice({
       })
       .addCase(getSingleDetail.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
-        state.verifyEmail = action.payload.verifyEmail;
+        state.user = action.payload.user;
       })
       .addCase(getSingleDetail.rejected, (state, action) => {
         state.loading = false;
