@@ -224,7 +224,17 @@ const ProductDetails = ({ products }) => {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Category */}
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-center gap-2"
+                >
+                  <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                    Product Id:
+                  </span>
+                  <span className="text-lg font-semibold text-gray-700 dark:text-gray-400">
+                    F-{product?._id}
+                  </span>
+                </motion.div>
                 <motion.div
                   variants={itemVariants}
                   className="flex items-center gap-2"
