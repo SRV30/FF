@@ -40,11 +40,17 @@ export const signupUser = createAsyncThunk(
   "auth/signupUser",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/api/user/register", userData);
-      const { token, user } = response.data;
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", token);
-      return { token, user };
+      const response = await axiosInstance.post("/api/user/register", userData,  {
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+      if (!response.data || !response.data.token || !response.data.user) {
+        throw new Error("Invalid response from server");
+      }
+
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Signup failed!" }
@@ -309,6 +315,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.token = null;
         state.verifyEmail = false;
+        localStorage.removeItem("verifyEmail");
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;

@@ -3,10 +3,11 @@ import { userAddress } from "@/store/address-slice/addressSlice";
 import { getSingleDetail } from "@/store/auth-slice/user";
 import { createOrder } from "@/store/order-slice/order";
 import { getProducts } from "@/store/product-slice/productSlice";
+import { CircularProgress } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const CreateOrder = () => {
@@ -23,7 +24,6 @@ const CreateOrder = () => {
   const {
     cartItems,
     loading: cartLoading,
-    finalTotal,
   } = useSelector((state) => state.cart);
   const { loading: orderLoading, error } = useSelector((state) => state.order);
 
@@ -118,7 +118,7 @@ const CreateOrder = () => {
   };
 
   if (productLoading || orderLoading || authLoading || cartLoading) {
-    return <p>Loading...</p>;
+    return <CircularProgress className="mt-10 items-center justify-center"/>;
   }
 
   const handleURLChange = (event) => {
@@ -145,9 +145,12 @@ const CreateOrder = () => {
           </label>
 
           {address.length === 0 ? (
+            <>
             <p className="text-red-500">
               No addresses available. Please add an address to continue.
             </p>
+            <Link to="/saved-address"><button className="bg-yellow-500 hover:bg-yellow-700 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Add Address</button></Link>
+            </>
           ) : (
             address.map((addr) => (
               <motion.div

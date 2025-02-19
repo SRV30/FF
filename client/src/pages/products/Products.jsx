@@ -168,26 +168,18 @@ const Products = () => {
             )}
           </div>
         </motion.div>
+        <br />
 
         {/* Mobile Filters Button */}
         <div className="md:hidden mb-6 flex justify-between items-center">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsFiltersOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg"
+            className="flex items-center gap-2 px-4 py-2 bg-yellow-500 dark:bg-red-600 text-white rounded-lg cursor-pointer"
           >
             <Search className="w-4 h-4" />
             Filters
           </motion.button>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
-          >
-            <option value="relevant">Sort by: Relevant</option>
-            <option value="price-low-high">Price: Low to High</option>
-            <option value="price-high-low">Price: High to Low</option>
-          </select>
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
@@ -205,7 +197,7 @@ const Products = () => {
                   <h2 className="text-2xl font-bold">Filters</h2>
                   <button
                     onClick={() => setIsFiltersOpen(false)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full cursor-pointer"
                   >
                     <X className="w-6 h-6" />
                   </button>
@@ -223,7 +215,7 @@ const Products = () => {
                       onChange={(e) =>
                         setPriceRange([0, Number(e.target.value)])
                       }
-                      className="w-full"
+                      className="w-full cursor-pointer"
                     />
                     <div className="flex justify-between text-gray-600 dark:text-gray-400 mt-2">
                       <span>₹0</span>
@@ -394,7 +386,7 @@ const Products = () => {
 
             <motion.div
               layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             >
               {shuffledProducts.map((item) => (
                 <motion.div

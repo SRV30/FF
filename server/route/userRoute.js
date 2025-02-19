@@ -24,9 +24,9 @@ const userRouter = express.Router();
 
 userRouter.post("/register", registerUser);
 
-userRouter.post("/verify-email", auth, verifyEmailOtp);
+userRouter.post("/verify-email", verifyEmailOtp);
 
-userRouter.post("/resend-otp", auth, verifyEmailOtp);
+userRouter.post("/resend-otp", verifyEmailOtp);
 
 userRouter.post("/login", loginUser);
 

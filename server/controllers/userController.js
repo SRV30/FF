@@ -30,9 +30,6 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const salt = await bcryptjs.genSalt(10);
-    const hashPassword = await bcryptjs.hash(password, salt);
-
     const otp = generatedOtp();
     const otpExpiry = new Date();
     otpExpiry.setMinutes(otpExpiry.getMinutes() + 15);
@@ -54,10 +51,11 @@ export const registerUser = catchAsyncErrors(async (req, res) => {
     const newUser = new UserModel({
       name,
       email,
-      password: hashPassword,
+      password,
       verifyEmail: false,
       login_otp: otp,
       login_expiry: otpExpiry,
+      lastLogin: null,
     });
 
     const savedUser = await newUser.save();
@@ -214,7 +212,8 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  const user = await UserModel.findOne({ email });
+  const user = await UserModel.findOne({ email }).select("+password");
+  console.log("User Found:", user);
 
   if (!user) {
     return res.status(400).json({
@@ -232,7 +231,7 @@ export const loginUser = catchAsyncErrors(async (req, res) => {
     });
   }
 
-  const checkPassword = await bcryptjs.compare(password, user.password);
+  const checkPassword = await user.comparePassword(password);
 
   if (!checkPassword) {
     return res.status(400).json({
@@ -516,8 +515,7 @@ export const getUserDetails = catchAsyncErrors(async (req, res) => {
   try {
     console.log("Checking User model:", UserModel);
 
-    console.log('User ID:', req.user?._id);
-
+    console.log("User ID:", req.user?._id);
 
     const user = await UserModel.findById(req.user._id);
 

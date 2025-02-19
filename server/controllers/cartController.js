@@ -15,18 +15,18 @@ export const addToCartItemController = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    const checkItemCart = await CartProductModel.findOne({
-      userId: userId,
-      productId: productId,
-    });
+    // const checkItemCart = await CartProductModel.findOne({
+    //   userId: userId,
+    //   productId: productId,
+    // });
 
-    if (checkItemCart) {
-      return res.status(400).json({
-        message: "Item already in cart",
-        error: true,
-        success: false,
-      });
-    }
+    // if (checkItemCart) {
+    //   return res.status(400).json({
+    //     message: "Item already in cart",
+    //     error: true,
+    //     success: false,
+    //   });
+    // }
 
     const cartItem = new CartProductModel({
       quantity: 1,
