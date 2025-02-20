@@ -96,9 +96,7 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
-    deliveryDate: {
-      type: Date,
-    },
+    deliveryDate: { type: String, default: "To be delivered" },
     trackingId: {
       type: String,
       default: "",

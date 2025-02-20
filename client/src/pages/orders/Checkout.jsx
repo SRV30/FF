@@ -33,9 +33,7 @@ const CreateOrder = () => {
     totalAmount: 0,
   });
 
-  const calculateShipping = (total) => {
-    if (total <= 500) return 100;
-    if (total > 500 && total <= 1000) return 50;
+  const calculateShipping = () => {
     return 0;
   };
 

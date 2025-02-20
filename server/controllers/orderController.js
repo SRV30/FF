@@ -18,7 +18,6 @@ export const createOrder = catchAsyncErrors(async (req, res) => {
       paymentMethod,
       orderStatus: "PENDING",
       paymentStatus: "PENDING",
-      deliveryDate: new Date(),
     });
 
     await newOrder.save();
@@ -151,15 +150,12 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
       });
     }
 
-    if (order.orderStatus === orderStatus) {
-      return res.status(400).json({
-        success: false,
-        message: `Order is already ${orderStatus}`,
-      });
-    }
-
     order.orderStatus = orderStatus;
     if (trackingId) order.trackingId = trackingId;
+
+    if (orderStatus === "DELIVERED") {
+      order.deliveryDate = new Date();
+    }
 
     order.orderHistory.push({
       status: orderStatus,
@@ -169,7 +165,6 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
     });
 
     if (orderStatus === "DELIVERED") {
-      // Instead of using item.product._id, pass item.product directly
       for (const item of order.products) {
         await updateStock(item.product, item.quantity);
       }

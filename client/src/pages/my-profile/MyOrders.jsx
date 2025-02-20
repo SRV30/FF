@@ -34,7 +34,9 @@ const MyOrders = () => {
       {loading ? (
         <CircularProgress />
       ) : error ? (
-        <Alert severity="error">{typeof error === "string" ? error : "No Orders Available"}</Alert>
+        <Alert severity="error">
+          {typeof error === "string" ? error : "No Orders Available"}
+        </Alert>
       ) : Array.isArray(orders) && orders.length === 0 ? (
         <Alert severity="info">No orders found</Alert>
       ) : Array.isArray(orders) ? (
@@ -43,7 +45,8 @@ const MyOrders = () => {
             <thead>
               <tr className="bg-gray-100">
                 <th className="py-2 px-4 border">Order ID</th>
-                <th className="py-2 px-4 border">Date</th>
+                <th className="py-2 px-4 border">Date of Order</th>
+                <th className="py-2 px-4 border">Delivery Date</th>
                 <th className="py-2 px-4 border">Total</th>
                 <th className="py-2 px-4 border">Status</th>
                 <th className="py-2 px-4 border">Actions</th>
@@ -55,6 +58,12 @@ const MyOrders = () => {
                   <td className="py-2 px-4 border">{order._id}</td>
                   <td className="py-2 px-4 border">
                     {new Date(order.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="py-2 px-4 border">
+                    {order.deliveryDate &&
+                    order.deliveryDate !== "To be delivered"
+                      ? new Date(order.deliveryDate).toLocaleDateString()
+                      : "To be delivered"}
                   </td>
                   <td className="py-2 px-4 border">₹{order.totalAmount}</td>
                   <td className="py-2 px-4 border">

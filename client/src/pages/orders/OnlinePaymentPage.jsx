@@ -57,8 +57,7 @@ const PaymentPage = () => {
         selectedColor: item.selectedColor,
         selectedSize: item.selectedSize,
       })),
-      totalAmount: finalTotal,
-      deliveryDate: new Date().toISOString().split("T")[0],
+      totalAmount: finalTotal.toFixed(2),
     };
 
     console.log("Creating Order with data:", orderData);
@@ -144,7 +143,7 @@ const PaymentPage = () => {
                 name="addressId"
                 value={addr._id}
                 onChange={handleAddressChange}
-                className="mr-4 rounded-full border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                className="mr-4 rounded-full border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-yellow-500"
                 required
               />
               <div className="flex-1">
@@ -167,7 +166,7 @@ const PaymentPage = () => {
         className="mt-4 px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600"
         disabled={loading}
       >
-        {loading ? "Processing..." : `Pay ₹${finalTotal}`}
+        {loading ? "Processing..." : `Pay ₹${finalTotal.toFixed(2)}`}
       </button>
     </div>
   );

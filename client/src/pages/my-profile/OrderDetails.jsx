@@ -65,7 +65,7 @@ const OrderDetails = () => {
           </div>
 
           <p className="text-gray-700">
-            <strong>Date:</strong>{" "}
+            <strong>Date of Order:</strong>{" "}
             {new Date(order.createdAt).toLocaleDateString()}
           </p>
           <p className="text-gray-700">
@@ -73,6 +73,16 @@ const OrderDetails = () => {
           </p>
           <p className="text-gray-700">
             <strong>Payment Method:</strong> {order.paymentMethod}
+          </p>
+
+          <p className="text-gray-700">
+            <strong>Tracking Id:</strong> {order.trackingId || "N/A"}
+          </p>
+          <p className="text-gray-700">
+            <strong>Delivery Date:</strong>{" "}
+            {order.deliveryDate && order.deliveryDate !== "To be delivered"
+              ? new Date(order.deliveryDate).toLocaleDateString()
+              : "To be delivered"}
           </p>
 
           <motion.div
@@ -92,9 +102,7 @@ const OrderDetails = () => {
                 <p className="text-sm">{order.address.address_line}</p>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm text-gray-600">
-                  City:
-                </span>
+                <span className="font-medium text-sm text-gray-600">City:</span>
                 <p className="text-sm">{order.address.city}</p>
               </div>
               <div className="flex items-center space-x-2">

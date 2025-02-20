@@ -59,9 +59,7 @@ const Cart = () => {
   );
 
   const shipping = () => {
-    if (totalPrice <= 500) return 100;
-    else if (totalPrice > 500 && totalPrice <= 1000) return 50;
-    else return 0;
+    return 0;
   };
 
   const finalTotal = () => {
@@ -218,9 +216,7 @@ const Cart = () => {
                 <div className="flex justify-between">
                   <p className="text-gray-600 dark:text-gray-400">Shipping</p>
                   <p className="text-gray-800 dark:text-white font-medium">
-                    {shipping() === 0
-                      ? "Free Shipping"
-                      : `₹${shipping().toFixed(2)}`}
+                    Free Shipping
                   </p>
                 </div>
 

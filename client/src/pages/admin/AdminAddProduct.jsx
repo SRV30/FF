@@ -92,7 +92,25 @@ const AdminAddProduct = () => {
     "Maternity Sizes",
   ];
 
-  const sizeOptionss = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "4XL", "5XL"];
+  const sizeOptionss = [
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "XXXL",
+    "4XL",
+    "5XL",
+    "28",
+    "30",
+    "32",
+    "34",
+    "36",
+    "38",
+    "40",
+    "42",
+  ];
 
   const [productData, setProductData] = useState({
     name: "",

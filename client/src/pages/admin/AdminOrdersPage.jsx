@@ -95,7 +95,8 @@ const AdminOrdersPage = () => {
                 <th className="p-4 text-left">Order ID</th>
                 <th className="p-4 text-left">User</th>
                 <th className="p-4 text-left">Payment</th>
-                <th className="p-4 text-left">Date</th>
+                <th className="p-4 text-left">Date of order</th>
+                <th className="p-4 text-left">Delivery Date</th>
                 <th className="p-4 text-left">Status</th>
                 <th className="p-4 text-left">Total</th>
                 <th className="p-4 text-center">View</th>
@@ -133,6 +134,12 @@ const AdminOrdersPage = () => {
                         hour12: true,
                       })}
                     </td>
+                    <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
+                      {order.deliveryDate &&
+                      order.deliveryDate !== "To be delivered"
+                        ? new Date(order.deliveryDate).toLocaleDateString()
+                        : "To be delivered"}
+                    </td>
 
                     <td className="p-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
                       {order.orderStatus}
@@ -141,12 +148,12 @@ const AdminOrdersPage = () => {
                       ₹{order.totalAmount.toFixed(2)}
                     </td>
                     <td className="p-4 text-sm text-green-600 font-bold">
-                    <Link
-                      to={`/order/${order._id}`}
-                      className="text-blue-500 hover:underline"
-                    >
-                      View Details
-                    </Link>
+                      <Link
+                        to={`/order/${order._id}`}
+                        className="text-blue-500 hover:underline"
+                      >
+                        View Details
+                      </Link>
                     </td>
                     <td className="p-4 text-center space-x-2">
                       <button
@@ -205,17 +212,6 @@ const AdminOrdersPage = () => {
                   onChange={(e) => setTrackingId(e.target.value)}
                   className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
-              </div>
-              <div>
-                <label className="block text-gray-700 dark:text-gray-300">
-                  Notes
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows="3"
-                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                ></textarea>
               </div>
             </div>
           )}

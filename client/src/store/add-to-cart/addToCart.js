@@ -108,8 +108,7 @@ const calculateFinalTotal = (cartItems) => {
     0
   );
 
-  const shipping =
-    totalPrice <= 500 ? 100 : totalPrice > 500 && totalPrice <= 1000 ? 50 : 0;
+  const shipping = 0;
 
   return totalPrice - totalDiscount + shipping;
 };

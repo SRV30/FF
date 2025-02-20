@@ -40,11 +40,15 @@ export const signupUser = createAsyncThunk(
   "auth/signupUser",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/api/user/register", userData,  {
-        headers: {
+      const response = await axiosInstance.post(
+        "/api/user/register",
+        userData,
+        {
+          headers: {
             "Content-Type": "application/json",
-        },
-    });
+          },
+        }
+      );
 
       if (!response.data || !response.data.token || !response.data.user) {
         throw new Error("Invalid response from server");
@@ -52,9 +56,7 @@ export const signupUser = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data || { message: "Signup failed!" }
-      );
+      return rejectWithValue(error.response?.data);
     }
   }
 );
