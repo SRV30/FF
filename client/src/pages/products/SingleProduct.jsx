@@ -37,7 +37,21 @@ const ProductDetails = ({ products }) => {
   const [selectedSize, setSelectedSize] = useState("");
   const [visibleReviews, setVisibleReviews] = useState([]);
 
-  // Compute visible reviews randomly
+  // Animation variants for container and items
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+  };
+
+  // Fetch random reviews to display
   const getRandomReviews = useCallback(
     (count) => {
       if (!reviews || reviews.length === 0) return [];
@@ -60,6 +74,7 @@ const ProductDetails = ({ products }) => {
     });
   };
 
+  // Fetch product details and reviews on load
   useEffect(() => {
     dispatch(getProductDetails(productId));
     dispatch(getProductReviews(productId));
@@ -71,18 +86,21 @@ const ProductDetails = ({ products }) => {
     }
   }, [dispatch, product]);
 
+  // Merge similar products from store with passed in products prop and randomize
   useEffect(() => {
     const combined = [...(similarProducts || []), ...(products || [])];
     setRandomSimilar(combined.sort(() => Math.random() - 0.5).slice(0, 6));
   }, [similarProducts, products]);
 
-  // Set default selected color and size when product data is available
+  // Set initial selections for color and size
   useEffect(() => {
     if (product) {
-      // If coloroptions is an array, set the first element; if it's a string, split it and take the first option.
       if (product.coloroptions) {
         if (Array.isArray(product.coloroptions)) {
-          if (product.coloroptions.length === 1 && product.coloroptions[0].includes(",")) {
+          if (
+            product.coloroptions.length === 1 &&
+            product.coloroptions[0].includes(",")
+          ) {
             setSelectedColor(product.coloroptions[0].split(",")[0].trim());
           } else {
             setSelectedColor(product.coloroptions[0]);
@@ -93,7 +111,10 @@ const ProductDetails = ({ products }) => {
       }
       if (product.sizeoptions) {
         if (Array.isArray(product.sizeoptions)) {
-          if (product.sizeoptions.length === 1 && product.sizeoptions[0].includes(",")) {
+          if (
+            product.sizeoptions.length === 1 &&
+            product.sizeoptions[0].includes(",")
+          ) {
             setSelectedSize(product.sizeoptions[0].split(",")[0].trim());
           } else {
             setSelectedSize(product.sizeoptions[0]);
@@ -105,7 +126,6 @@ const ProductDetails = ({ products }) => {
     }
   }, [product]);
 
-  // Compute sizeOptions from product data
   let sizeOptions = [];
   if (product?.sizeoptions) {
     if (Array.isArray(product.sizeoptions)) {
@@ -115,21 +135,16 @@ const ProductDetails = ({ products }) => {
           product.sizeoptions[0] &&
           product.sizeoptions[0].includes(",")
         ) {
-          sizeOptions = product.sizeoptions[0]
-            .split(",")
-            .map((s) => s.trim());
+          sizeOptions = product.sizeoptions[0].split(",").map((s) => s.trim());
         } else {
           sizeOptions = product.sizeoptions;
         }
       }
     } else if (typeof product.sizeoptions === "string") {
-      sizeOptions = product.sizeoptions
-        .split(",")
-        .map((s) => s.trim());
+      sizeOptions = product.sizeoptions.split(",").map((s) => s.trim());
     }
   }
 
-  // Compute colorOptions from product data
   let colorOptions = [];
   if (product?.coloroptions) {
     if (Array.isArray(product.coloroptions)) {
@@ -139,20 +154,17 @@ const ProductDetails = ({ products }) => {
           product.coloroptions[0] &&
           product.coloroptions[0].includes(",")
         ) {
-          colorOptions = product.coloroptions[0]
-            .split(",")
-            .map((c) => c.trim());
+          colorOptions = product.coloroptions[0].split(",").map((c) => c.trim());
         } else {
           colorOptions = product.coloroptions;
         }
       }
     } else if (typeof product.coloroptions === "string") {
-      colorOptions = product.coloroptions
-        .split(",")
-        .map((c) => c.trim());
+      colorOptions = product.coloroptions.split(",").map((c) => c.trim());
     }
   }
 
+  // Handle review submission
   const handleReviewSubmit = () => {
     if (!user) {
       return toast.error("Please login to post a review");
@@ -169,23 +181,13 @@ const ProductDetails = ({ products }) => {
         reviewData: { rating, comment: reviewText, name: user.name },
       })
     );
-
     toast.success("Review posted successfully");
     window.location.reload();
     setReviewText("");
     setRating(0);
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 },
-  };
-
+  // Handle adding item to cart
   const handleAddCart = (item) => {
     if (!item) {
       toast.error("Error: Item not found!");
@@ -198,7 +200,6 @@ const ProductDetails = ({ products }) => {
   return (
     <div className="container mx-auto px-4 py-8">
       <MetaData title={product?.name} description={product?.description} />
-
       <AnimatePresence>
         {loading ? (
           <motion.div
@@ -222,60 +223,47 @@ const ProductDetails = ({ products }) => {
             initial="hidden"
             animate="visible"
           >
-            {/* Product Image Slider */}
-            <motion.div variants={itemVariants} className="mb-12">
-              <ImageSlider images={product?.images?.map((img) => img.url)} />
-            </motion.div>
-
-            {/* Product Info */}
+            {/* HERO SECTION */}
             <motion.div
               variants={itemVariants}
-              className="grid md:grid-cols-2 gap-8 mb-16"
+              className="grid md:grid-cols-2 gap-8 mb-16 items-center"
             >
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 text-center">
+              <div className="rounded-lg overflow-hidden shadow-2xl">
+                <ImageSlider images={product?.images?.map((img) => img.url)} />
+              </div>
+              <div className="space-y-6">
                 <motion.h1
-                  initial={{ x: -50 }}
-                  animate={{ x: 0 }}
-                  className="text-4xl font-bold text-gray-800 dark:text-white mb-4 capitalize"
+                  variants={itemVariants}
+                  className="text-4xl font-bold text-gray-800 dark:text-white capitalize"
                 >
                   {product?.name}
                 </motion.h1>
-                <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
-                  {product?.description}
-                </p>
-              </div>
-
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="gap-5">
-                    <span className="text-3xl font-bold text-yellow-500 dark:text-red-600">
-                      ₹
-                      {(
-                        product?.price -
-                        product?.price * (product?.discount / 100)
-                      ).toLocaleString()}{" "}
-                    </span>
-                    <span className="text-2xl font-bold text-gray-500 line-through">
-                      ₹{product?.price?.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <Rating
-                      value={product?.ratings}
-                      readOnly
-                      precision={0.5}
-                      className="mr-2 text-yellow-400"
-                    />
-                    <span className="text-gray-500 dark:text-gray-300">
-                      ({reviews.length} reviews)
-                    </span>
-                  </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-3xl font-bold text-yellow-500 dark:text-red-600">
+                    ₹
+                    {(
+                      product?.price -
+                      product?.price * (product?.discount / 100)
+                    ).toLocaleString()}
+                  </span>
+                  <span className="text-2xl font-bold text-gray-500 line-through">
+                    ₹{product?.price?.toLocaleString()}
+                  </span>
                 </div>
-
-                {/* Render Color Options */}
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold">Select Color</h3>
-                  <div className="flex gap-2 mt-2">
+                <div className="flex items-center gap-2">
+                  <Rating
+                    value={product?.ratings}
+                    readOnly
+                    precision={0.5}
+                    className="mr-2 text-yellow-400"
+                  />
+                  <span className="text-gray-500 dark:text-gray-300">
+                    ({reviews.length} reviews)
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Select Color</h3>
+                  <div className="flex gap-2">
                     {colorOptions.map((color, index) => (
                       <button
                         key={index}
@@ -284,18 +272,16 @@ const ProductDetails = ({ products }) => {
                           selectedColor === color
                             ? "bg-yellow-500 text-white"
                             : "bg-gray-200 text-gray-700"
-                        }`}
+                        } transition-colors duration-200`}
                       >
                         {color}
                       </button>
                     ))}
                   </div>
                 </div>
-
-                {/* Render Size Options */}
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold">Select Size</h3>
-                  <div className="flex gap-2 mt-2">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Select Size</h3>
+                  <div className="flex gap-2">
                     {sizeOptions.map((size, index) => (
                       <button
                         key={index}
@@ -304,21 +290,25 @@ const ProductDetails = ({ products }) => {
                           selectedSize === size
                             ? "bg-yellow-500 text-white"
                             : "bg-gray-200 text-gray-700"
-                        }`}
+                        } transition-colors duration-200`}
                       >
                         {size}
                       </button>
                     ))}
                   </div>
                 </div>
-
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="mt-4"
+                >
                   <Button
                     fullWidth
-                    className="bg-yellow-500 dark:bg-red-600 text-white px-8 py-3 rounded-lg font-medium disabled:opacity-50 gap-5 flex items-center justify-center"
+                    className="bg-yellow-500 dark:bg-red-600 text-white px-8 py-3 rounded-lg font-medium flex items-center justify-center gap-3 disabled:opacity-50"
                     onClick={() => handleAddCart(product)}
                   >
-                    <ShoppingCartIcon className="text-yellow-500 dark:text-red-600 " />
+                    <ShoppingCartIcon className="text-yellow-500 dark:text-red-600" />
                     <span className="font-semibold text-yellow-500 dark:text-red-600">
                       Add to Cart
                     </span>
@@ -327,61 +317,43 @@ const ProductDetails = ({ products }) => {
               </div>
             </motion.div>
 
+            {/* PRODUCT DETAILS SECTION */}
             <motion.div
               variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="mb-16 bg-white dark:bg-gray-900 shadow-lg rounded-2xl p-6"
+              className="mb-16 bg-white dark:bg-gray-900 shadow-xl rounded-2xl p-8"
             >
               <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-6 border-b-2 pb-2">
                 Product Details
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <motion.div variants={itemVariants} className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
-                    Product Id:
+                    Product ID:
                   </span>
                   <span className="text-lg font-semibold text-gray-700 dark:text-gray-400">
                     F-{product?._id}
                   </span>
-                </motion.div>
-                <motion.div variants={itemVariants} className="flex items-center gap-2">
+                </div>
+                <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
                     Category:
                   </span>
                   <span className="text-lg font-semibold text-gray-700 dark:text-gray-400">
                     {product?.category}
                   </span>
-                </motion.div>
-                <motion.div variants={itemVariants} className="flex items-center gap-2">
+                </div>
+                <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
                     Collection:
                   </span>
                   <span className="text-lg font-semibold text-gray-700 dark:text-gray-400">
                     {product?.subcategory}
                   </span>
-                </motion.div>
-                {Array.isArray(product?.color) && product.color.length > 0 && (
-                  <motion.div variants={itemVariants} className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
-                      Color Collection:
-                    </span>
-                    <div className="flex gap-2">
-                      {product.color.map((clr, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 font-semibold shadow-md"
-                        >
-                          {clr}
-                        </span>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
+                </div>
                 {Array.isArray(product?.coloroptions) && product.coloroptions.length > 0 && (
-                  <motion.div variants={itemVariants} className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2">
                     <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
-                      Available Color Options:
+                      Available Colors:
                     </span>
                     <div className="flex gap-2">
                       {product.coloroptions.map((clr, index) => (
@@ -393,12 +365,12 @@ const ProductDetails = ({ products }) => {
                         </span>
                       ))}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
                 {product?.size?.length > 0 && (
-                  <motion.div variants={itemVariants} className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2">
                     <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
-                      All Sizes Collection:
+                      All Sizes:
                     </span>
                     <div className="flex gap-2">
                       {product.size.map((sz, index) => (
@@ -410,12 +382,12 @@ const ProductDetails = ({ products }) => {
                         </span>
                       ))}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
                 {product?.sizeoptions?.length > 0 && (
-                  <motion.div variants={itemVariants} className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2">
                     <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
-                      Available Size Options:
+                      Available Sizes:
                     </span>
                     <div className="flex gap-2">
                       {product.sizeoptions.map((sz, index) => (
@@ -427,11 +399,12 @@ const ProductDetails = ({ products }) => {
                         </span>
                       ))}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
               </div>
             </motion.div>
 
+            {/* REVIEWS SECTION */}
             <motion.section
               variants={itemVariants}
               className="mb-16 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg"
@@ -451,34 +424,26 @@ const ProductDetails = ({ products }) => {
                     >
                       <div className="flex items-center mb-4">
                         <Rating value={review?.rating || 0} readOnly size="small" />
-                        {review?.createdAt ? (
-                          <span className="ml-2 text-gray-500 dark:text-gray-300 text-sm">
-                            {new Date(review.createdAt).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span className="ml-2 text-gray-500 dark:text-gray-300 text-sm">
-                            No date available
-                          </span>
-                        )}
+                        <span className="ml-2 text-gray-500 dark:text-gray-300 text-sm">
+                          {review?.createdAt
+                            ? new Date(review.createdAt).toLocaleDateString()
+                            : "No date available"}
+                        </span>
                       </div>
-                      {review ? (
-                        <span className="ml-2 text-gray-500 dark:text-gray-300 text-sm">
-                          {review.comment}
-                        </span>
-                      ) : (
-                        <span className="ml-2 text-gray-500 dark:text-gray-300 text-sm">
-                          No comment available
-                        </span>
-                      )}
+                      <p className="text-gray-500 dark:text-gray-300 text-sm">
+                        {review?.comment || "No comment available"}
+                      </p>
                     </motion.div>
                   ))
                 ) : (
-                  <p>No reviews available</p>
+                  <p className="text-center text-gray-600 dark:text-gray-300">
+                    No reviews available
+                  </p>
                 )}
                 {visibleReviews.length < reviews.length && (
                   <button
                     onClick={handleShowNext}
-                    className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-lg shadow-md dark:bg-red-600 transition-all duration-300 flex items-center justify-center m-auto"
+                    className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-lg shadow-md dark:bg-red-600 transition-all duration-300 flex items-center justify-center mx-auto"
                   >
                     Show Next Reviews
                   </button>
@@ -514,7 +479,7 @@ const ProductDetails = ({ products }) => {
                     whileTap={{ scale: 0.95 }}
                     onClick={handleReviewSubmit}
                     disabled={reviewPosting}
-                    className="bg-yellow-500 dark:bg-red-600 text-white px-8 py-3 rounded-lg font-medium disabled:opacity-50 item-center justify-center m-auto flex"
+                    className="bg-yellow-500 dark:bg-red-600 text-white px-8 py-3 rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 mx-auto"
                   >
                     {reviewPosting ? "Submitting..." : "Submit Review"}
                   </motion.button>
@@ -522,11 +487,12 @@ const ProductDetails = ({ products }) => {
               </div>
             </motion.section>
 
+            {/* SIMILAR PRODUCTS SECTION */}
             <motion.section variants={itemVariants} className="mb-16">
               <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
                 You Might Also Like
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {randomSimilar.map((prod) => (
                   <motion.div
                     key={prod._id}

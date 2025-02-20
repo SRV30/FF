@@ -41,10 +41,10 @@ const productSchema = new mongoose.Schema(
     subcategory: {
       type: String,
     },
-    color: {
-      type: [String],
-      required: [true, "Please specify the target color for the product"],
-    },
+    // color: {
+    //   type: [String],
+    //   required: [true, "Please specify the target color for the product"],
+    // },
     coloroptions: {
       type: [String],
       default: [],

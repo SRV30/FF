@@ -1,10 +1,72 @@
+import PropTypes from "prop-types";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { FiClock, FiTruck, FiCheckCircle, FiMapPin } from "react-icons/fi";
 import { getSingleOrder } from "@/store/order-slice/order";
 import MetaData from "../extras/MetaData";
 import { Alert, CircularProgress } from "@mui/material";
+import { FaCheck } from "react-icons/fa6";
+
+const statusOrder = ["PENDING", "SHIPPED", "DELIVERED"];
+
+const StatusStep = ({ step, index, currentStatus }) => {
+  const currentIndex = statusOrder.indexOf(currentStatus);
+  const isCompleted = currentIndex >= index;
+
+  return (
+    <div className="flex flex-col items-center flex-1 relative">
+      <motion.div
+        className={`h-14 w-14 rounded-full flex items-center justify-center text-2xl 
+          ${
+            isCompleted
+              ? "bg-gradient-to-br from-green-400 to-blue-500 text-white shadow-lg"
+              : "bg-gray-100 dark:bg-gray-700 text-gray-400"
+          }`}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: index * 0.1, type: "spring" }}
+      >
+        {isCompleted ? (
+          <FaCheck className="text-xl" />
+        ) : index === 0 ? (
+          <FiClock />
+        ) : index === 1 ? (
+          <FiTruck />
+        ) : (
+          <FiCheckCircle />
+        )}
+      </motion.div>
+      <motion.span
+        className={`mt-2 text-sm font-medium ${
+          isCompleted
+            ? "text-green-600 dark:text-green-400"
+            : "text-gray-500 dark:text-gray-300"
+        }`}
+      >
+        {step}
+      </motion.span>
+
+      {index < 2 && (
+        <div className="absolute top-7 left-3/4 w-full h-1 bg-gray-200 dark:bg-gray-600">
+          <motion.div
+            className="h-full bg-gradient-to-r from-green-400 to-blue-500"
+            initial={{ width: 0 }}
+            animate={{ width: isCompleted ? "100%" : "0%" }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+StatusStep.propTypes = {
+  step: PropTypes.string.isRequired,
+  index: PropTypes.number.isRequired,
+  currentStatus: PropTypes.string.isRequired,
+};
 
 const OrderDetails = () => {
   const { Id } = useParams();
@@ -31,32 +93,47 @@ const OrderDetails = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 min-h-screen">
       <MetaData title="Order Details" />
       <motion.h2
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-3xl font-semibold mb-4 text-center"
+        className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent"
       >
         Order Details
       </motion.h2>
 
       {loading ? (
-        <CircularProgress />
+        <div className="text-center">
+          <CircularProgress />
+        </div>
       ) : error ? (
-        <Alert variant="danger">{error}</Alert>
+        <Alert severity="error" className="max-w-2xl mx-auto">
+          {error}
+        </Alert>
       ) : order ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="bg-white shadow-lg rounded-xl p-6 space-y-4 max-w-4xl mx-auto"
+          className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8 space-y-6 max-w-4xl mx-auto"
         >
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Order ID: {order._id}</h3>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Order ID: <span className="font-mono">{order._id}</span>
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mt-1">
+                {new Date(order.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+            </div>
             <span
-              className={`px-3 py-1 rounded-lg text-sm font-semibold ${handleStatus(
+              className={`px-4 py-2 rounded-full text-sm ${handleStatus(
                 order.orderStatus
               )}`}
             >
@@ -64,112 +141,126 @@ const OrderDetails = () => {
             </span>
           </div>
 
-          <p className="text-gray-700">
-            <strong>Date of Order:</strong>{" "}
-            {new Date(order.createdAt).toLocaleDateString()}
-          </p>
-          <p className="text-gray-700">
-            <strong>Total Amount:</strong> ₹{order.totalAmount}
-          </p>
-          <p className="text-gray-700">
-            <strong>Payment Method:</strong> {order.paymentMethod}
-          </p>
-
-          <p className="text-gray-700">
-            <strong>Tracking Id:</strong> {order.trackingId || "N/A"}
-          </p>
-          <p className="text-gray-700">
-            <strong>Delivery Date:</strong>{" "}
-            {order.deliveryDate && order.deliveryDate !== "To be delivered"
-              ? new Date(order.deliveryDate).toLocaleDateString()
-              : "To be delivered"}
-          </p>
-
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="bg-white p-6 rounded-lg shadow-lg border border-gray-200"
-          >
-            <h4 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-              Shipping Address
-            </h4>
-            <div className="space-y-3 text-gray-700">
-              <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm text-gray-600">
-                  Address:
-                </span>
-                <p className="text-sm">{order.address.address_line}</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm text-gray-600">City:</span>
-                <p className="text-sm">{order.address.city}</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm text-gray-600">
-                  State:
-                </span>
-                <p className="text-sm">{order.address.state}</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm text-gray-600">
-                  Pincode:
-                </span>
-                <p className="text-sm">{order.address.pincode}</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm text-gray-600">
-                  Country:
-                </span>
-                <p className="text-sm">{order.address.country}</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm text-gray-600">
-                  Mobile:
-                </span>
-                <p className="text-sm">{order.address.mobile}</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <h4 className="font-semibold mt-4">Items Ordered</h4>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="divide-y"
-          >
-            {order?.products && order.products.length > 0 ? (
-              order.products.map((item, index) => (
-                <div key={index} className="py-2 flex items-center space-x-4">
-                  <img
-                    src={
-                      item?.product?.images?.[0]?.url || "/default-image.jpg"
-                    }
-                    alt={item?.product?.name || "Product Image"}
-                    className="w-16 h-16 object-cover rounded-md"
+          {["PENDING", "SHIPPED", "DELIVERED"].includes(order.orderStatus) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-6"
+            >
+              <div className="flex justify-between items-center px-4">
+                {statusOrder.map((status, index) => (
+                  <StatusStep
+                    key={status}
+                    step={status}
+                    index={index}
+                    currentStatus={order.orderStatus}
                   />
-                  <div>
-                    <h5 className="font-semibold">
-                      {item?.product?.name || "Product Name"}
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ x: -50 }}
+              animate={{ x: 0 }}
+              className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-sm"
+            >
+              <h4 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-800 dark:text-gray-200">
+                <FiMapPin className="text-blue-500" />
+                Shipping Address
+              </h4>
+              <div className="space-y-3 text-gray-600 dark:text-gray-300">
+                <p>{order.address.address_line}</p>
+                <p>
+                  {order.address.city}, {order.address.state}{" "}
+                  {order.address.pincode}
+                </p>
+                <p>{order.address.country}</p>
+                <p className="mt-4 font-medium">📱 {order.address.mobile}</p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ x: 50 }}
+              animate={{ x: 0 }}
+              className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-sm"
+            >
+              <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+                Payment & Delivery
+              </h4>
+              <div className="space-y-3 text-gray-600 dark:text-gray-300">
+                <p>
+                  <strong>Payment Method:</strong> {order.paymentMethod}
+                </p>
+                <p>
+                  <strong>Total Amount:</strong> ₹{order.totalAmount}
+                </p>
+                <p>
+                  <strong>Tracking ID:</strong>{" "}
+                  {order.trackingId || "Not available yet"}
+                </p>
+                <p>
+                  <strong>Delivery:</strong>{" "}
+                  {order.deliveryDate &&
+                  order.deliveryDate !== "To be delivered"
+                    ? new Date(order.deliveryDate).toLocaleDateString()
+                    : "To be delivered"}
+                </p>
+              </div>
+            </motion.div>
+          </div>
+
+          <div>
+            <h4 className="text-xl font-semibold mb-6 text-gray-800 dark:text-gray-200">
+              Ordered Items
+            </h4>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-4"
+            >
+              {order.products?.map((item, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.02 }}
+                  className="flex items-center bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600"
+                >
+                  <img
+                    src={item.product?.images?.[0]?.url || "/default-image.jpg"}
+                    alt={item.product?.name}
+                    className="w-20 h-20 object-contain rounded-lg"
+                  />
+                  <div className="ml-4 flex-1">
+                    <h5 className="font-semibold text-gray-800 dark:text-gray-200">
+                      {item.product?.name}
                     </h5>
-                    <p className="text-sm text-gray-600">
-                      Quantity: {item?.quantity || 0}
-                    </p>
-                    <div className="mt-1 text-sm text-gray-600">
-                      {item.selectedColor && <p>Color: {item.selectedColor}</p>}
-                      {item.selectedSize && <p>Size: {item.selectedSize}</p>}
+                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-300">
+                      <span>Quantity: {item.quantity}</span>
+                      {item.selectedColor && (
+                        <span className="flex items-center">
+                          Color:{" "}
+                          <span
+                            className="ml-1 w-4 h-4 rounded-full border"
+                            style={{ backgroundColor: item.selectedColor }}
+                          />
+                          {item.selectedColor}
+                        </span>
+                      )}
+                      {item.selectedSize && (
+                        <span>Size: {item.selectedSize}</span>
+                      )}
                     </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500">No products available</p>
-            )}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         </motion.div>
       ) : (
-        <Alert variant="info">Order not found.</Alert>
+        <Alert severity="info" className="max-w-2xl mx-auto">
+          Order not found.
+        </Alert>
       )}
     </div>
   );

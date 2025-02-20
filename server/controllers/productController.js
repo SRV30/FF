@@ -1,7 +1,6 @@
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
 import ProductModel from "../models/productModel.js";
 import { deleteImage, uploadImage } from "../utils/cloudinary.js";
-import ErrorHandler from "../utils/errorHandler.js";
 
 // Admin
 export const createProduct = catchAsyncErrors(async (req, res, next) => {
@@ -10,7 +9,7 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
       name,
       category,
       subcategory,
-      color,
+      // color,
       coloroptions,
       size,
       sizeoptions,
@@ -52,7 +51,7 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
       price,
       category,
       subcategory,
-      color,
+      // color,
       coloroptions,
       size,
       sizeoptions,

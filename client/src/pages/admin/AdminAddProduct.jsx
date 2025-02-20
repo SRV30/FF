@@ -50,17 +50,17 @@ const AdminAddProduct = () => {
     "Sports Shoes",
   ];
 
-  const colors = [
-    "Solid Colors",
-    "Gradient Colors",
-    "Patterned Colors",
-    "Multi-Colored",
-    "Customizable Colors",
-    "Textured Colors",
-    "Limited Edition Colors",
-    "Neon Colors",
-    "Neutral & Earthy Tones",
-  ];
+  // const colors = [
+  //   "Solid Colors",
+  //   "Gradient Colors",
+  //   "Patterned Colors",
+  //   "Multi-Colored",
+  //   "Customizable Colors",
+  //   "Textured Colors",
+  //   "Limited Edition Colors",
+  //   "Neon Colors",
+  //   "Neutral & Earthy Tones",
+  // ];
 
   const colorOptionss = [
     "Red",
@@ -116,7 +116,7 @@ const AdminAddProduct = () => {
     name: "",
     category: "MEN",
     subcategory: "T-Shirts & Polos",
-    color: [],
+    // color: [],
     coloroptions: [],
     size: [],
     sizeoptions: [],
@@ -137,7 +137,7 @@ const AdminAddProduct = () => {
         productData.stock >= 0 &&
         productData.category &&
         productData.subcategory &&
-        productData.color?.length > 0 &&
+        // productData.color?.length > 0 &&
         productData.coloroptions?.length > 0 &&
         productData.size?.length > 0 &&
         productData.sizeoptions?.length > 0 &&
@@ -229,7 +229,6 @@ const AdminAddProduct = () => {
         description: "",
         category: "",
         subcategory: "",
-        color: [],
         coloroptions: [],
         size: [],
         sizeoptions: [],
@@ -379,7 +378,7 @@ const AdminAddProduct = () => {
           </select>
         </div>
 
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 dark:text-white">
             Colors
           </label>
@@ -403,7 +402,7 @@ const AdminAddProduct = () => {
           <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
             Selected: {productData.color.join(", ")}
           </div>
-        </div>
+        </div> */}
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 dark:text-white">
