@@ -58,9 +58,9 @@ const AdminProducts = () => {
       });
   };
 
-  const handleUpdate = (id) => {
-    navigate(`/admin/product/update/${id}`);
-  };
+  // const handleUpdate = (id) => {
+  //   navigate(`/admin/product/update/${id}`);
+  // };
 
   const handleDialogClose = () => {
     setOpenDeleteDialog(false);
@@ -168,13 +168,13 @@ const AdminProducts = () => {
                         </Link>
                       </td>
                       <td className="p-4 text-center">
-                        <Link
+                        {/* <Link
                           to={`/admin/product/update/${prod._id}`}
                           className="text-blue-500 hover:underline mr-4"
                           onClick={() => handleUpdate(prod._id)}
                         >
                           Edit
-                        </Link>
+                        </Link> */}
                         <button
                           onClick={() => handleDeleteDialogOpen(prod._id)}
                           className="text-red-500 hover:underline"

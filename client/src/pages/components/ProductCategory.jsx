@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getProducts } from "@/store/product-slice/productSlice";
 import { toast } from "react-toastify";
-import { addToCart } from "@/store/add-to-cart/addToCart";
 import { addToWishList } from "@/store/add-to-wishList/addToWishList";
 
 const ProductCategory = ({ title, items }) => {
@@ -64,8 +63,8 @@ const ProductCategory = ({ title, items }) => {
   };
 
   const handleAddCart = (item) => {
-    dispatch(addToCart(item._id));
-    toast.success(`Successfully added to cart!`);
+    navigate(`/product/${item._id}`);
+    toast.info("Now you can add to cart");
   };
   const handleAddWishList = (item) => {
     dispatch(addToWishList(item._id));
@@ -120,7 +119,7 @@ const ProductCategory = ({ title, items }) => {
                   onClick={() => navigate(`/product/${item._id}`)}
                   loading="lazy"
                 />
-                <div className="absolute top-2 right-2 flex flex-col gap-2">
+                <div className="absolute top-27 right-2 flex flex-col gap-2">
                   <button
                     className="p-2 bg-white/90 dark:bg-gray-700/90 rounded-full shadow-md hover:scale-110 transition-transform"
                     onClick={() => handleAddWishList(item)}

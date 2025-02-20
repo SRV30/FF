@@ -132,7 +132,8 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
   try {
     const { orderId } = req.params;
     const { orderStatus, trackingId, notes } = req.body;
-    const adminId = req.user._id;
+    const adminId =
+      req.user && req.user._id ? req.user._id.toString() : "Unknown";
 
     const validStatuses = ["PENDING", "SHIPPED", "DELIVERED", "CANCELLED"];
     if (!validStatuses.includes(orderStatus)) {
@@ -168,8 +169,9 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
     });
 
     if (orderStatus === "DELIVERED") {
+      // Instead of using item.product._id, pass item.product directly
       for (const item of order.products) {
-        await updateStock(item.product._id, item.quantity);
+        await updateStock(item.product, item.quantity);
       }
     }
 
@@ -181,6 +183,7 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
       order,
     });
   } catch (error) {
+    console.error("Error updating order status:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",

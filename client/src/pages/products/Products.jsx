@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getProductByFilter } from "@/store/product-slice/productSlice";
 import { Pagination } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { addToCart } from "@/store/add-to-cart/addToCart";
 import { addToWishList } from "@/store/add-to-wishList/addToWishList";
 import { toast } from "react-toastify";
 import categories from "./Categories";
@@ -125,8 +124,8 @@ const Products = () => {
   }, [product]);
 
   const handleAddCart = (item) => {
-    dispatch(addToCart(item._id));
-    toast.success(`Successfully added to cart!`);
+    navigate(`/product/${item._id}`);
+    toast.info("Now you can add to cart");
   };
   const handleAddWishList = (item) => {
     dispatch(addToWishList(item._id));
