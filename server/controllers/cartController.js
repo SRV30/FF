@@ -5,33 +5,22 @@ import UserModel from "../models/userModel.js";
 export const addToCartItemController = catchAsyncErrors(async (req, res) => {
   try {
     const userId = req.user._id;
-    const { productId } = req.body;
+    const { productId, selectedColor, selectedSize } = req.body;
 
-    if (!productId) {
+    if (!productId || !selectedColor || !selectedSize) {
       return res.status(402).json({
-        message: "Please provide productId",
+        message: "Please provide productId, selectedColor, and selectedSize",
         error: true,
         success: false,
       });
     }
 
-    // const checkItemCart = await CartProductModel.findOne({
-    //   userId: userId,
-    //   productId: productId,
-    // });
-
-    // if (checkItemCart) {
-    //   return res.status(400).json({
-    //     message: "Item already in cart",
-    //     error: true,
-    //     success: false,
-    //   });
-    // }
-
     const cartItem = new CartProductModel({
       quantity: 1,
       userId: userId,
       productId: productId,
+      selectedColor,
+      selectedSize,
     });
     const savedCartItem = await cartItem.save();
 

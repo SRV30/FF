@@ -2,11 +2,15 @@ import { razorpayInstance } from "../config/razorpayInstance.js";
 import crypto from "crypto";
 import OrderModel from "../models/orderModel.js";
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
+import generateReceiptHTML from "../utils/generateReceipt.js";
+import UserModel from "../models/userModel.js";
+import sendEmail from "../config/sendEmail.js";
+import ProductModel from "../models/productModel.js";
 
 export const createOrder = catchAsyncErrors(async (req, res) => {
   try {
-    console.log("Authenticated user:", req.user);
-    const userId = req.user && req.user._id ? req.user._id.toString() : undefined;
+    const userId =
+      req.user && req.user._id ? req.user._id.toString() : undefined;
     const { address, products, totalAmount, deliveryDate } = req.body;
 
     if (!userId) {
@@ -52,12 +56,28 @@ export const createOrder = catchAsyncErrors(async (req, res) => {
 
     const razorpayOrder = await razorpayInstance.orders.create(options);
 
+    const populatedOrder = await OrderModel.findById(newOrder._id)
+      .populate("user", "name email")
+      .populate("products.product", "name price images");
+
+    const receiptHTML = generateReceiptHTML(populatedOrder);
+    const foundUser = await UserModel.findById(userId);
+
+    sendEmail({
+      sendTo: foundUser.email,
+      subject: "Order Confirmation",
+      html: receiptHTML,
+    });
+
     newOrder.transactionId = razorpayOrder.id;
     await newOrder.save();
 
     res.status(200).json({
       success: true,
-      order: razorpayOrder,
+      order: {
+        razorpay: razorpayOrder,
+        details: populatedOrder,
+      },
       orderId: newOrder._id,
     });
   } catch (error) {

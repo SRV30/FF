@@ -82,11 +82,7 @@ const generateReceiptHTML = (order) => {
 
           <h3>Order Summary:</h3>
           <table>
-            <tr><th>Total Amount</th><td>${totalAmount}</td></tr>
-            <tr><th>GST</th><td>${gst}</td></tr>
-            <tr><th>Shipping</th><td>${shipping}</td></tr>
-            <tr><th>Total (with GST)</th><td>${totalAmountWithGST}</td></tr>
-            <tr><th>Total (with GST + Shipping)</th><td>${totalAmountWithShipping}</td></tr>
+            <tr><th>Total Amount with Shipping</th><td>${totalAmount}</td></tr>
           </table>
 
           <div class="receipt-footer">

@@ -73,8 +73,6 @@ const AdminAddProduct = () => {
     "Pink",
     "Orange",
     "Rainbow",
-    "Color Block (Red, Blue, Green)",
-    "Neon Mix (Neon Green, Pink)",
     "Beige",
     "Grey",
     "Brown",

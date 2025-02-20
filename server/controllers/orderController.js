@@ -31,7 +31,7 @@ export const createOrder = catchAsyncErrors(async (req, res) => {
     const user = await UserModel.findById(userId);
 
     sendEmail({
-      sendTo: [user.email, "support@faithandfast.com"],
+      sendTo: user.email,
       subject: "Order Confirmation",
       html: receiptHTML,
     });

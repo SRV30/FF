@@ -3,12 +3,12 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async (productId, { rejectWithValue }) => {
+  async ({ productId, selectedColor, selectedSize }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axiosInstance.post(
         "/api/cart/create",
-        { productId },
+        { productId, selectedColor, selectedSize },
         {
           headers: {
             Authorization: `Bearer ${token}`,

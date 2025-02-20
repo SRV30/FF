@@ -18,7 +18,6 @@ const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { cartItems = [], loading, error } = useSelector((state) => state.cart);
-
   const { discounts } = useSelector((state) => state.discount);
 
   useEffect(() => {
@@ -46,12 +45,6 @@ const Cart = () => {
     });
   };
 
-  const shipping = () => {
-    if (totalPrice <= 500) return 100;
-    else if (totalPrice > 500 && totalPrice <= 1000) return 50;
-    else return 0;
-  };
-
   const totalPrice = cartItems.reduce(
     (total, item) => total + (item.productId?.price || 0) * item.quantity,
     0
@@ -65,11 +58,17 @@ const Cart = () => {
     0
   );
 
+  const shipping = () => {
+    if (totalPrice <= 500) return 100;
+    else if (totalPrice > 500 && totalPrice <= 1000) return 50;
+    else return 0;
+  };
+
   const finalTotal = () => {
     const finaltotalprice = totalPrice - totalDiscount;
-
     return finaltotalprice + shipping();
   };
+
   const appliedCouponAmount = () => {
     const total = finalTotal();
     if (discounts?.discountValue) {
@@ -146,6 +145,19 @@ const Cart = () => {
                             (item.productId.discount / 100)
                           ).toFixed(2)}
                         </p>
+                      </div>
+                      {/* Display selected color and size if available */}
+                      <div className="mt-2">
+                        {item.selectedColor && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Color: {item.selectedColor}
+                          </p>
+                        )}
+                        {item.selectedSize && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Size: {item.selectedSize}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

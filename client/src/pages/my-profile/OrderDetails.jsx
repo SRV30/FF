@@ -84,7 +84,6 @@ const OrderDetails = () => {
             <h4 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
               Shipping Address
             </h4>
-
             <div className="space-y-3 text-gray-700">
               <div className="flex items-center space-x-2">
                 <span className="font-medium text-sm text-gray-600">
@@ -93,7 +92,9 @@ const OrderDetails = () => {
                 <p className="text-sm">{order.address.address_line}</p>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm text-gray-600">City:</span>
+                <span className="font-medium text-sm text-gray-600">
+                  City:
+                </span>
                 <p className="text-sm">{order.address.city}</p>
               </div>
               <div className="flex items-center space-x-2">
@@ -122,6 +123,7 @@ const OrderDetails = () => {
               </div>
             </div>
           </motion.div>
+
           <h4 className="font-semibold mt-4">Items Ordered</h4>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -129,12 +131,9 @@ const OrderDetails = () => {
             transition={{ duration: 0.5 }}
             className="divide-y"
           >
-            {order?.products && order?.products.length > 0 ? (
-              order?.products.map((item) => (
-                <div
-                  key={item?.product?._id}
-                  className="py-2 flex items-center space-x-4"
-                >
+            {order?.products && order.products.length > 0 ? (
+              order.products.map((item, index) => (
+                <div key={index} className="py-2 flex items-center space-x-4">
                   <img
                     src={
                       item?.product?.images?.[0]?.url || "/default-image.jpg"
@@ -143,10 +142,16 @@ const OrderDetails = () => {
                     className="w-16 h-16 object-cover rounded-md"
                   />
                   <div>
-                    <h5>{item?.product?.name || "Product Name"}</h5>
+                    <h5 className="font-semibold">
+                      {item?.product?.name || "Product Name"}
+                    </h5>
                     <p className="text-sm text-gray-600">
                       Quantity: {item?.quantity || 0}
                     </p>
+                    <div className="mt-1 text-sm text-gray-600">
+                      {item.selectedColor && <p>Color: {item.selectedColor}</p>}
+                      {item.selectedSize && <p>Size: {item.selectedSize}</p>}
+                    </div>
                   </div>
                 </div>
               ))

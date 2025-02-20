@@ -54,6 +54,8 @@ const PaymentPage = () => {
         price: item.productId.price,
         quantity: item.quantity,
         totalPrice: item.finalTotal,
+        selectedColor: item.selectedColor,
+        selectedSize: item.selectedSize,
       })),
       totalAmount: finalTotal,
       deliveryDate: new Date().toISOString().split("T")[0],

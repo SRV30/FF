@@ -14,6 +14,14 @@ const cartProductSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "User",
     },
+    selectedColor: {
+      type: String,
+      required: true,
+    },
+    selectedSize: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

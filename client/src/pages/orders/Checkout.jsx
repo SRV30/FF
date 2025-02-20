@@ -20,11 +20,9 @@ const CreateOrder = () => {
   const { product: products = [], loading: productLoading } = useSelector(
     (state) => state.product
   );
-
-  const {
-    cartItems,
-    loading: cartLoading,
-  } = useSelector((state) => state.cart);
+  const { cartItems = [], loading: cartLoading } = useSelector(
+    (state) => state.cart
+  );
   const { loading: orderLoading, error } = useSelector((state) => state.order);
 
   const [orderData, setOrderData] = useState({
@@ -59,7 +57,6 @@ const CreateOrder = () => {
 
   useEffect(() => {
     if (cartItems.length > 0 && products.length > 0) {
-      // Calculate product totals properly
       const productTotal = cartItems.reduce((acc, item) => {
         const product = products.find((p) => p._id === item.productId._id);
         return (
@@ -70,7 +67,6 @@ const CreateOrder = () => {
       const shippingCost = calculateShipping(productTotal);
       const subtotal = productTotal + shippingCost;
 
-      // Apply coupon discount if exists
       const finalAmount = discountValue
         ? subtotal * (1 - discountValue / 100)
         : subtotal;
@@ -87,6 +83,8 @@ const CreateOrder = () => {
             item.quantity *
             (1 - product.discount / 100)
           ).toFixed(2),
+          selectedColor: item.selectedColor,
+          selectedSize: item.selectedSize,
         };
       });
 
@@ -118,7 +116,7 @@ const CreateOrder = () => {
   };
 
   if (productLoading || orderLoading || authLoading || cartLoading) {
-    return <CircularProgress className="mt-10 items-center justify-center"/>;
+    return <CircularProgress className="mt-10 items-center justify-center" />;
   }
 
   const handleURLChange = (event) => {
@@ -138,7 +136,6 @@ const CreateOrder = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-2">
-        {/* Address Selection */}
         <div className="container mx-auto p-6">
           <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
             Select Address
@@ -146,10 +143,14 @@ const CreateOrder = () => {
 
           {address.length === 0 ? (
             <>
-            <p className="text-red-500">
-              No addresses available. Please add an address to continue.
-            </p>
-            <Link to="/saved-address"><button className="bg-yellow-500 hover:bg-yellow-700 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Add Address</button></Link>
+              <p className="text-red-500">
+                No addresses available. Please add an address to continue.
+              </p>
+              <Link to="/saved-address">
+                <button className="bg-yellow-500 hover:bg-yellow-700 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                  Add Address
+                </button>
+              </Link>
             </>
           ) : (
             address.map((addr) => (
@@ -182,7 +183,6 @@ const CreateOrder = () => {
           )}
         </div>
 
-        {/* Payment Method */}
         <div className="container mx-auto p-6">
           <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
             Payment Method
@@ -240,12 +240,16 @@ const CreateOrder = () => {
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         Quantity: {item.quantity}
                       </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Color: {item.selectedColor}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Size: {item.selectedSize}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Right: Price & Actions */}
                   <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 sm:mt-0">
-                    {/* Price with discount effect */}
                     <div className="flex flex-col items-center">
                       <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                         ₹
@@ -310,9 +314,9 @@ const CreateOrder = () => {
         <motion.button
           type="submit"
           className="w-full bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-700 focus:outline-none transition-all duration-300 ease-in-out transform dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
-          whileHover={{ scale: 1.05 }} // Animate on hover
-          whileTap={{ scale: 0.98 }} // Animate on tap
-          aria-label="Place Order" // SEO Optimization (Accessible label)
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
+          aria-label="Place Order"
         >
           Place Order
         </motion.button>
