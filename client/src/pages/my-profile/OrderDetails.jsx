@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiClock, FiTruck, FiCheckCircle, FiMapPin } from "react-icons/fi";
 import { cancelOrder, getSingleOrder } from "@/store/order-slice/order";
@@ -246,32 +246,36 @@ const OrderDetails = () => {
                   whileHover={{ scale: 1.02 }}
                   className="flex items-center bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600"
                 >
-                  <img
-                    src={item.product?.images?.[0]?.url || "/default-image.jpg"}
-                    alt={item.product?.name}
-                    className="w-20 h-20 object-contain rounded-lg"
-                  />
-                  <div className="ml-4 flex-1">
-                    <h5 className="font-semibold text-gray-800 dark:text-gray-200">
-                      {item.product?.name}
-                    </h5>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-300">
-                      <span>Quantity: {item.quantity}</span>
-                      {item.selectedColor && (
-                        <span className="flex items-center">
-                          Color:{" "}
-                          <span
-                            className="ml-1 w-4 h-4 rounded-full border"
-                            style={{ backgroundColor: item.selectedColor }}
-                          />
-                          {item.selectedColor}
-                        </span>
-                      )}
-                      {item.selectedSize && (
-                        <span>Size: {item.selectedSize}</span>
-                      )}
+                  <Link to={`/product/${item.product._id}`} className="block">
+                    <img
+                      src={
+                        item.product?.images?.[0]?.url || "/default-image.jpg"
+                      }
+                      alt={item.product?.name}
+                      className="w-20 h-20 object-contain rounded-lg"
+                    />
+                    <div className="ml-4 flex-1">
+                      <h5 className="font-semibold text-gray-800 dark:text-gray-200">
+                        {item.product?.name}
+                      </h5>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-300 flex-wrap">
+                        <span>Quantity: {item.quantity}</span>
+                        {item.selectedColor && (
+                          <span className="flex items-center">
+                            Color:{" "}
+                            <span
+                              className="ml-1 w-4 h-4 rounded-full border"
+                              style={{ backgroundColor: item.selectedColor }}
+                            />
+                            {item.selectedColor}
+                          </span>
+                        )}
+                        {item.selectedSize && (
+                          <span>Size: {item.selectedSize}</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </motion.div>
               ))}
             </motion.div>

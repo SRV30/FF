@@ -17,7 +17,7 @@ export const createOrder = createAsyncThunk(
       );
       return data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || "Order creation failed.");
     }
   }
 );
@@ -26,13 +26,20 @@ export const verifyPayment = createAsyncThunk(
   "order/verifyPayment",
   async (paymentData, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const { data } = await axiosInstance.post(
         "/api/payment/razorpay/verify",
         paymentData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
       return data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || "Payment verification failed.");
     }
   }
 );
@@ -56,21 +63,19 @@ const onlineSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.order = action.payload.order;
-        state.orderId = action.payload.orderId;
+        state.order = action.payload.order || null;
+        state.orderId = action.payload.order?.id || null;
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-
       .addCase(verifyPayment.pending, (state) => {
         state.loading = true;
         state.error = null;

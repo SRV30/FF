@@ -7,6 +7,19 @@ const OrderSuccess = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    window.history.replaceState(null, "", window.location.href);
+
+    const preventBack = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", preventBack);
+
+    return () => {
+      window.removeEventListener("popstate", preventBack);
+    };
   }, []);
 
   return (

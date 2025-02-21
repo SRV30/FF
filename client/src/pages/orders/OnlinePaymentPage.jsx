@@ -45,6 +45,10 @@ const PaymentPage = () => {
       return;
     }
 
+    if (window.navigator.vibrate) {
+      window.navigator.vibrate(100);
+    }
+
     const orderData = {
       userId: user.id,
       address: selectedAddress,
@@ -60,14 +64,11 @@ const PaymentPage = () => {
       totalAmount: finalTotal.toFixed(2),
     };
 
-    console.log("Creating Order with data:", orderData);
     dispatch(createOrder(orderData));
   };
 
   useEffect(() => {
     if (order) {
-      console.log("Received Razorpay order:", order);
-
       const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
       if (!razorpayKey) {
         console.error(
@@ -76,12 +77,17 @@ const PaymentPage = () => {
         return;
       }
 
+      if (!window.Razorpay) {
+        console.error("Razorpay SDK not loaded.");
+        return;
+      }
+
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: razorpayKey,
         amount: order.amount,
         currency: "INR",
         name: "Faith AND Fast",
-        description: "Online clothing Store",
+        description: "Online Clothing Store",
         image:
           "https://res.cloudinary.com/dngcas6v3/image/upload/v1739307851/Faith___Fast__square_shape_pgoni3.png",
         order_id: order.id,
@@ -90,7 +96,7 @@ const PaymentPage = () => {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
-            orderId,
+            orderId: orderId,
           };
           dispatch(verifyPayment(paymentData));
         },
@@ -104,8 +110,6 @@ const PaymentPage = () => {
 
       const razor = new window.Razorpay(options);
       razor.open();
-    } else {
-      console.log("Razorpay SDK failed to load. Please check your connection.");
     }
   }, [order, orderId, dispatch, user]);
 
