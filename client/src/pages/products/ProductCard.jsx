@@ -1,4 +1,3 @@
-
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -22,8 +21,16 @@ const ProductCard = ({ product }) => {
         />
       </Link>
       <div className="p-4">
-        <h3 className="text-lg font-semibold">{product.name || "Unnamed Product"}</h3>
-        <p className="text-gray-600 dark:text-gray-400">₹{product.price ?? "N/A"}</p>
+        <h3 className="text-lg font-semibold">
+          {product.name || "Unnamed Product"}
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">
+          ₹{" "}
+          {(
+            product?.price -
+            product?.price * (product?.discount / 100)
+          ).toLocaleString() ?? "N/A"}
+        </p>
         <Link
           to={`/product/${product._id}`}
           className="mt-2 flex text-yellow-500 dark:text-red-600 font-medium gap-2"
@@ -40,9 +47,10 @@ ProductCard.propTypes = {
     _id: PropTypes.string.isRequired,
     name: PropTypes.string,
     price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    discount: PropTypes.number,
     images: PropTypes.arrayOf(
       PropTypes.shape({
-        url: PropTypes.string.isRequired, 
+        url: PropTypes.string.isRequired,
       })
     ),
   }).isRequired,

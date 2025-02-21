@@ -154,7 +154,9 @@ const ProductDetails = ({ products }) => {
           product.coloroptions[0] &&
           product.coloroptions[0].includes(",")
         ) {
-          colorOptions = product.coloroptions[0].split(",").map((c) => c.trim());
+          colorOptions = product.coloroptions[0]
+            .split(",")
+            .map((c) => c.trim());
         } else {
           colorOptions = product.coloroptions;
         }
@@ -164,7 +166,6 @@ const ProductDetails = ({ products }) => {
     }
   }
 
-  // Handle review submission
   const handleReviewSubmit = () => {
     if (!user) {
       return toast.error("Please login to post a review");
@@ -187,7 +188,6 @@ const ProductDetails = ({ products }) => {
     setRating(0);
   };
 
-  // Handle adding item to cart
   const handleAddCart = (item) => {
     if (!item) {
       toast.error("Error: Item not found!");
@@ -223,7 +223,6 @@ const ProductDetails = ({ products }) => {
             initial="hidden"
             animate="visible"
           >
-            {/* HERO SECTION */}
             <motion.div
               variants={itemVariants}
               className="grid md:grid-cols-2 gap-8 mb-16 items-center"
@@ -246,24 +245,33 @@ const ProductDetails = ({ products }) => {
                       product?.price * (product?.discount / 100)
                     ).toLocaleString()}
                   </span>
-                  <span className="text-2xl font-bold text-gray-500 line-through">
-                    ₹{product?.price?.toLocaleString()}
-                  </span>
+                  {product?.discount > 0 && (
+                    <span className="text-lg font-bold text-gray-500 dark:text-gray-300 line-through">
+                      ₹{product?.price}
+                    </span>
+                  )}
+                  {product?.discount > 0 && (
+                    <span className="text-lg font-bold text-red-500">
+                      ({product?.discount}% off)
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Rating
-                    value={product?.ratings}
-                    readOnly
-                    precision={0.5}
-                    className="mr-2 text-yellow-400"
-                  />
-                  <span className="text-gray-500 dark:text-gray-300">
-                    ({reviews.length} reviews)
-                  </span>
-                </div>
+                {product?.reviews?.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Rating
+                      value={product?.ratings}
+                      readOnly
+                      precision={0.5}
+                      className="mr-2 text-yellow-400"
+                    />
+                    <span className="text-gray-500 dark:text-gray-300">
+                      ({reviews.length} reviews)
+                    </span>
+                  </div>
+                )}
                 <div>
                   <h3 className="text-xl font-bold mb-2">Select Color</h3>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     {colorOptions.map((color, index) => (
                       <button
                         key={index}
@@ -281,7 +289,7 @@ const ProductDetails = ({ products }) => {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold mb-2">Select Size</h3>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     {sizeOptions.map((size, index) => (
                       <button
                         key={index}
@@ -317,7 +325,6 @@ const ProductDetails = ({ products }) => {
               </div>
             </motion.div>
 
-            {/* PRODUCT DETAILS SECTION */}
             <motion.div
               variants={itemVariants}
               className="mb-16 bg-white dark:bg-gray-900 shadow-xl rounded-2xl p-8"
@@ -331,7 +338,7 @@ const ProductDetails = ({ products }) => {
                     Product ID:
                   </span>
                   <span className="text-lg font-semibold text-gray-700 dark:text-gray-400">
-                    F-{product?._id}
+                    F-{product?._id.slice(0, 15)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -350,23 +357,24 @@ const ProductDetails = ({ products }) => {
                     {product?.subcategory}
                   </span>
                 </div>
-                {Array.isArray(product?.coloroptions) && product.coloroptions.length > 0 && (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
-                      Available Colors:
-                    </span>
-                    <div className="flex gap-2">
-                      {product.coloroptions.map((clr, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 rounded-md bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-gray-200 font-semibold shadow-md"
-                        >
-                          {clr}
-                        </span>
-                      ))}
+                {Array.isArray(product?.coloroptions) &&
+                  product.coloroptions.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                        Available Colors:
+                      </span>
+                      <div className="flex gap-2">
+                        {product.coloroptions.map((clr, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 rounded-md bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-gray-200 font-semibold shadow-md"
+                          >
+                            {clr}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 {product?.size?.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <span className="text-2xl font-bold text-gray-600 dark:text-gray-300">
@@ -404,7 +412,6 @@ const ProductDetails = ({ products }) => {
               </div>
             </motion.div>
 
-            {/* REVIEWS SECTION */}
             <motion.section
               variants={itemVariants}
               className="mb-16 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg"
@@ -423,7 +430,11 @@ const ProductDetails = ({ products }) => {
                       className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg"
                     >
                       <div className="flex items-center mb-4">
-                        <Rating value={review?.rating || 0} readOnly size="small" />
+                        <Rating
+                          value={review?.rating || 0}
+                          readOnly
+                          size="small"
+                        />
                         <span className="ml-2 text-gray-500 dark:text-gray-300 text-sm">
                           {review?.createdAt
                             ? new Date(review.createdAt).toLocaleDateString()
@@ -463,14 +474,18 @@ const ProductDetails = ({ products }) => {
                     name="comment"
                   />
                   <div className="flex items-center space-x-4">
-                    <span className="text-gray-600 dark:text-gray-300">Rating:</span>
+                    <span className="text-gray-600 dark:text-gray-300">
+                      Rating:
+                    </span>
                     <Rating
                       value={rating}
                       onChange={(e, newValue) => setRating(newValue)}
                       size="large"
                       sx={{
                         color: "#FFD700",
-                        "& .MuiRating-iconEmpty": { color: "rgba(189, 189, 189, 0.5)" },
+                        "& .MuiRating-iconEmpty": {
+                          color: "rgba(189, 189, 189, 0.5)",
+                        },
                       }}
                     />
                   </div>
@@ -487,7 +502,6 @@ const ProductDetails = ({ products }) => {
               </div>
             </motion.section>
 
-            {/* SIMILAR PRODUCTS SECTION */}
             <motion.section variants={itemVariants} className="mb-16">
               <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">
                 You Might Also Like

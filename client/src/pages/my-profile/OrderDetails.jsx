@@ -1,13 +1,15 @@
 import PropTypes from "prop-types";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiClock, FiTruck, FiCheckCircle, FiMapPin } from "react-icons/fi";
-import { getSingleOrder } from "@/store/order-slice/order";
+import { cancelOrder, getSingleOrder } from "@/store/order-slice/order";
 import MetaData from "../extras/MetaData";
 import { Alert, CircularProgress } from "@mui/material";
 import { FaCheck } from "react-icons/fa6";
+import { toast } from "react-toastify";
+import ConfirmationModal from "../extras/ConfirmationModel";
 
 const statusOrder = ["PENDING", "SHIPPED", "DELIVERED"];
 
@@ -71,6 +73,8 @@ StatusStep.propTypes = {
 const OrderDetails = () => {
   const { Id } = useParams();
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { order, loading, error } = useSelector((state) => state.order);
 
   useEffect(() => {
@@ -89,6 +93,22 @@ const OrderDetails = () => {
         return "bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 px-2 py-1 rounded-md font-semibold";
       default:
         return "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-1 rounded-md font-semibold";
+    }
+  };
+
+  if (!order) return null;
+
+  const handleCancelOrder = async () => {
+    setIsLoading(true);
+    try {
+      await dispatch(cancelOrder(order._id)).unwrap();
+      toast.success("Order canceled successfully!");
+      window.location.reload();
+    } catch (error) {
+      toast.error(error || "Failed to cancel order.");
+    } finally {
+      setIsLoading(false);
+      setIsModalOpen(false);
     }
   };
 
@@ -256,6 +276,26 @@ const OrderDetails = () => {
               ))}
             </motion.div>
           </div>
+
+          <div className="flex justify-center mt-10">
+            {order.orderStatus === "PENDING" && (
+              <button
+                className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setIsModalOpen(true)}
+                disabled={isLoading}
+              >
+                {isLoading ? "Canceling..." : "Cancel Order"}
+              </button>
+            )}
+          </div>
+
+          <ConfirmationModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onConfirm={handleCancelOrder}
+            title="Cancel Order"
+            message="Are you sure you want to cancel this order? This action cannot be undone."
+          />
         </motion.div>
       ) : (
         <Alert severity="info" className="max-w-2xl mx-auto">

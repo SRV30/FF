@@ -17,13 +17,10 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
           >
-            {/* Modal Title */}
             <h3 className="text-lg font-bold mb-4 dark:text-white">{title}</h3>
 
-            {/* Modal Message */}
             <p className="text-gray-600 dark:text-gray-300 mb-6">{message}</p>
 
-            {/* Buttons */}
             <div className="flex justify-end gap-3">
               <button
                 onClick={onClose}
@@ -45,7 +42,6 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
   );
 };
 
-// ✅ PropTypes for type validation
 ConfirmationModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,

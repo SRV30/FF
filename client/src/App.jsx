@@ -36,6 +36,7 @@ import ProductUpdatePage from "./pages/admin/AdminUpdateProduct";
 import { useEffect } from "react";
 import { getCartItems } from "./store/add-to-cart/addToCart";
 import { getWishListItems } from "./store/add-to-wishList/addToWishList";
+import NotFoundPage from "./pages/extras/NotFoundPage ";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -172,7 +173,7 @@ const App = () => {
           </>
         )}
 
-        {/* 404, Restricted */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <ScrollToTop />

@@ -57,7 +57,7 @@ const ImageSlider = ({ images }) => {
                 alt={`Product showcase ${
                   index + 1
                 } - High quality product visual`}
-                className="w-full h-120 rounded-lg object-fit"
+                className="w-80% sm:w-full h-120 rounded-lg object-fit"
                 loading="lazy"
                 width={1000}
                 height={450}
