@@ -336,7 +336,7 @@ const authSlice = createSlice({
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || "Signup failed!";
+        state.error = action.payload?.message;
       })
 
       .addCase(getSingleDetail.pending, (state) => {

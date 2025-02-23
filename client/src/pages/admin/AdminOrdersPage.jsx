@@ -156,12 +156,14 @@ const AdminOrdersPage = () => {
                       </Link>
                     </td>
                     <td className="p-4 text-center space-x-2">
+                     {order.orderStatus !== "DELIVERED" && order.orderStatus !== "CANCELLED" && (
                       <button
                         onClick={() => handleUpdateClick(order)}
                         className="text-blue-500 hover:underline"
                       >
                         Update
                       </button>
+                     )}
                       <button
                         onClick={() => handleDeleteClick(order._id)}
                         className="text-red-500 hover:underline"

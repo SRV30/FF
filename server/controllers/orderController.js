@@ -226,10 +226,9 @@ export const cancelOrder = catchAsyncErrors(async (req, res) => {
     }
 
     if (
-      order.user.toString() !== userId.toString() &&
+      order.user._id.toString() !== userId.toString() &&
       req.user.role !== "ADMIN"
     ) {
-      console.log("Unauthorized attempt by user:", req.user._id);
       return res.status(403).json({
         success: false,
         message: "Unauthorized to cancel this order",

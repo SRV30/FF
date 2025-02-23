@@ -53,7 +53,6 @@ const CreateOrder = () => {
 
   useEffect(() => {
     if (cartItems.length > 0 && products.length > 0) {
-      // Filter valid cart items where product exists
       const validCartItems = cartItems.filter((item) =>
         products.some((p) => p._id === item.productId?._id)
       );
