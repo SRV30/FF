@@ -3,28 +3,15 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const createProduct = createAsyncThunk(
   "products/createProduct",
-  async (productData, { rejectWithValue }) => {
+  async (formData, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const formData = new FormData();
-
-      Object.keys(productData).forEach((key) => {
-        if (key === "images") {
-          productData.images.forEach((image) =>
-            formData.append("images", image)
-          );
-        } else {
-          formData.append(key, productData[key]);
-        }
-      });
-
       const response = await axiosInstance.post("/api/product/new", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
-
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -37,22 +24,31 @@ export const updateProduct = createAsyncThunk(
   async ({ id, productData }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axiosInstance.put(
-        `/api/product/update/${id}`,
-        productData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response.data.success;
+      const formData = new FormData();
+      formData.append("name", productData.name);
+      formData.append("description", productData.description);
+      formData.append("price", productData.price);
+      formData.append("category", productData.category);
+      formData.append("subcategory", productData.subcategory || "");
+      formData.append("stock", productData.stock);
+      formData.append("discount", productData.discount);
+      productData.coloroptions.forEach((color) => formData.append("coloroptions[]", color));
+      productData.size.forEach((size) => formData.append("size[]", size));
+      productData.sizeoptions.forEach((sizeoption) => formData.append("sizeoptions[]", sizeoption));
+      productData.images.forEach((image) => {
+        if (image) formData.append("images", image);
+      });
+
+      const response = await axiosInstance.put(`/api/product/update/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message ||
-          error.message ||
-          "Error updating product"
-      );
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );

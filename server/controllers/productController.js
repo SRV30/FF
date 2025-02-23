@@ -9,7 +9,6 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
       name,
       category,
       subcategory,
-      // color,
       coloroptions,
       size,
       sizeoptions,
@@ -21,7 +20,7 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
 
     if (!name) {
       return res.status(400).json({
-        message: "Please enter all required fields (name,)",
+        message: "Please enter all required fields (name)",
         error: true,
         success: false,
       });
@@ -51,10 +50,9 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
       price,
       category,
       subcategory,
-      // color,
-      coloroptions,
-      size,
-      sizeoptions,
+      coloroptions: coloroptions || req.body["coloroptions[]"],
+      size: size || req.body["size[]"],
+      sizeoptions: sizeoptions || req.body["sizeoptions[]"],
       stock: stock || 0,
       discount: discount || 0,
       images: uploadedImages,
@@ -157,9 +155,9 @@ export const updateProductDetails = catchAsyncErrors(async (req, res) => {
     const { images } = req.body;
     const { _id } = req.params;
 
-    if (!_id) {
+    if (!_id || !mongoose.isValidObjectId(_id)) {
       return res.status(400).json({
-        message: "Provide product _id",
+        message: "Valid product _id is required",
         error: true,
         success: false,
       });
@@ -192,10 +190,31 @@ export const updateProductDetails = catchAsyncErrors(async (req, res) => {
     }
 
     const updateData = {
-      ...req.body,
+      ...(name && { name }),
+      ...(description && { description }),
+      ...(price !== undefined && { price: Number(price) }),
+      ...(category && { category }),
+      ...(subcategory !== undefined && { subcategory }), // Allow empty string
+      ...(coloroptions !== undefined && {
+        coloroptions: Array.isArray(coloroptions)
+          ? coloroptions
+          : coloroptions
+          ? [coloroptions]
+          : [],
+      }),
+      ...(size !== undefined && {
+        size: Array.isArray(size) ? size : size ? [size] : [],
+      }),
+      ...(sizeoptions !== undefined && {
+        sizeoptions: Array.isArray(sizeoptions)
+          ? sizeoptions
+          : sizeoptions
+          ? [sizeoptions]
+          : [],
+      }),
+      ...(stock !== undefined && { stock: Number(stock) }),
+      ...(discount !== undefined && { discount: Number(discount) }),
       images: newImages,
-      _id: undefined,
-      createdAt: undefined,
     };
 
     const updatedProduct = await ProductModel.findByIdAndUpdate(

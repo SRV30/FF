@@ -8,9 +8,11 @@ import { XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const AdminAddProduct = () => {
-  const [images, setImages] = useState(Array(5).fill(null));
-  const [imagesPreview, setImagesPreview] = useState(Array(5).fill(null));
+  const [images, setImages] = useState(Array(10).fill(null));
+  const [imagesPreview, setImagesPreview] = useState(Array(10).fill(null));
   const [isFormValid, setIsFormValid] = useState(false);
+  const [customColorInput, setCustomColorInput] = useState("");
+  const [customSizeInput, setCustomSizeInput] = useState("");
 
   const categories = [
     "MEN",
@@ -49,18 +51,6 @@ const AdminAddProduct = () => {
     "Boots",
     "Sports Shoes",
   ];
-
-  // const colors = [
-  //   "Solid Colors",
-  //   "Gradient Colors",
-  //   "Patterned Colors",
-  //   "Multi-Colored",
-  //   "Customizable Colors",
-  //   "Textured Colors",
-  //   "Limited Edition Colors",
-  //   "Neon Colors",
-  //   "Neutral & Earthy Tones",
-  // ];
 
   const colorOptionss = [
     "Red",
@@ -116,7 +106,6 @@ const AdminAddProduct = () => {
     name: "",
     category: "MEN",
     subcategory: "T-Shirts & Polos",
-    // color: [],
     coloroptions: [],
     size: [],
     sizeoptions: [],
@@ -137,7 +126,6 @@ const AdminAddProduct = () => {
         productData.stock >= 0 &&
         productData.category &&
         productData.subcategory &&
-        // productData.color?.length > 0 &&
         productData.coloroptions?.length > 0 &&
         productData.size?.length > 0 &&
         productData.sizeoptions?.length > 0 &&
@@ -147,7 +135,6 @@ const AdminAddProduct = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     setProductData((prevData) => {
       if (type === "checkbox") {
         return {
@@ -195,9 +182,12 @@ const AdminAddProduct = () => {
   };
 
   const handleImageDelete = (index) => {
-    const newImages = [...imagesPreview];
+    const newImages = [...images];
+    const newPreviews = [...imagesPreview];
     newImages[index] = null;
-    setImagesPreview(newImages);
+    newPreviews[index] = null;
+    setImages(newImages);
+    setImagesPreview(newPreviews);
   };
 
   const handleSubmit = async (e) => {
@@ -212,13 +202,32 @@ const AdminAddProduct = () => {
       !productData.name ||
       !productData.description ||
       !productData.price ||
-      !images.length
+      !images.some((img) => img !== null)
     ) {
       toast.error("Please fill all required fields");
       return;
     }
 
-    const formData = { ...productData, images };
+    const formData = new FormData();
+    formData.append("name", productData.name);
+    formData.append("category", productData.category);
+    formData.append("subcategory", productData.subcategory);
+    formData.append("description", productData.description);
+    formData.append("price", productData.price);
+    formData.append("stock", productData.stock);
+    formData.append("discount", productData.discount);
+    productData.coloroptions.forEach((color) =>
+      formData.append("coloroptions[]", color)
+    );
+    productData.size.forEach((size) => formData.append("size[]", size));
+    productData.sizeoptions.forEach((sizeoption) =>
+      formData.append("sizeoptions[]", sizeoption)
+    );
+    images.forEach((image) => {
+      if (image) {
+        formData.append("images", image);
+      }
+    });
 
     try {
       await dispatch(createProduct(formData)).unwrap();
@@ -227,375 +236,503 @@ const AdminAddProduct = () => {
         name: "",
         price: "",
         description: "",
-        category: "",
-        subcategory: "",
+        category: "MEN",
+        subcategory: "T-Shirts & Polos",
         coloroptions: [],
         size: [],
         sizeoptions: [],
         discount: "",
         stock: "",
       });
-
-      setImages(Array(5).fill(null));
-      setImagesPreview(Array(5).fill(null));
+      setCustomColorInput("");
+      setCustomSizeInput("");
+      setImages(Array(10).fill(null));
+      setImagesPreview(Array(10).fill(null));
     } catch (error) {
+      console.error("Frontend error:", error);
       toast.error(error || "An error occurred while creating the product.");
     }
   };
 
   const toggleOption = (field, option) => {
     setProductData((prevData) => {
-      if (prevData[field].includes(option)) {
+      const capitalizedOption =
+        field === "coloroptions"
+          ? option.charAt(0).toUpperCase() + option.slice(1).toLowerCase()
+          : option;
+      if (prevData[field].includes(capitalizedOption)) {
         return {
           ...prevData,
-          [field]: prevData[field].filter((item) => item !== option),
+          [field]: prevData[field].filter((item) => item !== capitalizedOption),
         };
       } else {
         return {
           ...prevData,
-          [field]: [...prevData[field], option],
+          [field]: [...prevData[field], capitalizedOption],
         };
       }
     });
   };
 
+  const addCustomColor = () => {
+    const capitalizedColor =
+      customColorInput.trim().charAt(0).toUpperCase() +
+      customColorInput.trim().slice(1).toLowerCase();
+    if (
+      capitalizedColor &&
+      !productData.coloroptions.includes(capitalizedColor)
+    ) {
+      setProductData((prevData) => ({
+        ...prevData,
+        coloroptions: [...prevData.coloroptions, capitalizedColor],
+      }));
+      setCustomColorInput("");
+    }
+  };
+
+  const addCustomSize = () => {
+    const trimmedSize = customSizeInput.trim();
+    const capitalizedSize = trimmedSize.toUpperCase();
+    if (capitalizedSize && !productData.sizeoptions.includes(capitalizedSize)) {
+      setProductData((prevData) => ({
+        ...prevData,
+        sizeoptions: [...prevData.sizeoptions, capitalizedSize],
+      }));
+      setCustomSizeInput("");
+    }
+  };
+
+  const removeOption = (field, option) => {
+    setProductData((prevData) => ({
+      ...prevData,
+      [field]: prevData[field].filter((item) => item !== option),
+    }));
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        when: "beforeChildren",
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const childVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  };
+
+  const optionVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.2 } },
+    exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } },
+  };
+
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-white dark:bg-gray-900 shadow-lg rounded-xl mt-5 mb-5">
-      <MetaData title="Create New Product" />
-      <Link to="/admin/dashboard">
-        <button className="bg-yellow-500 dark:bg-red-600 text-white px-4 py-2 rounded-lg mb-6">
-          Back to Dashboard
-        </button>
-      </Link>
-      <h2 className="text-3xl font-semibold text-yellow-500 dark:text-red-500 mb-6">
-        Create New Product
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="mb-4">
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="max-w-4xl w-full bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8"
+      >
+        <MetaData title="Create New Product" />
+        <Link to="/admin/dashboard">
+          <motion.button
+            variants={childVariants}
+            className="bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-red-600 dark:to-red-700 text-white px-6 py-2 rounded-full mb-6 hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 shadow-md"
           >
-            Product Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={productData.name}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
-            required
-            placeholder="Enter product name"
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="price"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Price
-          </label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={productData.price}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
-            required
-            placeholder="Enter product price"
-          />
-        </div>
+            Back to Dashboard
+          </motion.button>
+        </Link>
+        <motion.h2
+          variants={childVariants}
+          className="text-4xl font-bold text-center text-yellow-600 dark:text-red-500 mb-8"
+        >
+          Create New Product
+        </motion.h2>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <motion.div variants={childVariants} className="space-y-4">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Product Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={productData.name}
+              onChange={handleInputChange}
+              className="block w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 shadow-sm"
+              required
+              placeholder="Enter product name"
+            />
+          </motion.div>
 
-        <div className="mb-4">
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Description/ProductId
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={productData.description}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
-            required
-            placeholder="Enter product description"
-          />
-        </div>
+          <motion.div variants={childVariants} className="space-y-4">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Price
+            </label>
+            <input
+              type="number"
+              id="price"
+              name="price"
+              value={productData.price}
+              onChange={handleInputChange}
+              className="block w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 shadow-sm"
+              required
+              placeholder="Enter product price"
+            />
+          </motion.div>
 
-        <div className="mb-4">
-          <label
-            htmlFor="category"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Category
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={productData.category}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
-            required
-          >
-            <option value="" disabled>
-              Select Category
-            </option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
+          <motion.div variants={childVariants} className="space-y-4">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Description/ProductId
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={productData.description}
+              onChange={handleInputChange}
+              className="block w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 shadow-sm min-h-[120px]"
+              required
+              placeholder="Enter product description"
+            />
+          </motion.div>
+
+          <motion.div variants={childVariants} className="space-y-4">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Category
+            </label>
+            <select
+              id="category"
+              name="category"
+              value={productData.category}
+              onChange={handleInputChange}
+              className="block w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 shadow-sm"
+              required
+            >
+              <option value="" disabled>
+                Select Category
               </option>
-            ))}
-          </select>
-        </div>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </motion.div>
 
-        <div className="mb-4">
-          <label
-            htmlFor="category"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            SubCategory
-          </label>
-          <select
-            id="subcategory"
-            name="subcategory"
-            value={productData.subcategory}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
-            required
-          >
-            <option value="" disabled>
-              Select SubCategory
-            </option>
-            {subcategories.map((category) => (
-              <option key={category} value={category}>
-                {category}
+          <motion.div variants={childVariants} className="space-y-4">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              SubCategory
+            </label>
+            <select
+              id="subcategory"
+              name="subcategory"
+              value={productData.subcategory}
+              onChange={handleInputChange}
+              className="block w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 shadow-sm"
+              required
+            >
+              <option value="" disabled>
+                Select SubCategory
               </option>
-            ))}
-          </select>
-        </div>
+              {subcategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </motion.div>
 
-        {/* <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">
-            Colors
-          </label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {colors.map((category) => (
-              <button
-                key={category}
-                type="button"
-                onClick={() => toggleOption("color", category)}
-                className={`px-4 py-2 rounded-lg border transition-colors duration-200 
-            ${
-              productData.color.includes(category)
-                ? "bg-yellow-600 text-white border-yellow-600"
-                : "bg-white text-gray-700 dark:bg-gray-800 dark:text-white border-gray-300"
-            }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-          <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
-            Selected: {productData.color.join(", ")}
-          </div>
-        </div> */}
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">
-            Color Options
-          </label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {colorOptionss.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => toggleOption("coloroptions", option)}
-                className={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
-                  productData.coloroptions.includes(option)
-                    ? "bg-yellow-600 text-white border-yellow-600"
-                    : "bg-white text-gray-700 dark:bg-gray-800 dark:text-white border-gray-300"
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-          <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
-            Selected: {productData.coloroptions.join(", ")}
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">
-            Size
-          </label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {sizes.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => toggleOption("size", option)}
-                className={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
-                  productData.size.includes(option)
-                    ? "bg-yellow-600 text-white border-yellow-600"
-                    : "bg-white text-gray-700 dark:bg-gray-800 dark:text-white border-gray-300"
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-          <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
-            Selected: {productData.size.join(", ")}
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">
-            Size Options
-          </label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {sizeOptionss.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => toggleOption("sizeoptions", option)}
-                className={`px-4 py-2 rounded-lg border transition-colors duration-200 ${
-                  productData.sizeoptions.includes(option)
-                    ? "bg-yellow-600 text-white border-yellow-600"
-                    : "bg-white text-gray-700 dark:bg-gray-800 dark:text-white border-gray-300"
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-          <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
-            Selected: {productData.sizeoptions.join(", ")}
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="stock"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
+          <motion.div
+            variants={childVariants}
+            className="space-y-4 bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-inner"
           >
-            Stock Quantity
-          </label>
-          <input
-            type="number"
-            id="stock"
-            name="stock"
-            value={productData.stock}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
-            required
-            placeholder="Enter the product quantity"
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="discount"
-            className="block text-sm font-medium text-gray-700 dark:text-white"
-          >
-            Discount
-          </label>
-          <input
-            type="number"
-            id="discount"
-            name="discount"
-            value={productData.discount}
-            onChange={handleInputChange}
-            className="mt-2 block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition ease-in-out duration-200"
-            placeholder="Enter the product discount"
-          />
-        </div>
-
-        <div className="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full max-w-2xl mx-auto">
-          <label className="block text-lg font-semibold text-gray-800 dark:text-white">
-            Upload Product Images
-          </label>
-
-          {[0, 1, 2, 3, 4].map((index) => (
-            <div key={index} className="mt-3 flex flex-col items-center">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Color Options
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {colorOptionss.map((option) => (
+                <motion.button
+                  key={option}
+                  type="button"
+                  onClick={() => toggleOption("coloroptions", option)}
+                  variants={optionVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className={`px-4 py-2 rounded-full border transition-all duration-200 ${
+                    productData.coloroptions.includes(option)
+                      ? "bg-yellow-600 dark:bg-red-600  text-white border-yellow-600 shadow-lg"
+                      : "bg-white text-gray-700 dark:bg-gray-600 dark:text-white border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-500"
+                  }`}
+                >
+                  {option}
+                </motion.button>
+              ))}
+            </div>
+            <div className="flex gap-2">
               <input
-                type="file"
-                onChange={(e) => handleImageChange(e, index)}
-                className="block w-full p-3 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-yellow-500 transition duration-200 file:cursor-pointer file:px-4 file:py-2 file:rounded-md file:border-none file:bg-yellow-500 file:text-white file:font-semibold hover:file:bg-yellow-600"
-                accept="image/*"
-                {...(index === 0 ? { required: true } : {})}
+                type="text"
+                value={customColorInput}
+                onChange={(e) => setCustomColorInput(e.target.value)}
+                className="block w-full p-4 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 shadow-sm"
+                placeholder="Add custom color"
               />
-
+              <button
+                type="button"
+                onClick={addCustomColor}
+                className="px-6 py-2 bg-yellow-500 text-white rounded-full dark:bg-red-600 dark:hover:bg-red-700   hover:bg-yellow-600 transition-all duration-300 shadow-md"
+              >
+                Add
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
               <AnimatePresence>
-                {imagesPreview[index] && (
-                  <motion.div
-                    className="relative mt-3"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    transition={{ duration: 0.3 }}
+                {productData.coloroptions.map((option) => (
+                  <motion.button
+                    key={option}
+                    type="button"
+                    onClick={() => removeOption("coloroptions", option)}
+                    variants={optionVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="px-3 py-1 bg-yellow-600 dark:bg-red-600 text-white rounded-full flex items-center gap-1 hover:bg-yellow-700 transition duration-200 shadow-md"
                   >
-                    <img
-                      src={imagesPreview[index]}
-                      alt={`Preview ${index}`}
-                      className="w-24 h-24 object-cover rounded-lg shadow-md border border-gray-300"
-                    />
-                    <button
-                      onClick={() => handleImageDelete(index)}
-                      className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700 transition duration-200"
-                    >
-                      <XCircle size={18} />
-                    </button>
-                  </motion.div>
+                    {option}
+                    <XCircle size={14} />
+                  </motion.button>
+                ))}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={childVariants}
+            className="space-y-4 bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-inner"
+          >
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Size
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {sizes.map((option) => (
+                <motion.button
+                  key={option}
+                  type="button"
+                  onClick={() => toggleOption("size", option)}
+                  variants={optionVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className={`px-4 py-2 rounded-full border transition-all duration-200 ${
+                    productData.size.includes(option)
+                      ? "bg-yellow-600 dark:bg-red-600 text-white border-yellow-600 shadow-lg"
+                      : "bg-white text-gray-700 dark:bg-gray-600 dark:text-white border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-500"
+                  }`}
+                >
+                  {option}
+                </motion.button>
+              ))}
+            </div>
+            <div className="mt-2 text-sm text-gray-500 dark:text-gray-300">
+              Selected: {productData.size.join(", ")}
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={childVariants}
+            className="space-y-4 bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-inner"
+          >
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Size Options
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {sizeOptionss.map((option) => (
+                <motion.button
+                  key={option}
+                  type="button"
+                  onClick={() => toggleOption("sizeoptions", option)}
+                  variants={optionVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className={`px-4 py-2 rounded-full border transition-all duration-200 ${
+                    productData.sizeoptions.includes(option)
+                      ? "bg-yellow-600 dark:bg-red-600 text-white border-yellow-600 shadow-lg"
+                      : "bg-white text-gray-700 dark:bg-gray-600 dark:text-white border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-500"
+                  }`}
+                >
+                  {option}
+                </motion.button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={customSizeInput}
+                onChange={(e) => setCustomSizeInput(e.target.value)}
+                className="block w-full p-4 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 shadow-sm"
+                placeholder="Add custom size"
+              />
+              <button
+                type="button"
+                onClick={addCustomSize}
+                className="px-6 py-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 dark:bg-red-600 dark:hover:bg-red-700  transition-all duration-300 shadow-md"
+              >
+                Add
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <AnimatePresence>
+                {productData.sizeoptions.map((option) => (
+                  <motion.button
+                    key={option}
+                    type="button"
+                    onClick={() => removeOption("sizeoptions", option)}
+                    variants={optionVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="px-3 py-1 bg-yellow-600 dark:bg-red-600 text-white rounded-full flex items-center gap-1 hover:bg-yellow-700 transition duration-200 shadow-md"
+                  >
+                    {option}
+                    <XCircle size={14} />
+                  </motion.button>
+                ))}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+
+          <motion.div variants={childVariants} className="space-y-4">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Stock Quantity
+            </label>
+            <input
+              type="number"
+              id="stock"
+              name="stock"
+              value={productData.stock}
+              onChange={handleInputChange}
+              className="block w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 shadow-sm"
+              required
+              placeholder="Enter the product quantity"
+            />
+          </motion.div>
+
+          <motion.div variants={childVariants} className="space-y-4">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Discount
+            </label>
+            <input
+              type="number"
+              id="discount"
+              name="discount"
+              value={productData.discount}
+              onChange={handleInputChange}
+              className="block w-full p-4 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 shadow-sm"
+              placeholder="Enter the product discount"
+            />
+          </motion.div>
+
+          <motion.div
+            variants={childVariants}
+            className="space-y-4 bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-inner"
+          >
+            <label className="block text-lg font-semibold text-gray-800 dark:text-gray-100">
+              Upload Product Images
+            </label>
+            <div className="space-y-4">
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((index) => (
+                <div key={index} className="flex flex-col items-center">
+                  <input
+                    type="file"
+                    onChange={(e) => handleImageChange(e, index)}
+                    className="block w-full p-4 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-xl focus:ring-2 focus:ring-yellow-500 transition duration-200 file:cursor-pointer file:px-4 file:py-2 file:rounded-full file:border-none file:bg-yellow-500 file:text-white file:font-semibold 
+                    dark:file:bg-red-600 hover:file:bg-yellow-600
+                    dark:hover:file:bg-red-700 shadow-sm"
+                    accept="image/*"
+                    {...(index === 0 ? { required: true } : {})}
+                  />
+                  <AnimatePresence>
+                    {imagesPreview[index] && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 20,
+                        }}
+                        className="relative mt-3"
+                      >
+                        <img
+                          src={imagesPreview[index]}
+                          alt={`Preview ${index}`}
+                          className="w-28 h-28 object-cover rounded-lg shadow-lg border border-gray-300 dark:border-gray-600"
+                        />
+                        <button
+                          onClick={() => handleImageDelete(index)}
+                          className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition duration-200 shadow-md"
+                        >
+                          <XCircle size={18} />
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <AnimatePresence>
+                {imagesPreview.map(
+                  (image, index) =>
+                    image && (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 20,
+                        }}
+                        className="relative"
+                      >
+                        <img
+                          src={image}
+                          alt={`Preview ${index}`}
+                          className="w-28 h-28 object-cover rounded-lg shadow-lg border border-gray-300 dark:border-gray-600"
+                        />
+                        <button
+                          onClick={() => handleImageDelete(index)}
+                          className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition duration-200 shadow-md"
+                        >
+                          <XCircle size={18} />
+                        </button>
+                      </motion.div>
+                    )
                 )}
               </AnimatePresence>
             </div>
-          ))}
+          </motion.div>
 
-          {/* Preview Grid */}
-          <div className="flex gap-4 mt-6 flex-wrap justify-center">
-            <AnimatePresence>
-              {imagesPreview.map(
-                (image, index) =>
-                  image && (
-                    <motion.div
-                      key={index}
-                      className="relative"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.5 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <img
-                        src={image}
-                        alt={`Preview ${index}`}
-                        className="w-24 h-24 object-cover rounded-lg shadow-md border border-gray-300"
-                      />
-                      <button
-                        onClick={() => handleImageDelete(index)}
-                        className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full shadow-md hover:bg-red-700 transition duration-200"
-                      >
-                        <XCircle size={18} />
-                      </button>
-                    </motion.div>
-                  )
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={!isFormValid}
-          className="w-full py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-500 hover:bg-blue-600 focus:ring-blue-500 transition ease-in-out duration-200 disabled:bg-gray-400"
-        >
-          {loading ? "Creating..." : "Create Product"}
-        </button>
-      </form>
+          <motion.button
+            variants={childVariants}
+            type="submit"
+            disabled={!isFormValid || loading}
+            className="w-full py-4 px-6 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold rounded-full hover:from-yellow-600 hover:to-yellow-700 dark:hover:from-red-600 dark:hover:to-red-700 dark:from-red-600 dark:to-red-700 focus:ring-4 focus:ring-blue-300 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg"
+          >
+            {loading ? "Creating..." : "Create Product"}
+          </motion.button>
+        </form>
+      </motion.div>
     </div>
   );
 };

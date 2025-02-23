@@ -22,7 +22,7 @@ productRouter.post(
   "/new",
   auth,
   admin,
-  upload.array("images", 5),
+  upload.array("images", 10),
   createProduct
 );
 
@@ -30,15 +30,13 @@ productRouter.get("/get", getProduct);
 
 productRouter.get("/get/filter", getProductByFilter);
 
-// productRouter.get("/get/category/:id", getProductByCategory);
-
 productRouter.get("/get/:productId", getProductDetails);
 
 productRouter.put(
   "/update/:_id",
   auth,
   admin,
-  upload.array("images", 5),
+  upload.array("images", 10),
   updateProductDetails
 );
 
