@@ -813,14 +813,14 @@ export const updateUserStatus = catchAsyncErrors(async (req, res) => {
     if (status === "Warning") {
       await sendEmail({
         sendTo: user.email,
-        subject: "⚠️ Account Warning - Faith & Fast",
+        subject: "⚠️ Account Warning - Faith AND Fast",
         html: `
           <div style="font-family: Arial, sans-serif; color: #333;">
             <div style="background-color: #ffcc00; padding: 10px; text-align: center;">
               <h2 style="color: #fff;">⚠️ Account Warning ⚠️</h2>
             </div>
             <p>Dear <strong>${user.name}</strong>,</p>
-            <p>We are writing to inform you that your account on <strong>Faith & Fast</strong> has been flagged for activities that violate our platform guidelines.</p>
+            <p>We are writing to inform you that your account on <strong>Faith AND Fast</strong> has been flagged for activities that violate our platform guidelines.</p>
             <p>Please review the <a href="https://faithandfast.com" style="color: #0066cc;">Platform Guidelines</a> to ensure compliance.</p>
             <p><strong>What You Need To Do:</strong></p>
             <ul>
@@ -830,7 +830,7 @@ export const updateUserStatus = catchAsyncErrors(async (req, res) => {
             <p>If you have any questions or need assistance, feel free to <a href="mailto:support@faithandfast.com" style="color: #0066cc;">contact our support team</a>.</p>
             <br>
             <p>Best regards,</p>
-            <p><b>Faith & Fast Team</b></p>
+            <p><b>Faith AND Fast Team</b></p>
           </div>
         `,
       });
@@ -839,7 +839,7 @@ export const updateUserStatus = catchAsyncErrors(async (req, res) => {
     if (status === "Suspended") {
       await sendEmail({
         sendTo: user.email,
-        subject: "❌ Account Suspended - Faith & Fast",
+        subject: "❌ Account Suspended - Faith AND Fast",
         html: `
           <div style="font-family: Arial, sans-serif; color: #333;">
             <div style="background-color: #f44336; padding: 10px; text-align: center;">
@@ -856,7 +856,7 @@ export const updateUserStatus = catchAsyncErrors(async (req, res) => {
             <br>
             <p>We value you as a part of our community, and we hope to resolve this issue quickly.</p>
             <p>Best regards,</p>
-            <p><b>Faith & Fast Team</b></p>
+            <p><b>Faith AND Fast Team</b></p>
           </div>
         `,
       });
@@ -865,19 +865,19 @@ export const updateUserStatus = catchAsyncErrors(async (req, res) => {
     if (status === "Active") {
       await sendEmail({
         sendTo: user.email,
-        subject: "✅ Your Account is Active - Faith & Fast",
+        subject: "✅ Your Account is Active - Faith AND Fast",
         html: `
           <div style="font-family: Arial, sans-serif; color: #333;">
             <div style="background-color: #4caf50; padding: 10px; text-align: center;">
               <h2 style="color: #fff;">✅ Your Account is Active</h2>
             </div>
             <p>Dear <strong>${user.name}</strong>,</p>
-            <p>We are happy to inform you that your account is now active and in good standing on <strong>Faith & Fast</strong>.</p>
+            <p>We are happy to inform you that your account is now active and in good standing on <strong>Faith AND Fast</strong>.</p>
             <p>You can now access all the platform features and continue to enjoy your experience with us.</p>
             <p>If you have any questions or need assistance, feel free to <a href="mailto:support@faithandfast.com" style="color: #0066cc;">contact our support team</a>.</p>
             <br>
             <p>Best regards,</p>
-            <p><b>Faith & Fast Team</b></p>
+            <p><b>Faith AND Fast Team</b></p>
           </div>
         `,
       });

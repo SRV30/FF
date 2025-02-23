@@ -77,7 +77,7 @@ const Cart = () => {
 
   return (
     <>
-      <MetaData title="Cart | Faith & Fast" />
+      <MetaData title="Cart | Faith AND Fast" />
 
       <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 dark:bg-gray-900">
         <motion.h1
