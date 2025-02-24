@@ -56,11 +56,11 @@ const CreateOrder = () => {
   useEffect(() => {
     if (cartItems.length > 0 && products.length > 0) {
       const productTotal = cartItems.reduce((acc, item) => {
-        const product = products.find((p) => p._id === item.productId._id);
-        return (
-          acc + product.price * item.quantity * (1 - product.discount / 100)
-        );
+        const product = products.find((p) => p._id === item.productId?._id);
+        if (!product) return acc;
+        return acc + product.price * item.quantity * (1 - (product.discount || 0) / 100);
       }, 0);
+      
 
       const shippingCost = calculateShipping(productTotal);
       const subtotal = productTotal + shippingCost;
