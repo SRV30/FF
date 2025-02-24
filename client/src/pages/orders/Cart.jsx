@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { FiMinus, FiPlus, FiTrash2 } from "react-icons/fi";
@@ -13,10 +13,16 @@ import { Button, IconButton, Skeleton } from "@mui/material";
 import { ShoppingCartCheckout } from "@mui/icons-material";
 
 const Cart = () => {
+  // eslint-disable-next-line no-unused-vars
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { cartItems = [], loading, error } = useSelector((state) => state.cart);
   const { discounts } = useSelector((state) => state.discount);
+
+  useEffect(() => {
+    setAppliedCoupon(null);
+  }, []);
 
   useEffect(() => {
     dispatch(getCartItems());
@@ -39,28 +45,26 @@ const Cart = () => {
     });
   };
 
-  const validCartItems = cartItems.filter(
-    (item) => item.productId && typeof item.productId.price === "number"
-  );
-
-  const totalPrice = validCartItems.reduce(
-    (total, item) => total + (item.productId.price || 0) * item.quantity,
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + (item.productId?.price || 0) * item.quantity,
     0
   );
 
-  const totalDiscount = validCartItems.reduce(
+  const totalDiscount = cartItems.reduce(
     (total, item) =>
       total +
-      ((item.productId.price * (item.productId.discount || 0)) / 100) *
+      ((item.productId?.price * (item.productId?.discount || 0)) / 100) *
         item.quantity,
     0
   );
 
-  const shipping = () => 0;
+  const shipping = () => {
+    return 0;
+  };
 
   const finalTotal = () => {
-    const finalTotalPrice = totalPrice - totalDiscount;
-    return finalTotalPrice + shipping();
+    const finaltotalprice = totalPrice - totalDiscount;
+    return finaltotalprice + shipping();
   };
 
   const appliedCouponAmount = () => {
@@ -73,7 +77,8 @@ const Cart = () => {
 
   return (
     <>
-      <MetaData title="Cart | Faith AND Fast" />
+      <MetaData title="Cart | Faith & Fast" />
+
       <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 dark:bg-gray-900">
         <motion.h1
           className="text-3xl font-bold mb-6 text-gray-800 dark:text-white text-center"
@@ -99,25 +104,10 @@ const Cart = () => {
               </Button>
             </Link>
           </motion.div>
-        ) : validCartItems.length === 0 ? (
-          <motion.div
-            className="text-center py-10 dark:text-gray-300"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <p className="text-lg mb-4 text-red-500">
-              Invalid items in your cart. Please remove or update them.
-            </p>
-            <Link to="/products">
-              <Button variant="contained" color="primary">
-                Continue Shopping
-              </Button>
-            </Link>
-          </motion.div>
         ) : (
           <div className="space-y-6">
             <AnimatePresence>
-              {validCartItems.map((item) => (
+              {cartItems.map((item) => (
                 <motion.div
                   key={item._id}
                   initial={{ opacity: 0, y: 20 }}
@@ -154,6 +144,7 @@ const Cart = () => {
                           ).toFixed(2)}
                         </p>
                       </div>
+                      {/* Display selected color and size if available */}
                       <div className="mt-2">
                         {item.selectedColor && (
                           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -228,6 +219,7 @@ const Cart = () => {
                     Free Shipping
                   </p>
                 </div>
+
                 <div className="flex justify-between border-t pt-3 items-center">
                   <p className="text-lg font-bold text-gray-800 dark:text-white">
                     Total
@@ -237,6 +229,7 @@ const Cart = () => {
                   </p>
                 </div>
               </div>
+
               <button
                 className="bg-yellow-500 hover:bg-yellow-700 dark:bg-red-600 dark:hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 m-auto mt-4"
                 onClick={() => navigate("/checkout")}

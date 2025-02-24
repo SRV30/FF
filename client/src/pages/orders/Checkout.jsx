@@ -56,11 +56,6 @@ const CreateOrder = () => {
           item.productId && products.some((p) => p._id === item.productId._id)
       );
 
-      if (validCartItems.length === 0) {
-        toast.warn("No valid items in your cart. Please update your cart.");
-        return;
-      }
-
       // const productTotal = validCartItems.reduce((acc, item) => {
       //   const product = products.find((p) => p._id === item.productId._id);
       //   return product
