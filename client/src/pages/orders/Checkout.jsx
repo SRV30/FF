@@ -53,15 +53,11 @@ const CreateOrder = () => {
 
   useEffect(() => {
     if (cartItems.length > 0 && products.length > 0) {
-      const validCartItems = cartItems.filter((item) =>
-        products.some((p) => p._id === item.productId?._id)
-      );
-
-      const productTotal = validCartItems.reduce((acc, item) => {
+      const productTotal = cartItems.reduce((acc, item) => {
         const product = products.find((p) => p._id === item.productId._id);
-        return product
-          ? acc + product.price * item.quantity * (1 - (product.discount || 0) / 100)
-          : acc;
+        return (
+          acc + product.price * item.quantity * (1 - product.discount / 100)
+        );
       }, 0);
 
       const shippingCost = calculateShipping(productTotal);
@@ -71,24 +67,26 @@ const CreateOrder = () => {
         ? subtotal * (1 - discountValue / 100)
         : subtotal;
 
-      const formattedProducts = validCartItems.map((item) => {
-        const product = products.find((p) => p._id === item.productId._id);
-        return product
-          ? {
-              product: product._id,
-              name: product.name,
-              quantity: item.quantity,
-              price: product.price,
-              totalPrice: (
-                product.price *
-                item.quantity *
-                (1 - (product.discount || 0) / 100)
-              ).toFixed(2),
-              selectedColor: item.selectedColor,
-              selectedSize: item.selectedSize,
-            }
-          : null;
-      }).filter(Boolean);
+      const formattedProducts = cartItems
+        .map((item) => {
+          const product = products.find((p) => p._id === item.productId._id);
+          return product
+            ? {
+                product: product._id,
+                name: product.name,
+                quantity: item.quantity,
+                price: product.price,
+                totalPrice: (
+                  product.price *
+                  item.quantity *
+                  (1 - (product.discount || 0) / 100)
+                ).toFixed(2),
+                selectedColor: item.selectedColor,
+                selectedSize: item.selectedSize,
+              }
+            : null;
+        })
+        .filter(Boolean);
 
       setOrderData((prev) => ({
         ...prev,
@@ -102,7 +100,7 @@ const CreateOrder = () => {
     setOrderData({ ...orderData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!orderData.addressId) {
       toast.error("Please select an address!");
@@ -123,7 +121,9 @@ const CreateOrder = () => {
         navigate("/order-success");
       }
     } catch (err) {
-      toast.error("Failed to create order: " + (err.message || "Unknown error"));
+      toast.error(
+        "Failed to create order: " + (err.message || "Unknown error")
+      );
     }
   };
 
@@ -213,7 +213,8 @@ const CreateOrder = () => {
                       fontSize: "14px",
                       fontWeight: "bold",
                       "&:hover": {
-                        background: "linear-gradient(to right, #d97706, #ea580c)",
+                        background:
+                          "linear-gradient(to right, #d97706, #ea580c)",
                       },
                     }}
                   >
@@ -300,7 +301,9 @@ const CreateOrder = () => {
                     >
                       <div className="flex items-center gap-4 flex-1">
                         <motion.img
-                          src={item.productId.images[0]?.url || "/placeholder.jpg"}
+                          src={
+                            item.productId.images[0]?.url || "/placeholder.jpg"
+                          }
                           alt={item.productId.name}
                           className="w-20 h-20 object-cover rounded-lg shadow-sm"
                           whileHover={{ scale: 1.05 }}
