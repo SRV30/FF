@@ -1,4 +1,4 @@
-import { deleteCartItem, getCartItems } from "@/store/add-to-cart/addToCart";
+import { getCartItems, deleteCartItem } from "@/store/add-to-cart/addToCart";
 import { userAddress } from "@/store/address-slice/addressSlice";
 import { getSingleDetail } from "@/store/auth-slice/user";
 import { createOrder } from "@/store/order-slice/order";
@@ -53,11 +53,16 @@ const CreateOrder = () => {
 
   useEffect(() => {
     if (cartItems.length > 0 && products.length > 0) {
-      const productTotal = cartItems.reduce((acc, item) => {
+      // Filter valid cart items
+      const validCartItems = cartItems.filter(
+        (item) => item.productId && products.some((p) => p._id === item.productId._id)
+      );
+
+      const productTotal = validCartItems.reduce((acc, item) => {
         const product = products.find((p) => p._id === item.productId._id);
-        return (
-          acc + product.price * item.quantity * (1 - product.discount / 100)
-        );
+        return product
+          ? acc + product.price * item.quantity * (1 - (product.discount || 0) / 100)
+          : acc;
       }, 0);
 
       const shippingCost = calculateShipping(productTotal);
@@ -67,26 +72,24 @@ const CreateOrder = () => {
         ? subtotal * (1 - discountValue / 100)
         : subtotal;
 
-      const formattedProducts = cartItems
-        .map((item) => {
-          const product = products.find((p) => p._id === item.productId._id);
-          return product
-            ? {
-                product: product._id,
-                name: product.name,
-                quantity: item.quantity,
-                price: product.price,
-                totalPrice: (
-                  product.price *
-                  item.quantity *
-                  (1 - (product.discount || 0) / 100)
-                ).toFixed(2),
-                selectedColor: item.selectedColor,
-                selectedSize: item.selectedSize,
-              }
-            : null;
-        })
-        .filter(Boolean);
+      const formattedProducts = validCartItems.map((item) => {
+        const product = products.find((p) => p._id === item.productId._id);
+        return product
+          ? {
+              product: product._id,
+              name: product.name,
+              quantity: item.quantity,
+              price: product.price,
+              totalPrice: (
+                product.price *
+                item.quantity *
+                (1 - (product.discount || 0) / 100)
+              ).toFixed(2),
+              selectedColor: item.selectedColor,
+              selectedSize: item.selectedSize,
+            }
+          : null;
+      }).filter(Boolean);
 
       setOrderData((prev) => ({
         ...prev,
@@ -121,9 +124,7 @@ const CreateOrder = () => {
         navigate("/order-success");
       }
     } catch (err) {
-      toast.error(
-        "Failed to create order: " + (err.message || "Unknown error")
-      );
+      toast.error("Failed to create order: " + (err.message || "Unknown error"));
     }
   };
 
@@ -190,7 +191,6 @@ const CreateOrder = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Address Section */}
           <motion.div variants={itemVariants} className="space-y-4">
             <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
               Select Address
@@ -213,8 +213,7 @@ const CreateOrder = () => {
                       fontSize: "14px",
                       fontWeight: "bold",
                       "&:hover": {
-                        background:
-                          "linear-gradient(to right, #d97706, #ea580c)",
+                        background: "linear-gradient(to right, #d97706, #ea580c)",
                       },
                     }}
                   >
@@ -258,7 +257,6 @@ const CreateOrder = () => {
             )}
           </motion.div>
 
-          {/* Payment Method Section */}
           <motion.div variants={itemVariants} className="space-y-4">
             <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
               Payment Method
@@ -282,7 +280,6 @@ const CreateOrder = () => {
             </motion.div>
           </motion.div>
 
-          {/* Cart Items Section */}
           <motion.div variants={itemVariants} className="space-y-4">
             <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
               Your Items
@@ -356,7 +353,6 @@ const CreateOrder = () => {
             </div>
           </motion.div>
 
-          {/* Total Amount Section */}
           <motion.div variants={itemVariants} className="space-y-4">
             <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
               Total Amount
@@ -380,7 +376,6 @@ const CreateOrder = () => {
             </motion.div>
           </motion.div>
 
-          {/* Submit Button */}
           <motion.button
             type="submit"
             variants={buttonVariants}
