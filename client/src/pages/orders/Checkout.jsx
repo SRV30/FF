@@ -53,10 +53,14 @@ const CreateOrder = () => {
 
   useEffect(() => {
     if (cartItems.length > 0 && products.length > 0) {
-      // Filter valid cart items
       const validCartItems = cartItems.filter(
         (item) => item.productId && products.some((p) => p._id === item.productId._id)
       );
+
+      if (validCartItems.length === 0) {
+        toast.warn("No valid items in your cart. Please update your cart.");
+        return;
+      }
 
       const productTotal = validCartItems.reduce((acc, item) => {
         const product = products.find((p) => p._id === item.productId._id);
@@ -134,7 +138,6 @@ const CreateOrder = () => {
     }
   };
 
-  // Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
