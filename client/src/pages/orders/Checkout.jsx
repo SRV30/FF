@@ -71,6 +71,7 @@ const CreateOrder = () => {
 
       const formattedProducts = cartItems.map((item) => {
         const product = products.find((p) => p._id === item.productId._id);
+        if (!product) return null;
         return {
           product: product._id,
           name: product.name,
