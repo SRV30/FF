@@ -39,7 +39,6 @@ const Cart = () => {
     });
   };
 
-  // Filter valid cart items
   const validCartItems = cartItems.filter(
     (item) => item.productId && typeof item.productId.price === "number"
   );

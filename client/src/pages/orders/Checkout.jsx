@@ -33,8 +33,6 @@ const CreateOrder = () => {
     totalAmount: 0,
   });
 
-  const calculateShipping = () => 0;
-
   useEffect(() => {
     dispatch(userAddress());
     dispatch(getProducts());
@@ -54,7 +52,8 @@ const CreateOrder = () => {
   useEffect(() => {
     if (cartItems.length > 0 && products.length > 0) {
       const validCartItems = cartItems.filter(
-        (item) => item.productId && products.some((p) => p._id === item.productId._id)
+        (item) =>
+          item.productId && products.some((p) => p._id === item.productId._id)
       );
 
       if (validCartItems.length === 0) {
@@ -62,38 +61,46 @@ const CreateOrder = () => {
         return;
       }
 
-      const productTotal = validCartItems.reduce((acc, item) => {
+      // const productTotal = validCartItems.reduce((acc, item) => {
+      //   const product = products.find((p) => p._id === item.productId._id);
+      //   return product
+      //     ? acc +
+      //         product.price *
+      //           item.quantity *
+      //           (1 - (product.discount || 0) / 100)
+      //     : acc;
+      // }, 0);
+
+      const finalAmount = cartItems.reduce((acc, item) => {
         const product = products.find((p) => p._id === item.productId._id);
         return product
-          ? acc + product.price * item.quantity * (1 - (product.discount || 0) / 100)
+          ? acc +
+              product.price *
+                item.quantity *
+                (1 - (product.discount || 0) / 100)
           : acc;
       }, 0);
 
-      const shippingCost = calculateShipping(productTotal);
-      const subtotal = productTotal + shippingCost;
-
-      const finalAmount = discountValue
-        ? subtotal * (1 - discountValue / 100)
-        : subtotal;
-
-      const formattedProducts = validCartItems.map((item) => {
-        const product = products.find((p) => p._id === item.productId._id);
-        return product
-          ? {
-              product: product._id,
-              name: product.name,
-              quantity: item.quantity,
-              price: product.price,
-              totalPrice: (
-                product.price *
-                item.quantity *
-                (1 - (product.discount || 0) / 100)
-              ).toFixed(2),
-              selectedColor: item.selectedColor,
-              selectedSize: item.selectedSize,
-            }
-          : null;
-      }).filter(Boolean);
+      const formattedProducts = validCartItems
+        .map((item) => {
+          const product = products.find((p) => p._id === item.productId._id);
+          return product
+            ? {
+                product: product._id,
+                name: product.name,
+                quantity: item.quantity,
+                price: product.price,
+                totalPrice: (
+                  product.price *
+                  item.quantity *
+                  (1 - (product.discount || 0) / 100)
+                ).toFixed(2),
+                selectedColor: item.selectedColor,
+                selectedSize: item.selectedSize,
+              }
+            : null;
+        })
+        .filter(Boolean);
 
       setOrderData((prev) => ({
         ...prev,
@@ -128,7 +135,9 @@ const CreateOrder = () => {
         navigate("/order-success");
       }
     } catch (err) {
-      toast.error("Failed to create order: " + (err.message || "Unknown error"));
+      toast.error(
+        "Failed to create order: " + (err.message || "Unknown error")
+      );
     }
   };
 
@@ -216,7 +225,8 @@ const CreateOrder = () => {
                       fontSize: "14px",
                       fontWeight: "bold",
                       "&:hover": {
-                        background: "linear-gradient(to right, #d97706, #ea580c)",
+                        background:
+                          "linear-gradient(to right, #d97706, #ea580c)",
                       },
                     }}
                   >
