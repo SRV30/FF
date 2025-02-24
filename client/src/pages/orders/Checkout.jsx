@@ -1,9 +1,9 @@
-import { getCartItems } from "@/store/add-to-cart/addToCart";
+import { getCartItems, deleteCartItem } from "@/store/add-to-cart/addToCart";
 import { userAddress } from "@/store/address-slice/addressSlice";
 import { getSingleDetail } from "@/store/auth-slice/user";
 import { createOrder } from "@/store/order-slice/order";
 import { getProducts } from "@/store/product-slice/productSlice";
-import { CircularProgress } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,7 +20,7 @@ const CreateOrder = () => {
   const { product: products = [], loading: productLoading } = useSelector(
     (state) => state.product
   );
-  const { cartItems = [], loading: cartLoading } = useSelector(
+  const { cartItems = [], loading: cartLoading, finalTotal } = useSelector(
     (state) => state.cart
   );
   const { loading: orderLoading, error } = useSelector((state) => state.order);
@@ -30,12 +30,8 @@ const CreateOrder = () => {
     addressId: "",
     products: [],
     paymentMethod: "COD",
-    totalAmount: 0,
+    totalAmount: finalTotal.toFixed(2),
   });
-
-  const calculateShipping = () => {
-    return 0;
-  };
 
   useEffect(() => {
     dispatch(userAddress());
@@ -55,68 +51,70 @@ const CreateOrder = () => {
 
   useEffect(() => {
     if (cartItems.length > 0 && products.length > 0) {
-      const productTotal = cartItems.reduce((acc, item) => {
-        const product = products.find((p) => p._id === item.productId?._id);
-        if (!product) return acc;
-        return acc + product.price * item.quantity * (1 - (product.discount || 0) / 100);
-      }, 0);
-      
+      const validCartItems = cartItems.filter(
+        (item) =>
+          item.productId && products.some((p) => p._id === item.productId._id)
+      );
 
-      const shippingCost = calculateShipping(productTotal);
-      const subtotal = productTotal + shippingCost;
-
-      const finalAmount = discountValue
-        ? subtotal * (1 - discountValue / 100)
-        : subtotal;
-
-      const formattedProducts = cartItems.map((item) => {
-        const product = products.find((p) => p._id === item.productId._id);
-        if (!product) return null;
-        return {
-          product: product._id,
-          name: product.name,
-          quantity: item.quantity,
-          price: product.price,
-          totalPrice: (
-            product.price *
-            item.quantity *
-            (1 - product.discount / 100)
-          ).toFixed(2),
-          selectedColor: item.selectedColor,
-          selectedSize: item.selectedSize,
-        };
-      });
+      const formattedProducts = validCartItems
+        .map((item) => {
+          const product = products.find((p) => p._id === item.productId._id);
+          return product
+            ? {
+                product: product._id,
+                name: product.name,
+                quantity: item.quantity,
+                price: product.price,
+                totalPrice: (
+                  product.price *
+                  item.quantity *
+                  (1 - (product.discount || 0) / 100)
+                ).toFixed(2),
+                selectedColor: item.selectedColor,
+                selectedSize: item.selectedSize,
+              }
+            : null;
+        })
+        .filter(Boolean);
 
       setOrderData((prev) => ({
         ...prev,
         products: formattedProducts,
-        totalAmount: finalAmount.toFixed(2),
+        totalAmount: finalTotal.toFixed(2),
       }));
     }
-  }, [cartItems, products, discountValue]);
+  }, [cartItems, products, discountValue, finalTotal]);
 
   const handleChange = (e) => {
     setOrderData({ ...orderData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!orderData.addressId) {
       toast.error("Please select an address!");
       return;
     }
-    if (orderData.totalAmount <= 0) {
-      toast.error("Invalid total amount. Please check the cart.");
+    if (orderData.totalAmount <= 0 || !orderData.products.length) {
+      toast.error("Invalid order. Please check your cart.");
       return;
     }
-    dispatch(createOrder(orderData));
-    toast.success("Order created successfully!");
-    navigate("/order-success");
+    try {
+      const result = await dispatch(createOrder(orderData)).unwrap();
+      if (result) {
+        toast.success("Order created successfully!");
+        cartItems.forEach((item) => {
+          dispatch(deleteCartItem(item._id));
+        });
+        dispatch(getCartItems());
+        navigate("/order-success");
+      }
+    } catch (err) {
+      toast.error(
+        "Failed to create order: " + (err.message || "Unknown error")
+      );
+    }
   };
-
-  if (productLoading || orderLoading || authLoading || cartLoading) {
-    return <CircularProgress className="mt-10 items-center justify-center" />;
-  }
 
   const handleURLChange = (event) => {
     if (event.target.value === "Online") {
@@ -124,177 +122,234 @@ const CreateOrder = () => {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
+  };
+
+  const buttonVariants = {
+    hover: { scale: 1.05 },
+    tap: { scale: 0.95 },
+  };
+
+  if (productLoading || orderLoading || authLoading || cartLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex justify-center items-center h-screen"
+      >
+        <CircularProgress sx={{ color: "#f59e0b" }} size={60} />
+      </motion.div>
+    );
+  }
+
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg">
-      <h2 className="text-2xl font-semibold text-center mb-6">Create Order</h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center py-12">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="max-w-2xl w-full mx-auto bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8"
+      >
+        <motion.h2
+          variants={itemVariants}
+          className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-gray-100"
+        >
+          Checkout
+        </motion.h2>
 
-      {error && (
-        <p className="text-red-500">
-          {typeof error === "object" ? error.message : error}
-        </p>
-      )}
+        {error && (
+          <motion.p
+            variants={itemVariants}
+            className="text-red-500 text-center mb-6 bg-red-100 dark:bg-red-900 rounded-lg p-2 shadow-md"
+          >
+            {typeof error === "object" ? error.message : error}
+          </motion.p>
+        )}
 
-      <form onSubmit={handleSubmit} className="space-y-2">
-        <div className="container mx-auto p-6">
-          <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Select Address
-          </label>
-
-          {address.length === 0 ? (
-            <>
-              <p className="text-red-500">
-                No addresses available. Please add an address to continue.
-              </p>
-              <Link to="/saved-address">
-                <button className="bg-yellow-500 hover:bg-yellow-700 dark:bg-red-600 dark:hover:bg-red-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
-                  Add Address
-                </button>
-              </Link>
-            </>
-          ) : (
-            address.map((addr) => (
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <motion.div variants={itemVariants} className="space-y-4">
+            <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
+              Select Address
+            </label>
+            {address.length === 0 ? (
               <motion.div
-                key={addr._id}
-                className="flex items-center mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition duration-300 ease-in-out"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                whileHover={{ scale: 1.03 }}
+                variants={itemVariants}
+                className="text-center bg-red-100 dark:bg-red-900 rounded-lg p-4 shadow-md"
               >
-                <input
-                  type="radio"
-                  name="addressId"
-                  value={addr._id}
-                  onChange={handleChange}
-                  className="mr-4 rounded-full border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {`${addr.address_line}, ${addr.city}, ${addr.state}, ${addr.pincode}`}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {addr.mobile}
-                  </p>
-                </div>
+                <p className="text-red-500 dark:text-red-400 mb-4">
+                  No addresses available. Please add an address to continue.
+                </p>
+                <Link to="/saved-address">
+                  <Button
+                    sx={{
+                      background: "linear-gradient(to right, #f59e0b, #f97316)",
+                      color: "white",
+                      padding: "10px 20px",
+                      borderRadius: "9999px",
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      "&:hover": {
+                        background:
+                          "linear-gradient(to right, #d97706, #ea580c)",
+                      },
+                    }}
+                  >
+                    Add Address
+                  </Button>
+                </Link>
               </motion.div>
-            ))
-          )}
-        </div>
-
-        <div className="container mx-auto p-6">
-          <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Payment Method
-          </label>
-
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-          >
-            <select
-              name="paymentMethod"
-              value={orderData.paymentMethod}
-              onChange={(e) => {
-                handleChange(e);
-                handleURLChange(e);
-              }}
-              className="w-full p-3 pl-4 pr-10 border rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-700 transition duration-300 ease-in-out"
-            >
-              <option value="COD">Cash on Delivery</option>
-              <option value="Online">Online Payment through Razorpay</option>
-            </select>
-          </motion.div>
-        </div>
-
-        <div className="p-4">
-          <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
-            Your Items
-          </label>
-
-          <AnimatePresence>
-            {cartItems?.length > 0 ? (
-              cartItems.map((item) => (
-                <motion.div
-                  key={item._id}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-xl shadow-lg hover:shadow-xl transition-all border border-gray-200 dark:border-gray-700 my-3"
-                >
-                  <div className="flex items-center gap-4 flex-1">
-                    <motion.img
-                      src={item.productId.images[0]?.url || "/placeholder.jpg"}
-                      alt={item.productId.name}
-                      className="w-24 h-24 object-cover rounded-lg shadow-md"
-                      whileHover={{ scale: 1.1 }}
-                    />
-
-                    <div>
-                      <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                        {item.productId.name}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Quantity: {item.quantity}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Color: {item.selectedColor}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Size: {item.selectedSize}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 sm:mt-0">
-                    <div className="flex flex-col items-center">
-                      <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                        ₹
-                        {(
-                          item.productId.price *
-                          (1 - item.productId.discount / 100)
-                        ).toFixed(2)}
-                      </p>
-                      {item.productId.discount > 0 && (
-                        <p className="text-sm line-through text-gray-500 dark:text-gray-400">
-                          ₹{item.productId.price}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))
             ) : (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-gray-500 dark:text-gray-400 mt-4 text-center"
-              >
-                No items.
-              </motion.p>
+              <div className="space-y-3">
+                <AnimatePresence>
+                  {address.map((addr) => (
+                    <motion.div
+                      key={addr._id}
+                      variants={itemVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      whileHover={{ scale: 1.02 }}
+                      className="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+                    >
+                      <input
+                        type="radio"
+                        name="addressId"
+                        value={addr._id}
+                        onChange={handleChange}
+                        className="mr-4 w-5 h-5 text-yellow-500 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-yellow-500 transition duration-200"
+                        required
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {`${addr.address_line}, ${addr.city}, ${addr.state}, ${addr.pincode}`}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {addr.mobile}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
             )}
-          </AnimatePresence>
-        </div>
+          </motion.div>
 
-        <div className="container mx-auto p-6">
-          <label
-            className="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4"
-            htmlFor="totalAmount"
-          >
-            Total Amount
-          </label>
+          <motion.div variants={itemVariants} className="space-y-4">
+            <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
+              Payment Method
+            </label>
+            <motion.div
+              variants={itemVariants}
+              className="relative bg-gray-50 dark:bg-gray-700 p-4 rounded-xl shadow-md"
+            >
+              <select
+                name="paymentMethod"
+                value={orderData.paymentMethod}
+                onChange={(e) => {
+                  handleChange(e);
+                  handleURLChange(e);
+                }}
+                className="w-full p-3 bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-300"
+              >
+                <option value="COD">Cash on Delivery</option>
+                <option value="Online">Online Payment (Razorpay)</option>
+              </select>
+            </motion.div>
+          </motion.div>
 
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="flex items-center border rounded-lg bg-white dark:bg-gray-800">
-              <span className="text-xl text-gray-800 dark:text-gray-200 mx-3">
+          <motion.div variants={itemVariants} className="space-y-4">
+            <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
+              Your Items
+            </label>
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl shadow-md">
+              <AnimatePresence>
+                {cartItems?.length > 0 ? (
+                  cartItems.map((item) => (
+                    <motion.div
+                      key={item._id}
+                      variants={itemVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="flex flex-col sm:flex-row items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 mb-3"
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <motion.img
+                          src={
+                            item.productId.images[0]?.url || "/placeholder.jpg"
+                          }
+                          alt={item.productId.name}
+                          className="w-20 h-20 object-cover rounded-lg shadow-sm"
+                          whileHover={{ scale: 1.05 }}
+                        />
+                        <div>
+                          <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                            {item.productId.name}
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Quantity: {item.quantity}
+                          </p>
+                          {item.selectedColor && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              Color: {item.selectedColor}
+                            </p>
+                          )}
+                          {item.selectedSize && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              Size: {item.selectedSize}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center mt-4 sm:mt-0">
+                        <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                          ₹
+                          {(
+                            item.productId.price *
+                            item.quantity *
+                            (1 - (item.productId.discount || 0) / 100)
+                          ).toFixed(2)}
+                        </p>
+                        {item.productId.discount > 0 && (
+                          <p className="text-sm line-through text-gray-500 dark:text-gray-400">
+                            ₹{(item.productId.price * item.quantity).toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <motion.p
+                    variants={itemVariants}
+                    className="text-gray-500 dark:text-gray-400 text-center"
+                  >
+                    No items in your cart.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="space-y-4">
+            <label className="block text-lg font-semibold text-gray-800 dark:text-gray-200">
+              Total Amount
+            </label>
+            <motion.div
+              variants={itemVariants}
+              className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl shadow-md flex items-center justify-between"
+            >
+              <span className="text-xl text-gray-800 dark:text-gray-200">
                 ₹
               </span>
               <input
@@ -302,24 +357,25 @@ const CreateOrder = () => {
                 type="number"
                 name="totalAmount"
                 value={orderData.totalAmount || 0}
-                className="w-full p-3 pl-0 text-xl text-gray-800 dark:text-gray-200 bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-700 transition duration-300 ease-in-out"
+                className="w-full p-3 text-xl text-gray-800 dark:text-gray-200 bg-transparent focus:outline-none"
                 readOnly
                 aria-label="Total Amount"
               />
-            </div>
+            </motion.div>
           </motion.div>
-        </div>
 
-        <motion.button
-          type="submit"
-          className="w-full bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-700 focus:outline-none transition-all duration-300 ease-in-out transform dark:bg-red-600 dark:hover:bg-red-700 dark:text-white"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.98 }}
-          aria-label="Place Order"
-        >
-          Place Order
-        </motion.button>
-      </form>
+          <motion.button
+            type="submit"
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-red-600 dark:to-red-700 text-white py-3 rounded-full font-semibold shadow-md hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 flex items-center justify-center gap-2"
+            aria-label="Place Order"
+          >
+            Place Order
+          </motion.button>
+        </form>
+      </motion.div>
     </div>
   );
 };
