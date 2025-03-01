@@ -10,9 +10,12 @@ import { toast } from "react-toastify";
 
 const AdminUsers = () => {
   const dispatch = useDispatch();
-  const { users = [], loading, error, totalPages } = useSelector(
-    (state) => state.auth
-  );
+  const {
+    users = [],
+    loading,
+    error,
+    totalPages,
+  } = useSelector((state) => state.auth);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 

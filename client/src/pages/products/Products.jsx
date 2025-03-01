@@ -12,6 +12,7 @@ import categories from "./Categories";
 import colors from "../extras/Colors";
 import sizes from "../extras/Size";
 import PropTypes from "prop-types";
+import MetaData from "../extras/MetaData";
 
 const FilterSection = ({ title, items, selected, onSelect, children }) => (
   <motion.div
@@ -143,7 +144,11 @@ const Products = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.5, when: "beforeChildren", staggerChildren: 0.1 },
+      transition: {
+        duration: 0.5,
+        when: "beforeChildren",
+        staggerChildren: 0.1,
+      },
     },
   };
 
@@ -159,13 +164,18 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
+      <MetaData
+        title="Shop Latest Trends | Faith AND Fast - Fashion, Accessories & More"
+        description="Discover the latest fashion trends at Faith AND Fast. Shop stylish clothing, accessories, and more with fast delivery and secure payments. Find your perfect look today!"
+        keywords="Faith AND Fast products, online fashion store, trendy clothing, buy accessories, latest fashion, shop online, best fashion deals"
+      />
+
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
         className="container mx-auto px-4 py-8"
       >
-        {/* Search Bar */}
         <motion.div
           variants={childVariants}
           className="flex items-center bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 p-3 mb-8"
@@ -260,14 +270,20 @@ const Products = () => {
                   title="Categories"
                   items={categories}
                   selected={selectedCategories}
-                  onSelect={(cat) => handleFilterChange(setSelectedCategories, cat)}
+                  onSelect={(cat) =>
+                    handleFilterChange(setSelectedCategories, cat)
+                  }
                 />
                 {getActiveSubcategories().length > 0 && (
                   <FilterSection
                     title="Subcategories"
-                    items={getActiveSubcategories().map((sc) => ({ title: sc }))}
+                    items={getActiveSubcategories().map((sc) => ({
+                      title: sc,
+                    }))}
                     selected={selectedSubcategories}
-                    onSelect={(sc) => handleFilterChange(setSelectedSubcategories, sc)}
+                    onSelect={(sc) =>
+                      handleFilterChange(setSelectedSubcategories, sc)
+                    }
                   />
                 )}
                 <FilterSection
@@ -281,7 +297,9 @@ const Products = () => {
                     title="Color Options"
                     items={getActiveColorOptions().map((co) => ({ title: co }))}
                     selected={selectedColorOptions}
-                    onSelect={(co) => handleFilterChange(setSelectedColorOptions, co)}
+                    onSelect={(co) =>
+                      handleFilterChange(setSelectedColorOptions, co)
+                    }
                   />
                 )}
                 <FilterSection
@@ -295,7 +313,9 @@ const Products = () => {
                     title="Size Options"
                     items={getActiveSizeOptions().map((so) => ({ title: so }))}
                     selected={selectedSizeOptions}
-                    onSelect={(so) => handleFilterChange(setSelectedSizeOptions, so)}
+                    onSelect={(so) =>
+                      handleFilterChange(setSelectedSizeOptions, so)
+                    }
                   />
                 )}
               </motion.div>
@@ -336,14 +356,18 @@ const Products = () => {
                 title="Categories"
                 items={categories}
                 selected={selectedCategories}
-                onSelect={(cat) => handleFilterChange(setSelectedCategories, cat)}
+                onSelect={(cat) =>
+                  handleFilterChange(setSelectedCategories, cat)
+                }
               />
               {getActiveSubcategories().length > 0 && (
                 <FilterSection
                   title="Subcategories"
                   items={getActiveSubcategories().map((sc) => ({ title: sc }))}
                   selected={selectedSubcategories}
-                  onSelect={(sc) => handleFilterChange(setSelectedSubcategories, sc)}
+                  onSelect={(sc) =>
+                    handleFilterChange(setSelectedSubcategories, sc)
+                  }
                 />
               )}
               <FilterSection
@@ -357,7 +381,9 @@ const Products = () => {
                   title="Color Options"
                   items={getActiveColorOptions().map((co) => ({ title: co }))}
                   selected={selectedColorOptions}
-                  onSelect={(co) => handleFilterChange(setSelectedColorOptions, co)}
+                  onSelect={(co) =>
+                    handleFilterChange(setSelectedColorOptions, co)
+                  }
                 />
               )}
               <FilterSection
@@ -371,7 +397,9 @@ const Products = () => {
                   title="Size Options"
                   items={getActiveSizeOptions().map((so) => ({ title: so }))}
                   selected={selectedSizeOptions}
-                  onSelect={(so) => handleFilterChange(setSelectedSizeOptions, so)}
+                  onSelect={(so) =>
+                    handleFilterChange(setSelectedSizeOptions, so)
+                  }
                 />
               )}
             </div>
@@ -407,7 +435,10 @@ const Products = () => {
                     initial="hidden"
                     animate="visible"
                     exit="hidden"
-                    whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(0, 0, 0, 0.1)" }}
+                    whileHover={{
+                      scale: 1.05,
+                      boxShadow: "0 10px 20px rgba(0, 0, 0, 0.1)",
+                    }}
                     className="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden transition-all duration-300"
                   >
                     <div className="relative aspect-square">
@@ -441,7 +472,8 @@ const Products = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                            ₹{(
+                            ₹
+                            {(
                               item.price -
                               item.price * (item.discount / 100)
                             ).toFixed(2)}
@@ -480,7 +512,8 @@ const Products = () => {
 
 FilterSection.propTypes = {
   title: PropTypes.string.isRequired,
-  items: PropTypes.arrayOf(PropTypes.shape({ title: PropTypes.string })).isRequired,
+  items: PropTypes.arrayOf(PropTypes.shape({ title: PropTypes.string }))
+    .isRequired,
   selected: PropTypes.arrayOf(PropTypes.string).isRequired,
   onSelect: PropTypes.func.isRequired,
   children: PropTypes.node,

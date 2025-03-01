@@ -16,8 +16,8 @@ export default function Header() {
   const location = useLocation();
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const { cartItems = []} = useSelector((state) => state.cart);
-  const { WishListItems = []} = useSelector((state) => state.wishList);
+  const { cartItems = [] } = useSelector((state) => state.cart);
+  const { WishListItems = [] } = useSelector((state) => state.wishList);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -47,6 +47,20 @@ export default function Header() {
   };
 
   const isActiveRoute = (route) => location.pathname === route;
+
+  useEffect(() => {
+    if (menuOpen) {
+      const timer = setTimeout(() => setMenuOpen(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (dropdownOpen) {
+      const timer = setTimeout(() => setDropdownOpen(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [dropdownOpen]);
 
   return (
     <header className="header bg-yellow-500 dark:bg-gray-900 flex items-center justify-between px-6 py-3 sticky top-0 z-50 shadow-md transition-all duration-300">

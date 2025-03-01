@@ -59,13 +59,13 @@ const Footer = () => {
             },
             {
               title: "Support",
-              links: ["Help Center", "FAQs", "Contact"],
-              hrefs: ["", "", "/contactus"],
+              links: ["FAQ", "Contact"],
+              hrefs: ["/faqs", "/contactus"],
             },
             {
               title: "Legal",
               links: ["Privacy Policy", "Terms of Service"],
-              hrefs: ["", ""],
+              hrefs: ["/privacy-policy", "/terms"],
             },
           ].map((section, index) => (
             <motion.div
@@ -104,21 +104,21 @@ const Footer = () => {
           <p>© {currentYear} Faith AND Fast. All Rights Reserved.</p>
           <span className="hidden md:inline"> • </span>
           <a
-            href=""
+            href="/privacy-policy"
             className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer"
           >
             Privacy
           </a>{" "}
           •
           <a
-            href=""
+            href="/terms"
             className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer"
           >
             Terms
           </a>{" "}
           •
           <a
-            href=""
+            href="/sitemap"
             className="hover:text-red-700 dark:hover:text-red-400 cursor-pointer"
           >
             Sitemap

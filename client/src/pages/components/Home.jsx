@@ -64,7 +64,11 @@ const Home = () => {
       className="min-h-screen bg-gray-50 dark:bg-gray-900 text-black dark:text-white"
     >
       <header>
-        <MetaData title="Home | Faith AND Fast" />
+        <MetaData
+          title="Best Fashion & Accessories | Faith AND Fast"
+          description="Discover the latest fashion trends, accessories, and best-selling products at Faith AND Fast. Shop now for exclusive deals!"
+          keywords="fashion, accessories, Faith AND Fast, trending fashion, online shopping"
+        />
         <BannerProduct />
         <CategoryPanel />
       </header>

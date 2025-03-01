@@ -37,7 +37,6 @@ const ProductDetails = ({ products }) => {
   const [selectedSize, setSelectedSize] = useState("");
   const [visibleReviews, setVisibleReviews] = useState([]);
 
-  // Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -61,7 +60,6 @@ const ProductDetails = ({ products }) => {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.4 } },
   };
 
-  // Fetch random reviews
   const getRandomReviews = useCallback(
     (count) => {
       if (!reviews || reviews.length === 0) return [];
@@ -70,6 +68,14 @@ const ProductDetails = ({ products }) => {
     },
     [reviews]
   );
+
+  const expectedDate = new Date();
+  expectedDate.setDate(expectedDate.getDate() + 5);
+  const formattedDate = expectedDate.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 
   useEffect(() => {
     if (reviews && reviews.length > 0) {
@@ -101,7 +107,6 @@ const ProductDetails = ({ products }) => {
     setRandomSimilar(combined.sort(() => Math.random() - 0.5).slice(0, 6));
   }, [similarProducts, products]);
 
-  // Set initial color and size
   useEffect(() => {
     if (product) {
       if (product.coloroptions) {
@@ -214,7 +219,12 @@ const ProductDetails = ({ products }) => {
         animate="visible"
         className="container mx-auto px-4 py-12"
       >
-        <MetaData title={product?.name} description={product?.description} />
+        <MetaData
+          title={`${product?.name} | Buy Online at Faith AND Fast`}
+          description={`Get ${product?.name} at the best price on Faith AND Fast. ${product?.description}. Fast shipping & secure payment options available!`}
+          keywords={`${product?.name}, buy ${product?.name} online, Faith AND Fast, ${product?.category}, best price ${product?.name}, shop ${product?.name}, latest ${product?.category}`}
+        />
+
         <AnimatePresence>
           {loading ? (
             <motion.div
@@ -243,7 +253,9 @@ const ProductDetails = ({ products }) => {
                   whileHover={{ scale: 1.02 }}
                   className="rounded-lg overflow-hidden shadow-2xl"
                 >
-                  <ImageSlider images={product?.images?.map((img) => img.url)} />
+                  <ImageSlider
+                    images={product?.images?.map((img) => img.url)}
+                  />
                 </motion.div>
                 <div className="space-y-6">
                   <motion.h1
@@ -337,14 +349,16 @@ const ProductDetails = ({ products }) => {
                       onClick={() => handleAddCart(product)}
                       disabled={loading}
                       sx={{
-                        background: "linear-gradient(to right, #f59e0b, #f97316)",
+                        background:
+                          "linear-gradient(to right, #f59e0b, #f97316)",
                         color: "white",
                         padding: "12px 24px",
                         borderRadius: "9999px",
                         fontSize: "16px",
                         fontWeight: "bold",
                         "&:hover": {
-                          background: "linear-gradient(to right, #d97706, #ea580c)",
+                          background:
+                            "linear-gradient(to right, #d97706, #ea580c)",
                         },
                         "&:disabled": { opacity: 0.5 },
                       }}
@@ -354,6 +368,36 @@ const ProductDetails = ({ products }) => {
                     </Button>
                   </motion.div>
                 </div>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                initial="hidden"
+                animate="visible"
+                whileHover={{ scale: 1.02 }}
+                className="bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 
+                 shadow-2xl rounded-2xl p-8 transition-all duration-300 group"
+              >
+                <h2
+                  className="text-3xl font-extrabold text-gray-900 dark:text-white 
+                     mb-6 pb-2 border-b-2 border-transparent group-hover:border-indigo-500 
+                     transition duration-300"
+                >
+                  📦 Fast & Free Delivery
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300">
+                  🚚 Free Delivery
+                </p>
+                <p className="text-lg text-gray-600 dark:text-gray-300">
+                  📅 Delivery by{" "}
+                  <span className="font-semibold text-indigo-500 dark:text-indigo-400">
+                    {formattedDate}
+                  </span>{" "}
+                  (Expected)
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                  Delivery time varies based on location & order size.
+                </p>
               </motion.div>
 
               {/* Product Details Section */}
@@ -377,13 +421,17 @@ const ProductDetails = ({ products }) => {
                     <span className="text-xl font-semibold text-gray-600 dark:text-gray-200">
                       Category:
                     </span>
-                    <span className="text-lg font-medium">{product?.category}</span>
+                    <span className="text-lg font-medium">
+                      {product?.category}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xl font-semibold text-gray-600 dark:text-gray-200">
                       Collection:
                     </span>
-                    <span className="text-lg font-medium">{product?.subcategory}</span>
+                    <span className="text-lg font-medium">
+                      {product?.subcategory}
+                    </span>
                   </div>
                   {Array.isArray(product?.coloroptions) &&
                     product.coloroptions.length > 0 && (
@@ -440,7 +488,6 @@ const ProductDetails = ({ products }) => {
                 </div>
               </motion.div>
 
-              {/* Reviews Section */}
               <motion.section
                 variants={itemVariants}
                 className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl"
@@ -544,7 +591,10 @@ const ProductDetails = ({ products }) => {
                     <motion.div
                       key={prod._id}
                       variants={cardVariants}
-                      whileHover={{ y: -5, boxShadow: "0 10px 20px rgba(0, 0, 0, 0.1)" }}
+                      whileHover={{
+                        y: -5,
+                        boxShadow: "0 10px 20px rgba(0, 0, 0, 0.1)",
+                      }}
                     >
                       <ProductCard product={prod} />
                     </motion.div>

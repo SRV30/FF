@@ -92,6 +92,7 @@ const AdminAddProduct = () => {
     "XXXL",
     "4XL",
     "5XL",
+    "26",
     "28",
     "30",
     "32",
@@ -342,7 +343,7 @@ const AdminAddProduct = () => {
         animate="visible"
         className="max-w-4xl w-full bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8"
       >
-        <MetaData title="Create New Product" />
+        <MetaData title="Create New Product | Faith AND Fast" />
         <Link to="/admin/dashboard">
           <motion.button
             variants={childVariants}

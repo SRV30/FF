@@ -48,7 +48,12 @@ const Login = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-white text-black dark:bg-gray-800 dark:text-white">
-      <MetaData title="Login | Faith AND Fast" />
+      <MetaData
+        title="Login | Faith AND Fast - Secure Access to Your Account"
+        description="Sign in to your Faith AND Fast account to track orders, manage your wishlist, and enjoy exclusive fashion deals. Secure and hassle-free login experience!"
+        keywords="Faith AND Fast login, sign in, user account, fashion store login, track orders, wishlist, secure shopping"
+      />
+
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

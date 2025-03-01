@@ -21,12 +21,15 @@ export const getAllOrders = createAsyncThunk(
 
 export const updateOrderStatus = createAsyncThunk(
   "adminOrders/updateOrderStatus",
-  async ({ orderId, orderStatus, trackingId, notes }, { rejectWithValue }) => {
+  async (
+    { orderId, orderStatus, trackingId, notes, deliveryDate },
+    { rejectWithValue }
+  ) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axiosInstance.put(
         `/api/order/admin/update/${orderId}`,
-        { orderStatus, trackingId, notes },
+        { orderStatus, trackingId, notes, deliveryDate },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -71,6 +74,27 @@ export const getSingleOrder = createAsyncThunk(
         withCredentials: true,
       });
       return response.data.order;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const deleteAllOrders = createAsyncThunk(
+  "adminOrders/deleteAllOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.delete(
+        "/api/order/admin/delete-all",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -147,6 +171,18 @@ const adminOrdersSlice = createSlice({
       .addCase(getSingleOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      .addCase(deleteAllOrders.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteAllOrders.fulfilled, (state) => {
+        state.loading = false;
+        state.orders = []; 
+      })
+      .addCase(deleteAllOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to delete all orders";
       });
   },
 });

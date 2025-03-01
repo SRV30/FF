@@ -10,6 +10,7 @@ import { Alert, CircularProgress } from "@mui/material";
 import { FaCheck } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import ConfirmationModal from "../extras/ConfirmationModel";
+import { format } from "date-fns";
 
 const statusOrder = ["PENDING", "SHIPPED", "DELIVERED"];
 
@@ -111,6 +112,45 @@ const OrderDetails = () => {
       setIsModalOpen(false);
     }
   };
+
+   const formatDeliveryDate = (date) => {
+      if (!date || date === "To be delivered") return "To be delivered";
+  
+      const deliveryDate = new Date(date);
+      const today = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+  
+      const yearFormat =
+        deliveryDate.getFullYear() === today.getFullYear()
+          ? "MMMM dd"
+          : "MMMM dd, yyyy";
+  
+      if (
+        deliveryDate.toDateString() === today.toDateString() &&
+        deliveryDate.getTime() > today.getTime()
+      ) {
+        return "Arriving today by 10 PM";
+      }
+  
+      if (deliveryDate.toDateString() === tomorrow.toDateString()) {
+        return "Arriving tomorrow by 10 PM";
+      }
+  
+      if (deliveryDate > today) {
+        return `Expected delivery on ${format(deliveryDate, yearFormat)}`;
+      }
+  
+      if (
+        deliveryDate.getDate() === today.getDate() &&
+        deliveryDate.getMonth() === today.getMonth() &&
+        deliveryDate.getFullYear() === today.getFullYear()
+      ) {
+        return `Delivered today, ${format(deliveryDate, "MMMM dd")}`;
+      }
+  
+      return `Delivered on ${format(deliveryDate, yearFormat)}`;
+    };
 
   return (
     <div className="container mx-auto p-6 min-h-screen">
@@ -222,10 +262,7 @@ const OrderDetails = () => {
                 </p>
                 <p>
                   <strong>Delivery:</strong>{" "}
-                  {order.deliveryDate &&
-                  order.deliveryDate !== "To be delivered"
-                    ? new Date(order.deliveryDate).toLocaleDateString()
-                    : "To be delivered"}
+                  {formatDeliveryDate(order.deliveryDate)}
                 </p>
               </div>
             </motion.div>

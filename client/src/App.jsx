@@ -6,7 +6,6 @@ import Footer from "./pages/components/Footer";
 import MyProfile from "./pages/my-profile/MyProfile";
 import Products from "./pages/products/Products";
 import About from "./pages/components/About";
-import Review from "./pages/products/Review";
 import Cart from "./pages/orders/Cart";
 import Wishlist from "./pages/orders/Wishlist";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -37,6 +36,10 @@ import { useEffect } from "react";
 import { getCartItems } from "./store/add-to-cart/addToCart";
 import { getWishListItems } from "./store/add-to-wishList/addToWishList";
 import NotFoundPage from "./pages/extras/NotFoundPage ";
+import FAQPage from "./pages/extras/FAQPage";
+import PrivacyPolicy from "./pages/extras/PrivacyPolicy";
+import TermsAndServices from "./pages/extras/TermsAndServices";
+import Sitemap from "./pages/extras/Sitemap";
 
 const App = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -155,9 +158,11 @@ const App = () => {
         />
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />
-        <Route path="/Review" element={<Review />} />
-
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/faqs" element={<FAQPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsAndServices />} />
+        <Route path="/sitemap" element={<Sitemap />} />
 
         {/* Admin routes */}
         {isAuthenticated && user?.role === "ADMIN" && (

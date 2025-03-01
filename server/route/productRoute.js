@@ -53,7 +53,6 @@ productRouter.post("/review/:productId", auth, postProductReview);
 productRouter.delete(
   "/review/:productId/:reviewId",
   auth,
-  admin,
   deleteProductReview
 );
 

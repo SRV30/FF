@@ -10,6 +10,11 @@ export const createOrder = catchAsyncErrors(async (req, res) => {
     const { userId, addressId, products, paymentMethod, totalAmount } =
       req.body;
 
+    let { deliveryDate } = req.body;
+
+    const createdAt = new Date();
+    deliveryDate = new Date(createdAt);
+    deliveryDate.setDate(createdAt.getDate() + 5);
     const newOrder = new OrderModel({
       user: userId,
       address: addressId,
@@ -18,6 +23,7 @@ export const createOrder = catchAsyncErrors(async (req, res) => {
       paymentMethod,
       orderStatus: "PENDING",
       paymentStatus: "PENDING",
+      deliveryDate,
     });
 
     await newOrder.save();
@@ -130,9 +136,11 @@ export const getAllOrders = catchAsyncErrors(async (req, res) => {
 export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { orderStatus, trackingId, notes } = req.body;
+    const { orderStatus, trackingId, notes, deliveryDate } = req.body;
     const adminId =
       req.user && req.user._id ? req.user._id.toString() : "Unknown";
+
+    console.log("Request Body:", req.body);
 
     const validStatuses = ["PENDING", "SHIPPED", "DELIVERED", "CANCELLED"];
     if (!validStatuses.includes(orderStatus)) {
@@ -155,6 +163,8 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
 
     if (orderStatus === "DELIVERED") {
       order.deliveryDate = new Date();
+    } else if (deliveryDate) {
+      order.deliveryDate = new Date(deliveryDate);
     }
 
     order.orderHistory.push({
@@ -164,13 +174,14 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res) => {
       notes: notes || "",
     });
 
-    if (orderStatus === "DELIVERED") {
+    if (orderStatus === "SHIPPED") {
       for (const item of order.products) {
         await updateStock(item.product, item.quantity);
       }
     }
 
     await order.save();
+    console.log("Updated Order:", order);
 
     res.status(200).json({
       success: true,
@@ -355,27 +366,18 @@ export const deleteOrder = catchAsyncErrors(async (req, res) => {
   }
 });
 
-// Handle refunds (if applicable)
-export const handleRefund = async (req, res) => {
+export const deleteAllOrders = catchAsyncErrors(async (req, res) => {
   try {
-    const { refundAmount, refundStatus } = req.body;
-    const order = await OrderModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        refundAmount,
-        refundStatus,
-      },
-      { new: true }
-    );
-
-    if (!order) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
-    }
-
-    res.status(200).json({ success: true, order });
+    await OrderModel.deleteMany({});
+    res.status(200).json({
+      success: true,
+      message: "All orders deleted successfully",
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Error deleting all orders:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
-};
+});

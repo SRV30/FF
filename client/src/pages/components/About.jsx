@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import logoLight from "../../assets/logo-light.png";
@@ -8,23 +7,18 @@ import MetaData from "../extras/MetaData";
 const AboutUs = () => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    document.title = "About Us - Faith AND Fast | Trendy Fashion";
-    document
-      .querySelector('meta[name="description"]')
-      ?.setAttribute(
-        "content",
-        "Discover Faith AND Fast, your go-to brand for high-quality, trendy fashion for men and women. Explore our premium collection today!"
-      );
-  }, []);
-
   const handleExploreClick = () => {
     navigate("/products");
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white transition-all duration-300">
-    <MetaData title="About | Faith AND Fast" />
+      <MetaData
+        title="About Us | Faith AND Fast - Your Trusted Fashion Store"
+        description="Learn more about Faith AND Fast, your go-to destination for the latest fashion trends, accessories, and exclusive deals. Discover our story, mission, and commitment to quality!"
+        keywords="About Faith AND Fast, fashion store, online shopping, fashion trends, best clothing store, stylish accessories"
+      />
+
       {/* Heading */}
       <div className="max-w-6xl mx-auto py-20 px-6">
         <motion.div

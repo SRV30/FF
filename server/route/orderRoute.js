@@ -3,6 +3,7 @@ import auth from "../middleware/auth.js";
 import {
   cancelOrder,
   createOrder,
+  deleteAllOrders,
   deleteOrder,
   getAllOrders,
   getSingleOrder,
@@ -26,5 +27,7 @@ orderRouter.put("/admin/update/:orderId", auth, admin, updateOrderStatus);
 orderRouter.put("/cancel/:orderId", auth, cancelOrder);
 
 orderRouter.delete("/admin/delete/:orderId", auth, admin, deleteOrder);
+
+orderRouter.delete("/admin/delete-all", deleteAllOrders);
 
 export default orderRouter;

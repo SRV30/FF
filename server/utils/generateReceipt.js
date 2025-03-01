@@ -3,26 +3,33 @@ const generateReceiptHTML = (order) => {
     user,
     products,
     totalAmount,
-    gst,
-    shipping,
-    totalAmountWithGST,
-    totalAmountWithShipping,
     orderStatus,
     paymentMethod,
     deliveryDate,
   } = order;
 
+  const formatDateOnly = (date) => {
+    if (!date) return "To be delivered";
+    // Use toLocaleDateString with options for "Month Day, Year" format
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  const formattedDeliveryDate = formatDateOnly(deliveryDate); // Pre-format the date
+
   const productList = products
     .map((item) => {
-      // Fetch product image from item.product.images
       const productImage =
         item.product.images && item.product.images.length > 0
           ? item.product.images[0].url
-          : "";  // Default to empty string if no image is found
+          : "";
 
       return `
       <tr>
-        <td><img src="${productImage}" alt="${item.product.name}" width="50" height="50" /></td> <!-- Display the product image -->
+        <td><img src="${productImage}" alt="${item.product.name}" width="50" height="50" /></td>
         <td>${item.product.name}</td>
         <td>${item.quantity}</td>
         <td>${item.price}</td>
@@ -59,9 +66,7 @@ const generateReceiptHTML = (order) => {
           <table>
             <tr><th>Order Status</th><td>${orderStatus}</td></tr>
             <tr><th>Payment Method</th><td>${paymentMethod}</td></tr>
-            <tr><th>Delivery Date</th><td>${new Date(
-              deliveryDate
-            ).toLocaleDateString()}</td></tr>
+            <tr><th>Delivery Date</th><td>${formattedDeliveryDate} by 10 PM (expected)</td></tr>
           </table>
 
           <h3>Products Ordered:</h3>
@@ -89,31 +94,39 @@ const generateReceiptHTML = (order) => {
             <p>We will notify you once your order has been shipped.</p>
             <p>Thank you for choosing Faith AND Fast!</p>
             <p><strong>Contact Us:</strong> support@faithandfast.com</p>
-            <p><strong><a href="www.faithandfast.com">Faith AND Fast </a></strong></p>
+            <p><strong><a href="https://www.faithandfast.com">Faith AND Fast</a></strong></p>
           </div>
         </div>
 
         <script>
-          document.getElementById('downloadBtn').addEventListener('click', function () {
-            const doc = new jsPDF();
-            
-            // Add title and content to PDF
-            doc.text('Order Confirmation', 20, 20);
-            doc.text('Dear ${user.name},', 20, 30);
-            doc.text('Thank you for shopping with Faith AND Fast.', 20, 40);
-            
-            // Add product list to PDF
-            let y = 50; // Initialize y position
-            ${products
-              .map((item) => {
-                return `
-                doc.text('${item.product.name} x ${item.quantity} - ${item.totalPrice}', 20, y);
-                y += 10; // Increase y position for next item
-              `;
-              })
-              .join("")}
-            
-            doc.save('receipt.pdf');
+          document.addEventListener('DOMContentLoaded', function () {
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download Receipt as PDF';
+            downloadBtn.className = 'download-btn';
+            downloadBtn.style.display = 'block';
+            downloadBtn.style.margin = '20px auto';
+            document.body.appendChild(downloadBtn);
+
+            downloadBtn.addEventListener('click', function () {
+              const { jsPDF } = window.jspdf; // Assumes jsPDF is loaded globally
+              const doc = new jsPDF();
+              
+              doc.text('Order Confirmation', 20, 20);
+              doc.text('Dear ${user.name},', 20, 30);
+              doc.text('Thank you for shopping with Faith AND Fast.', 20, 40);
+              
+              let y = 50;
+              ${products
+                .map((item) => {
+                  return `
+                  doc.text('${item.product.name} x ${item.quantity} - ${item.totalPrice}', 20, y);
+                  y += 10;
+                `;
+                })
+                .join("")}
+              
+              doc.save('receipt.pdf');
+            });
           });
         </script>
       </body>
@@ -121,4 +134,4 @@ const generateReceiptHTML = (order) => {
   `;
 };
 
-export default generateReceiptHTML
+export default generateReceiptHTML;

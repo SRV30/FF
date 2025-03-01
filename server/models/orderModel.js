@@ -115,7 +115,6 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-// Pre-save hook to update the total amounts
 orderSchema.pre("save", function (next) {
   this.totalAmountWithGST = this.totalAmount + (this.gst || 0);
   this.totalAmountWithShipping = this.totalAmountWithGST + (this.shipping || 0);
