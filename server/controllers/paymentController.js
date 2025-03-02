@@ -8,6 +8,11 @@ export const createOrder = catchAsyncErrors(async (req, res) => {
     const userId = req.user && req.user._id ? req.user._id.toString() : undefined;
     const { address, products, totalAmount } = req.body;
 
+    let { deliveryDate } = req.body;
+    const createdAt = new Date();
+    deliveryDate = new Date(createdAt);
+    deliveryDate.setDate(createdAt.getDate() + 5);
+
     if (!userId) {
       return res
         .status(400)
@@ -40,6 +45,7 @@ export const createOrder = catchAsyncErrors(async (req, res) => {
       paymentStatus: "PENDING",
       paymentMethod: "ONLINE",
       orderStatus: "PENDING",
+      deliveryDate,
     });
 
     const options = {
