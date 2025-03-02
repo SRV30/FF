@@ -331,7 +331,7 @@ const MyOrders = () => {
                           {product.selectedSize || "N/A"}
                         </p>
                         <p className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">
-                          ₹{product.totalPrice.toFixed(2)}
+                          ₹{product.totalPrice}
                         </p>
                         <div className="mt-1">
                           <span
