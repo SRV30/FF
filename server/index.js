@@ -34,7 +34,11 @@ const limiter = rateLimit({
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = process.env.FRONTEND_URL.split(",");
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_WWW_URL,
+  "http://localhost:5173"
+];
 app.use(
   cors({
     origin: (origin, callback) => {
