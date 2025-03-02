@@ -8,6 +8,7 @@ import {
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { deleteCartItem } from "@/store/add-to-cart/addToCart";
 
 const PaymentPage = () => {
   const dispatch = useDispatch();
@@ -117,9 +118,12 @@ const PaymentPage = () => {
     if (paymentSuccess) {
       toast.success("Payment Successful!");
       dispatch(resetOrder());
+      cartItems.forEach((item) => {
+        dispatch(deleteCartItem(item._id));
+      });
       navigate("/order-success");
     }
-  }, [paymentSuccess, dispatch, navigate]);
+  }, [paymentSuccess, dispatch, navigate, cartItems]);
 
   return (
     <div className="flex flex-col items-center justify-center p-6">

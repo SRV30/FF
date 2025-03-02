@@ -20,9 +20,11 @@ const CreateOrder = () => {
   const { product: products = [], loading: productLoading } = useSelector(
     (state) => state.product
   );
-  const { cartItems = [], loading: cartLoading, finalTotal } = useSelector(
-    (state) => state.cart
-  );
+  const {
+    cartItems = [],
+    loading: cartLoading,
+    finalTotal,
+  } = useSelector((state) => state.cart);
   const { loading: orderLoading, error } = useSelector((state) => state.order);
 
   const [orderData, setOrderData] = useState({
@@ -93,10 +95,6 @@ const CreateOrder = () => {
     e.preventDefault();
     if (!orderData.addressId) {
       toast.error("Please select an address!");
-      return;
-    }
-    if (orderData.totalAmount <= 0 || !orderData.products.length) {
-      toast.error("Invalid order. Please check your cart.");
       return;
     }
     try {
