@@ -8,7 +8,6 @@ const ResetPassword = () => {
   const handleReset = () => {
     if (password === confirmPassword) {
       alert("Password reset successful!");
-      // Redirect to login page or perform other actions
     } else {
       alert("Passwords do not match!");
     }
