@@ -64,7 +64,7 @@ const ProductCategory = ({ title, items }) => {
 
   const handleAddCart = (item) => {
     navigate(`/product/${item._id}`);
-    toast.info("Now you can add to cart");
+    toast.info("Add item to Cart from Product page!");
   };
   const handleAddWishList = (item) => {
     dispatch(addToWishList(item._id));
@@ -72,7 +72,7 @@ const ProductCategory = ({ title, items }) => {
   };
 
   return (
-    <section className="mt-12 relative px-4">
+    <section className="mt-16 relative px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -119,7 +119,7 @@ const ProductCategory = ({ title, items }) => {
                   onClick={() => navigate(`/product/${item._id}`)}
                   loading="lazy"
                 />
-                <div className="absolute top-27 right-2 flex flex-col gap-2">
+                <div className="absolute top-25 right-2 flex flex-col gap-2">
                   <button
                     className="p-2 bg-white/90 dark:bg-gray-700/90 rounded-full shadow-md hover:scale-110 transition-transform"
                     onClick={() => handleAddWishList(item)}
@@ -144,23 +144,7 @@ const ProductCategory = ({ title, items }) => {
                 <h3 className="font-semibold text-lg mb-2 truncate capitalize">
                   {item.name}
                 </h3>
-                <div className="flex items-center mb-2">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < Math.floor(item.ratings)
-                            ? "text-yellow-400 fill-current"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="ml-2 text-sm text-gray-500 dark:text-gray-300">
-                    ({item.reviews?.length || 0})
-                  </span>
-                </div>
+
                 <div className="flex justify-between items-center">
                   <p className="text-xl font-bold bg-white dark:bg-gray-900 text-black dark:text-white">
                     ₹
@@ -173,6 +157,25 @@ const ProductCategory = ({ title, items }) => {
                       </span>
                     )}
                   </p>
+                  {item.discount > 0 && (
+                    <p className="text-md bg-white dark:bg-gray-900 text-black dark:text-white font-bold">
+                      {item.discount}% Off
+                    </p>
+                  )}
+                </div>
+
+                <p className="text-lg text-green-500 dark:text-green-500 font-bold">
+                  Free Delivery
+                </p>
+
+                <div className="flex items-center mb-2">
+                  <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                    <Star className="w-5 h-5 text-yellow-400" />
+                    <span className="text-md font-medium text-gray-700 dark:text-gray-200">
+                      {item.ratings ? `${item.ratings.toFixed(1)} ` : "No ratings"}
+                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-300">({item.reviews?.length || 0} reviews)</span>
+                  </div>
                 </div>
               </div>
             </motion.div>

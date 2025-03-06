@@ -24,7 +24,7 @@ const auth = async (req, res, next) => {
     if (error.name === "JsonWebTokenError") {
       return res
         .status(400)
-        .json({ success: false, message: "Malformed token" });
+        .json({ success: false, message: "Please login again" });
     }
 
     if (error.name === "TokenExpiredError") {

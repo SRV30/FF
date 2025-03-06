@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, ShoppingCart, X, Heart } from "lucide-react";
+import { Search, ShoppingCart, X, Heart, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Typewriter from "typewriter-effect";
 import { useDispatch, useSelector } from "react-redux";
@@ -132,14 +132,13 @@ const Products = () => {
 
   const handleAddCart = (item) => {
     navigate(`/product/${item._id}`);
-    toast.info("Now you can add to cart");
+    toast.info("Add item to Cart from Product page!");
   };
   const handleAddWishList = (item) => {
     dispatch(addToWishList(item._id));
     toast.success(`Successfully added to WishList!`);
   };
 
-  // Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -448,7 +447,7 @@ const Products = () => {
                         className="w-full h-full object-cover cursor-pointer"
                         onClick={() => navigate(`/product/${item._id}`)}
                       />
-                      <div className="absolute top-3 right-3 flex flex-col gap-2">
+                      <div className="absolute top-20 right-3 flex flex-col gap-2">
                         <motion.button
                           whileTap={{ scale: 0.9 }}
                           className="p-2 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white dark:hover:bg-gray-600 transition duration-200"
@@ -483,6 +482,29 @@ const Products = () => {
                               ₹{item.price.toFixed(2)}
                             </span>
                           )}
+                          {item.discount > 0 && (
+                            <p className="text-md bg-white dark:bg-gray-900 text-black dark:text-white font-bold">
+                              {item.discount}% Off
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <p className="text-lg text-green-500 dark:text-green-500 font-bold">
+                        Free Delivery
+                      </p>
+
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                          <Star className="w-5 h-5 text-yellow-400" />
+                          <span className="text-md font-medium text-gray-700 dark:text-gray-200">
+                            {item.ratings
+                              ? `${item.ratings.toFixed(1)} `
+                              : "No ratings"}
+                          </span>
+                          <span className="text-sm text-gray-500 dark:text-gray-300">
+                            ({item.reviews?.length || 0} reviews)
+                          </span>
                         </div>
                       </div>
                     </div>

@@ -12,10 +12,11 @@ import ImageSlider from "./ImageSlider";
 import ProductCard from "./ProductCard";
 import MetaData from "../extras/MetaData";
 import { Button, Rating } from "@mui/material";
-import { ShoppingCartIcon } from "lucide-react";
+import { Heart, ShoppingCartIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import { addToCart } from "@/store/add-to-cart/addToCart";
+import { addToWishList } from "@/store/add-to-wishList/addToWishList";
 
 const ProductDetails = ({ products }) => {
   const { productId } = useParams();
@@ -211,6 +212,11 @@ const ProductDetails = ({ products }) => {
     toast.success(`"${item.name}" added to cart!`);
   };
 
+  const handleAddWishList = (item) => {
+      dispatch(addToWishList(item._id));
+      toast.success(`Successfully added to WishList!`);
+    };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
       <motion.div
@@ -365,6 +371,30 @@ const ProductDetails = ({ products }) => {
                       startIcon={<ShoppingCartIcon />}
                     >
                       Add to Cart
+                    </Button>
+                  </motion.div>
+                  <motion.div variants={itemVariants}>
+                    <Button
+                      fullWidth
+                      onClick={() => handleAddWishList(product)}
+                      disabled={loading}
+                      sx={{
+                        background:
+                          "linear-gradient(to right, #f59e0b, #f97316)",
+                        color: "white",
+                        padding: "12px 24px",
+                        borderRadius: "9999px",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        "&:hover": {
+                          background:
+                            "linear-gradient(to right, #d97706, #ea580c)",
+                        },
+                        "&:disabled": { opacity: 0.5 },
+                      }}
+                      startIcon={<Heart />}
+                    >
+                      Add to Wishlist
                     </Button>
                   </motion.div>
                 </div>

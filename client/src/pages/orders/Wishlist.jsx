@@ -3,16 +3,28 @@ import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, CircularProgress } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { deleteWishListItem, getWishListItems } from "@/store/add-to-wishList/addToWishList";
-import { Link } from "react-router-dom";
+import {
+  deleteWishListItem,
+  getWishListItems,
+} from "@/store/add-to-wishList/addToWishList";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const WishlistPage = () => {
   const dispatch = useDispatch();
-  const { WishListItems, loading, error } = useSelector((state) => state.wishList);
+  const { WishListItems, loading, error } = useSelector(
+    (state) => state.wishList
+  );
 
+  const navigate = useNavigate();
   useEffect(() => {
     dispatch(getWishListItems());
   }, [dispatch]);
+
+  const handleAddCart = (item) => {
+    navigate(`/product/${item._id}`);
+    toast.info("Add item to Cart from Product page!");
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -26,7 +38,7 @@ const WishlistPage = () => {
           animate={{ opacity: 1 }}
           className="text-gray-500 text-center mb-4"
         >
-         <CircularProgress />
+          <CircularProgress />
         </motion.p>
       )}
       {error && (
@@ -61,22 +73,31 @@ const WishlistPage = () => {
                 whileHover={{ scale: 1.05 }}
                 className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col"
               >
-                <Link to={`/product/${item.productId._id}`}><img
-                  src={item.productId.images[0].url}
-                  alt={item.productId.name}
-                  className="w-full h-48 object-fit rounded-md mb-4"
-                />
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {item.productId.name}
-                </h2>
-                <p className="text-gray-600 dark:text-gray-300 flex-grow">
-                  {item.productId.description}
-                </p>
+                <Link to={`/product/${item.productId._id}`}>
+                  <img
+                    src={item.productId.images[0].url}
+                    alt={item.productId.name}
+                    className="w-full h-48 object-fit rounded-md mb-4"
+                  />
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    {item.productId.name}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-300 flex-grow">
+                    {item.productId.description}
+                  </p>
                 </Link>
+                <button
+                  onClick={() => handleAddCart(item.productId)}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md mt-4"
+                >
+                  Add to Cart
+                </button>
                 <div className="mt-4">
                   <Button
                     variant="contained"
                     color="error"
+                    size="medium"
+                    fullWidth
                     startIcon={<DeleteIcon />}
                     onClick={() => dispatch(deleteWishListItem(item._id))}
                   >
