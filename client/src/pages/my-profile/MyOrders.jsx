@@ -331,8 +331,9 @@ const MyOrders = () => {
                           {product.selectedSize || "N/A"}
                         </p>
                         <p className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">
-                          ₹{product.totalPrice}
+                          ₹{product.totalAmount.toFixed(2)}
                         </p>
+                       
                         <div className="mt-1">
                           <span
                             className={`inline-block ${handleStatus(
@@ -343,7 +344,7 @@ const MyOrders = () => {
                           </span>
                         </div>
                         <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        Order Placed on:{" "}
+                          Order Placed on:{" "}
                           {new Date(product.createdAt).toLocaleString("en-IN", {
                             day: "2-digit",
                             month: "short",
@@ -364,7 +365,7 @@ const MyOrders = () => {
                             >
                               <Link
                                 to={`/order/${product.orderId}`}
-                                className="text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 text-xs sm:text-sm"
+                                className="text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 text-md sm:text-lg"
                               >
                                 View Details
                               </Link>
