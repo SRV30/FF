@@ -444,10 +444,10 @@ const Products = () => {
                       <img
                         src={item.images[0]?.url}
                         alt={item.name}
-                        className="w-full h-full object-cover cursor-pointer"
+                        className="w-full h-full object-fit cursor-pointer"
                         onClick={() => navigate(`/product/${item._id}`)}
                       />
-                      <div className="absolute top-20 right-3 flex flex-col gap-2">
+                      <div className="absolute bottom-3 right-3 flex flex-col gap-2">
                         <motion.button
                           whileTap={{ scale: 0.9 }}
                           className="p-2 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white dark:hover:bg-gray-600 transition duration-200"
